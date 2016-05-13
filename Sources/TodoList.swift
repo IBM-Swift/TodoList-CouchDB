@@ -39,18 +39,29 @@ public class TodoList: TodoListAPI {
     
     let connectionProperties: ConnectionProperties
     
-    public init(database: String, host: String = TodoList.DefaultCouchHost, port: UInt16 = TodoList.DefaultCouchPort,
-                username: String?, password: String?) {
+    public init(database: String = "todolist", host: String = TodoList.DefaultCouchHost, port: UInt16 = TodoList.DefaultCouchPort,
+                username: String? = nil, password: String? = nil) {
         
         
-        connectionProperties = ConnectionProperties(host: host, port: Int16(port), secured: true,
+        connectionProperties = ConnectionProperties(host: host, port: Int16(port), secured: false,
                                                     username: username, password: password)
         
         self.databaseName = database
         
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        couchDBClient.createDB(self.databaseName) {
+            database, error in
+        }
+        
+        
     }
     
     public var count: Int {
+        
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        let database = couchDBClient.database(databaseName)
+
+        // database.
         return 0
     }
     
@@ -69,6 +80,35 @@ public class TodoList: TodoListAPI {
 
         database.retrieve(id) {
             document, error in
+            
+            if let document = document {
+                
+                let id = document["_id"].string
+                let title = document["title"].string
+                let order = document["order"].int
+                let completed = document["completed"].bool
+                
+                guard let sid = id else {
+                    return
+                }
+                
+                guard let stitle = title else {
+                    return
+                }
+                
+                guard let sorder = order else {
+                    return
+                }
+                
+                guard let scompleted = completed else {
+                    return
+                }
+                
+                let todoItem = TodoItem(id: sid, order: sorder, title: stitle, completed: scompleted)
+                
+                oncompletion(todoItem)
+                
+            }
             
             
         }
@@ -90,15 +130,29 @@ public class TodoList: TodoListAPI {
         database.create(JSON(json)) {
             id, rev, document, error in
             
-           
-
+            print(id)
+            
+            if let id = id {
+                let todoItem = TodoItem(id: id, order: order, title: title, completed: completed)
+            
+                oncompletion( todoItem )
+            }
             
         }
         
         
     }
     
-    public func update(id: String, title: String?, order: Int?, completed: Bool?, oncompletion: (TodoItem?) -> Void ) {
+    public func update(id: String, title: String?, order: Int?, completed: Bool?, oncompletion: (TodoItem?) -> Void ) throws {
+        
+//        let json: [String: Valuetype] = [
+//                                            "title": title,
+//                                            "order": order,
+//                                            "completed": completed
+//        ]
+//        
+//        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+//        let database = couchDBClient.database(databaseName)
         
     }
     
