@@ -60,12 +60,13 @@ public class TodoList: TodoListAPI {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
-
+        
         // database.
         return 0
     }
     
     public func clear(_ oncompletion: (Void) -> Void) {
+        
         
     }
     
@@ -77,7 +78,7 @@ public class TodoList: TodoListAPI {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
-
+        
         database.retrieve(id) {
             document, error in
             
@@ -121,7 +122,7 @@ public class TodoList: TodoListAPI {
                                             "title": title,
                                             "order": order,
                                             "completed": completed
-                                            ]
+        ]
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -134,7 +135,7 @@ public class TodoList: TodoListAPI {
             
             if let id = id {
                 let todoItem = TodoItem(id: id, order: order, title: title, completed: completed)
-            
+                
                 oncompletion( todoItem )
             }
             
@@ -145,19 +146,57 @@ public class TodoList: TodoListAPI {
     
     public func update(id: String, title: String?, order: Int?, completed: Bool?, oncompletion: (TodoItem?) -> Void ) throws {
         
-//        let json: [String: Valuetype] = [
-//                                            "title": title,
-//                                            "order": order,
-//                                            "completed": completed
-//        ]
-//        
-//        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
-//        let database = couchDBClient.database(databaseName)
+        
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        let database = couchDBClient.database(databaseName)
+        
+        database.retrieve(id) {
+            document, error in
+            
+            if let document = document {
+                
+                let rev = document["_rev"].string
+                
+                let json: [String: Valuetype] = [
+                                                    "title": title != nil ? title! : document["title"].string!,
+                                                    "order": order != nil ? order! : document["order"].int!,
+                                                    "completed": true]
+                
+                database.update(id, rev: rev!, document: JSON(json)) {
+                    rev, document, error in
+                    
+                    let newId = self.get(id) {
+                        document in
+                        
+                        if let document = document {
+                            
+                            oncompletion(document)
+                            
+                        }
+                        
+                        
+                        
+                    }
+                    
+                }
+                
+                
+            }
+        }
         
     }
     
     public func delete(_ id: String, oncompletion: (Void) -> Void) {
         
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        let database = couchDBClient.database(databaseName)
+        
+        
+        database.delete( id, rev: "") {
+            error in
+            
+            oncompletion()
+        }
         
     }
     
