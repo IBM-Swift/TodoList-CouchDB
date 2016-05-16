@@ -1,0 +1,8 @@
+{
+  "_id": "_design/example",
+  "views" : {
+    "allItems" : {
+      "map" : "function(doc) { if (doc.title && doc.completed && doc.order) { emit(doc._id, [doc.title, doc.completed, doc.order]); }}"
+    }
+  }
+}
