@@ -29,6 +29,7 @@ import CouchDB
     typealias Valuetype = AnyObject
 #endif
 
+
 /// TodoList for Redis
 public class TodoList: TodoListAPI {
     
@@ -48,12 +49,6 @@ public class TodoList: TodoListAPI {
         
         self.databaseName = database
         
-        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
-        couchDBClient.createDB(self.databaseName) {
-            database, error in
-        }
-        
-        
     }
     
     public var count: Int {
@@ -67,10 +62,44 @@ public class TodoList: TodoListAPI {
     
     public func clear(_ oncompletion: (Void) -> Void) {
         
-        
+//         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+//        couchDBClient.deleteDB(dbName: self.databaseName) {
+//            error in
+//            
+//            couchDBClient.createDB(self.databaseName)
+//            {
+//                database, error in
+//                
+//                oncompletion()
+//            }
+//        }
+//        
+        oncompletion()
     }
     
     public func getAll(_ oncompletion: ([TodoItem]) -> Void ) throws {
+        
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        let database = couchDBClient.database(databaseName)
+        
+        database.queryByView("allItems", ofDesign: "example", usingParameters: [.descending(true), .includeDocs(true)]) {
+            document, error in
+            
+            if let document = document where error == nil {
+                
+                print(document)
+                
+                do {
+                    let todoItems = try parseTodoItemList(document)
+                    oncompletion(todoItems)
+                } catch {
+                    
+                }
+                
+            }
+            
+            
+        }
         
     }
     
@@ -160,12 +189,13 @@ public class TodoList: TodoListAPI {
                 let json: [String: Valuetype] = [
                                                     "title": title != nil ? title! : document["title"].string!,
                                                     "order": order != nil ? order! : document["order"].int!,
-                                                    "completed": true]
+                                                    "completed": completed != nil ? completed! : document["completed"].bool!
+                                                ]
                 
                 database.update(id, rev: rev!, document: JSON(json)) {
                     rev, document, error in
                     
-                    let newId = self.get(id) {
+                    self.get(id) {
                         document in
                         
                         if let document = document {
@@ -174,13 +204,9 @@ public class TodoList: TodoListAPI {
                             
                         }
                         
-                        
-                        
                     }
                     
                 }
-                
-                
             }
         }
         
@@ -201,4 +227,28 @@ public class TodoList: TodoListAPI {
     }
     
     
+}
+
+
+func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
+    guard let rows = document["rows"].array else {
+        throw TodoCollectionError.parseError
+    }
+    
+    let todos: [TodoItem] = rows.flatMap {
+        
+        let doc = $0["value"]
+        let id = $0["id"].string
+        let title = doc[0].string
+        let order = doc[2].int
+        let completed = doc[1].bool
+        print (title)
+        
+        return TodoItem(id: id!, order: order!, title: title!, completed: completed!)
+        //return TodoItem(id: doc["_id"].string!, order: doc["order"].int!,
+        //         title: doc["title"].string!, completed: doc["completed"].bool!)
+        
+    }
+    
+    return todos
 }
