@@ -1,8 +1,12 @@
 {
   "_id": "_design/example",
   "views" : {
-    "allItems" : {
+    "all_todos" : {
       "map" : "function(doc) { if (doc.title && doc.completed && doc.order) { emit(doc._id, [doc.title, doc.completed, doc.order]); }}"
+    },
+    "total_todos": {
+      "map" : "function(doc) { if (doc.type == 'todo') emit(doc.id, 1) }",
+      "reduce" : "_count"
     }
   }
 }
