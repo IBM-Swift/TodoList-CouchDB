@@ -51,13 +51,24 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public var count: Int {
+    public func count( _ oncompletion: (Int) -> Void) throws {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         
-        // database.
-        return 0
+        database.queryByView("total_todos", ofDesign: "example", usingParameters: []) {
+                document, error in
+            
+            if let document = document where error == nil {
+                
+                let numberOfTodos = document["rows"][0]["value"].int
+                
+                oncompletion( numberOfTodos! )
+            }
+            
+        }
+        
+        // return 0
     }
     
     public func clear(_ oncompletion: (Void) -> Void) {
@@ -82,13 +93,11 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         
-        database.queryByView("allItems", ofDesign: "example", usingParameters: [.descending(true), .includeDocs(true)]) {
+        database.queryByView("all_todos", ofDesign: "example", usingParameters: [.descending(true), .includeDocs(true)]) {
             document, error in
             
             if let document = document where error == nil {
-                
-                print(document)
-                
+        
                 do {
                     let todoItems = try parseTodoItemList(document)
                     oncompletion(todoItems)
@@ -148,6 +157,7 @@ public class TodoList: TodoListAPI {
     public func add(title: String, order: Int = 0, completed: Bool = false, oncompletion: (TodoItem) -> Void ) throws {
         
         let json: [String: Valuetype] = [
+                                            "type": "todo",
                                             "title": title,
                                             "order": order,
                                             "completed": completed
@@ -159,8 +169,6 @@ public class TodoList: TodoListAPI {
         
         database.create(JSON(json)) {
             id, rev, document, error in
-            
-            print(id)
             
             if let id = id {
                 let todoItem = TodoItem(id: id, order: order, title: title, completed: completed)
@@ -242,8 +250,7 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
         let title = doc[0].string
         let order = doc[2].int
         let completed = doc[1].bool
-        print (title)
-        
+ 
         return TodoItem(id: id!, order: order!, title: title!, completed: completed!)
         //return TodoItem(id: doc["_id"].string!, order: doc["order"].int!,
         //         title: doc["title"].string!, completed: doc["completed"].bool!)
