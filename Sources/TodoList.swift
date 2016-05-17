@@ -61,31 +61,61 @@ public class TodoList: TodoListAPI {
             
             if let document = document where error == nil {
                 
-                let numberOfTodos = document["rows"][0]["value"].int
+                if let numberOfTodos = document["rows"][0]["value"].int {
+                    oncompletion( numberOfTodos )
+                } else {
+                    oncompletion( 0 )
+                }
                 
-                oncompletion( numberOfTodos! )
+                
             }
             
         }
-        
-        // return 0
     }
     
-    public func clear(_ oncompletion: (Void) -> Void) {
+    public func clear(_ oncompletion: (Void) -> Void) throws {
         
-//         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
-//        couchDBClient.deleteDB(dbName: self.databaseName) {
-//            error in
-//            
-//            couchDBClient.createDB(self.databaseName)
-//            {
-//                database, error in
-//                
-//                oncompletion()
-//            }
-//        }
-//        
-        oncompletion()
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        let database = couchDBClient.database(databaseName)
+        
+        database.queryByView("all_todos", ofDesign: "example", usingParameters: [.descending(true), .includeDocs(true)])
+        { document, error in
+            
+            guard let document = document else {
+                return
+            }
+            
+            
+            guard let idRevs = try? parseGetIDandRev(document) else {
+                return
+            }
+            
+            // List is already empty
+            if idRevs.count == 0 {
+                oncompletion()
+                
+                
+            } else {
+                
+                for i in 0...idRevs.count-1 {
+                    let item = idRevs[i]
+                    
+                    database.update(item.0, rev: item.1, document: "{active: false}") {
+                        rev, document, error in
+                        
+                        if let error = error {
+                            return
+                        }
+                        
+                        if i == idRevs.count-1 {
+                            oncompletion()
+                        }
+                        
+                    }
+                    
+                }
+            }
+        }
     }
     
     public func getAll(_ oncompletion: ([TodoItem]) -> Void ) throws {
@@ -157,6 +187,7 @@ public class TodoList: TodoListAPI {
     public func add(title: String, order: Int = 0, completed: Bool = false, oncompletion: (TodoItem) -> Void ) throws {
         
         let json: [String: Valuetype] = [
+                                            "active": true,
                                             "type": "todo",
                                             "title": title,
                                             "order": order,
@@ -225,18 +256,46 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         
-        
-        database.delete( id, rev: "") {
-            error in
+        database.retrieve(id) {
+            document, error in
             
-            oncompletion()
+            if let document = document {
+                
+                let rev = document["_rev"].string!
+                
+                database.delete( id, rev: rev) {
+                    error in
+                    
+                    oncompletion()
+                }
+
+                
+            }
         }
+        
         
     }
     
     
 }
 
+
+func parseGetIDandRev(_ document: JSON) throws -> [(String, String)] {
+    guard let rows = document["rows"].array else {
+        throw TodoCollectionError.parseError
+    }
+    
+    return rows.flatMap {
+        
+        let doc = $0["doc"]
+        let id = doc["_id"].string!
+        let rev = doc["_rev"].string!
+    
+        return (id, rev)
+        
+    }
+
+}
 
 func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
     guard let rows = document["rows"].array else {
@@ -252,9 +311,7 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
         let completed = doc[1].bool
  
         return TodoItem(id: id!, order: order!, title: title!, completed: completed!)
-        //return TodoItem(id: doc["_id"].string!, order: doc["order"].int!,
-        //         title: doc["title"].string!, completed: doc["completed"].bool!)
-        
+       
     }
     
     return todos
