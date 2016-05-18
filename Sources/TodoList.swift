@@ -103,7 +103,7 @@ public class TodoList: TodoListAPI {
                     database.update(item.0, rev: item.1, document: "{active: false}") {
                         rev, document, error in
                         
-                        if let error = error {
+                        if error != nil {
                             return
                         }
                         
