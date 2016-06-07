@@ -20,7 +20,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git clone -b experimental/foundation https://github.com/apple/swift-corelibs-libdispatch.git && cd swift-corelibs-libdispatch && git submodule init && git submodule update && sh autogen.sh && ./configure --with-swift-toolchain=${PWD}/../swift-DEVELOPMENT-SNAPSHOT-2016-05-03-a-ubuntu14.04/usr --prefix=${PWD}/../swift-DEVELOPMENT-SNAPSHOT-2016-05-03-a-ubuntu14.04/usr && make && make install && cd ..   ; fi
   - git submodule init && git submodule update
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then couchdb -b && sleep 5 ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo start couchdb ; fi
   - cd Database && sh ./setup.sh && cd ..
 
 script:
