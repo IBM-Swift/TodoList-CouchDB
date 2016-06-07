@@ -3,3 +3,5 @@
 /Packages
 /*.xcodeproj
 TodoListFull.xcworkspace
+couchdb.stdout
+couchdb.stderr
