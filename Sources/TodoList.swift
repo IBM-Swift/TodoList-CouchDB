@@ -90,24 +90,27 @@ public class TodoList: TodoListAPI {
                 return
             }
             
-            // List is already empty
-            if idRevs.count == 0 {
+            let count = idRevs.count
+            
+            if count == 0 {
                 oncompletion()
-                
-                
             } else {
                 
-                for i in 0...idRevs.count-1 {
+                var numberCompleted = 0
+                
+                for i in 0...count-1 {
                     let item = idRevs[i]
                     
-                    database.update(item.0, rev: item.1, document: "{active: false}") {
-                        rev, document, error in
+                    database.delete(item.0, rev: item.1) {
+                        error in
                         
                         if error != nil {
                             return
                         }
                         
-                        if i == idRevs.count-1 {
+                        numberCompleted += 1
+                        
+                        if numberCompleted == count {
                             oncompletion()
                         }
                         
