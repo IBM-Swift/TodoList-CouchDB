@@ -40,7 +40,8 @@ public class TodoList: TodoListAPI {
     
     let connectionProperties: ConnectionProperties
     
-    public init(database: String = "todolist", host: String = TodoList.DefaultCouchHost, port: UInt16 = TodoList.DefaultCouchPort,
+    public init(database: String = "todolist", host: String = TodoList.DefaultCouchHost,
+                port: UInt16 = TodoList.DefaultCouchPort,
                 username: String? = nil, password: String? = nil) {
         
         
@@ -78,7 +79,8 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         
-        database.queryByView("all_todos", ofDesign: "example", usingParameters: [.descending(true), .includeDocs(true)])
+        database.queryByView("all_todos", ofDesign: "example",
+                             usingParameters: [.descending(true), .includeDocs(true)])
         { document, error in
             
             guard let document = document else {
@@ -95,7 +97,6 @@ public class TodoList: TodoListAPI {
             if count == 0 {
                 oncompletion()
             } else {
-                
                 var numberCompleted = 0
                 
                 for i in 0...count-1 {
@@ -126,7 +127,8 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         
-        database.queryByView("all_todos", ofDesign: "example", usingParameters: [.descending(true), .includeDocs(true)]) {
+        database.queryByView("all_todos", ofDesign: "example",
+                             usingParameters: [.descending(true), .includeDocs(true)]) {
             document, error in
             
             if let document = document where error == nil {
@@ -145,13 +147,15 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public func get(_ id: String, oncompletion: (TodoItem?) -> Void ) {
+    public func get(_ id: String, oncompletion: (TodoItem?) -> Void ) throws {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         
         database.retrieve(id) {
             document, error in
+            
+            
             
             if let document = document {
                 
@@ -226,7 +230,7 @@ public class TodoList: TodoListAPI {
             
             if let document = document {
                 
-                let rev = document["_rev"].string
+                let rev = document["_rev"].string!
                 
                 let json: [String: Valuetype] = [
                                                     "title": title != nil ? title! : document["title"].string!,
@@ -234,20 +238,22 @@ public class TodoList: TodoListAPI {
                                                     "completed": completed != nil ? completed! : document["completed"].bool!
                                                 ]
                 
-                database.update(id, rev: rev!, document: JSON(json)) {
+                database.update(id, rev: rev, document: JSON(json)) {
                     rev, document, error in
                     
-                    self.get(id) {
-                        document in
+                    do {
+                        try self.get(id) {
+                            document in
                         
-                        if let document = document {
+                            if let document = document {
                             
-                            oncompletion(document)
+                                oncompletion(document)
                             
+                            }
                         }
-                        
+                    } catch {
+                        Log.error("Could not get document")
                     }
-                    
                 }
             }
         }
