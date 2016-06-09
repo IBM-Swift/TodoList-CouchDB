@@ -36,9 +36,19 @@ public class TodoList: TodoListAPI {
     static let DefaultCouchHost = "127.0.0.1"
     static let DefaultCouchPort = UInt16(5984)
     
-    let databaseName: String
+    let databaseName: String = "todolist"
     
     let connectionProperties: ConnectionProperties
+    
+    public init(_ dbConfiguration: DatabaseConfiguration) {
+        
+        connectionProperties = ConnectionProperties(host: dbConfiguration.host!,
+                                                    port: Int16(dbConfiguration.port!),
+                                                    secured: true,
+                                                    username: dbConfiguration.username,
+                                                    password: dbConfiguration.password)
+        
+    }
     
     public init(database: String = "todolist", host: String = TodoList.DefaultCouchHost,
                 port: UInt16 = TodoList.DefaultCouchPort,
@@ -47,8 +57,6 @@ public class TodoList: TodoListAPI {
         
         connectionProperties = ConnectionProperties(host: host, port: Int16(port), secured: false,
                                                     username: username, password: password)
-        
-        self.databaseName = database
         
     }
     
