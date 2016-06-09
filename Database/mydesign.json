@@ -1,8 +1,7 @@
 {
   "_id": "_design/example",
   "views" : {
-    "all_todos" : {
-      "map" : "function(doc) { if (doc.type == 'todo' && doc.active) { emit(doc._id, [doc.title, doc.completed, doc.order]); }}"
+    "all_todos" : {doc._id, [doc.user, doc.title, doc.completed, doc.order]); }}"
     },
     "total_todos": {
       "map" : "function(doc) { if (doc.type == 'todo' && doc.active) { emit(doc.id, 1); }}",
