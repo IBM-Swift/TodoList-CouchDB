@@ -199,11 +199,12 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public func add(title: String, order: Int = 0, completed: Bool = false, oncompletion: (TodoItem) -> Void ) throws {
+    public func add(user: String, title: String, order: Int = 0, completed: Bool = false, oncompletion: (TodoItem) -> Void ) throws {
         
         let json: [String: Valuetype] = [
                                             "active": true,
                                             "type": "todo",
+                                            "user": user,
                                             "title": title,
                                             "order": order,
                                             "completed": completed
@@ -217,7 +218,7 @@ public class TodoList: TodoListAPI {
             id, rev, document, error in
             
             if let id = id {
-                let todoItem = TodoItem(id: id, order: order, title: title, completed: completed)
+                let todoItem = TodoItem(id: id, user: user, order: order, title: title, completed: completed)
                 
                 oncompletion( todoItem )
             }
