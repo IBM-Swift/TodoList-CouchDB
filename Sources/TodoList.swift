@@ -168,11 +168,16 @@ public class TodoList: TodoListAPI {
             if let document = document {
                 
                 let id = document["_id"].string
+                let user = document["user"].string
                 let title = document["title"].string
                 let order = document["order"].int
                 let completed = document["completed"].bool
                 
                 guard let sid = id else {
+                    return
+                }
+                
+                guard let suser = user else {
                     return
                 }
                 
@@ -188,7 +193,7 @@ public class TodoList: TodoListAPI {
                     return
                 }
                 
-                let todoItem = TodoItem(id: sid, order: sorder, title: stitle, completed: scompleted)
+                let todoItem = TodoItem(id: sid, user: suser, order: sorder, title: stitle, completed: scompleted)
                 
                 oncompletion(todoItem)
                 
@@ -324,11 +329,12 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
         
         let doc = $0["value"]
         let id = $0["id"].string
-        let title = doc[0].string
-        let order = doc[2].int
-        let completed = doc[1].bool
+        let user = doc[0].string
+        let title = doc[1].string
+        let order = doc[3].int
+        let completed = doc[2].bool
  
-        return TodoItem(id: id!, order: order!, title: title!, completed: completed!)
+        return TodoItem(id: id!, user: user!, order: order!, title: title!, completed: completed!)
        
     }
     
