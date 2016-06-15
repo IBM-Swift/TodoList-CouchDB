@@ -247,6 +247,7 @@ public class TodoList: TodoListAPI {
                 let rev = document["_rev"].string!
                 
                 let json: [String: Valuetype] = [
+                                                    "user": user != nil ? user! : document["user"].string!,
                                                     "title": title != nil ? title! : document["title"].string!,
                                                     "order": order != nil ? order! : document["order"].int!,
                                                     "completed": completed != nil ? completed! : document["completed"].bool!
