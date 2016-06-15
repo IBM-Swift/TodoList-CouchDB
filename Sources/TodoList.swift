@@ -233,7 +233,7 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public func update(id: String, title: String?, order: Int?, completed: Bool?, oncompletion: (TodoItem?) -> Void ) throws {
+    public func update(id: String, user: String?, title: String?, order: Int?, completed: Bool?, oncompletion: (TodoItem?) -> Void ) throws {
         
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
