@@ -60,7 +60,7 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public func count( _ oncompletion: (Int) -> Void) throws {
+    public func count( _ oncompletion: (Int, ErrorProtocol?) -> Void) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -82,7 +82,30 @@ public class TodoList: TodoListAPI {
         }
     }
     
-    public func clear(_ oncompletion: (Void) -> Void) throws {
+    public func countByUser(user: String, _ oncompletion: (Int, ErrorProtocol?) -> Void) {
+        
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        let database = couchDBClient.database(databaseName)
+        
+        database.queryByView("total_todos", ofDesign: "example", usingParameters: []) {
+            document, error in
+            
+            if let document = document where error == nil {
+                
+                if let numberOfTodos = document["rows"][0]["value"].int {
+                    oncompletion( numberOfTodos )
+                } else {
+                    oncompletion( 0 )
+                }
+                
+                
+            }
+            
+        }
+    }
+    
+    
+    public func clear(_ oncompletion: (Void, ErrorProtocol?) -> Void) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -130,7 +153,57 @@ public class TodoList: TodoListAPI {
         }
     }
     
-    public func getAll(_ oncompletion: ([TodoItem]) -> Void ) throws {
+    public func clearByUser(user: String, _ oncompletion: (Void, ErrorProtocol?) -> Void) {
+        
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        let database = couchDBClient.database(databaseName)
+        
+        database.queryByView("all_todos", ofDesign: "example",
+                             usingParameters: [.descending(true), .includeDocs(true)])
+        { document, error in
+            
+            guard let document = document else {
+                return
+            }
+            
+            
+            guard let idRevs = try? parseGetIDandRev(document) else {
+                return
+            }
+            
+            let count = idRevs.count
+            
+            if count == 0 {
+                oncompletion()
+            } else {
+                var numberCompleted = 0
+                
+                for i in 0...count-1 {
+                    let item = idRevs[i]
+                    
+                    database.delete(item.0, rev: item.1) {
+                        error in
+                        
+                        if error != nil {
+                            return
+                        }
+                        
+                        numberCompleted += 1
+                        
+                        if numberCompleted == count {
+                            oncompletion()
+                        }
+                        
+                    }
+                    
+                }
+            }
+        }
+    }
+
+    
+    
+    public func getAll(_ oncompletion: ([TodoItem], ErrorProtocol?) -> Void ) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -155,7 +228,32 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public func get(_ id: String, oncompletion: (TodoItem?) -> Void ) throws {
+    public func getByUser(user: String, _ oncompletion: ([TodoItem], ErrorProtocol?) -> Void ) {
+        
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        let database = couchDBClient.database(databaseName)
+        
+        database.queryByView("all_todos", ofDesign: "example",
+                             usingParameters: [.descending(true), .includeDocs(true)]) {
+                                document, error in
+                                
+                                if let document = document where error == nil {
+                                    
+                                    do {
+                                        let todoItems = try parseTodoItemList(document)
+                                        oncompletion(todoItems)
+                                    } catch {
+                                        
+                                    }
+                                    
+                                }
+                                
+                                
+        }
+        
+    }
+    
+    public func get(_ id: String, oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -204,7 +302,7 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public func add(user: String, title: String, order: Int = 0, completed: Bool = false, oncompletion: (TodoItem) -> Void ) throws {
+    public func add(user: String, title: String, order: Int = 0, completed: Bool = false, oncompletion: (TodoItem, ErrorProtocol?) -> Void ) {
         
         let json: [String: Valuetype] = [
                                             "active": true,
@@ -233,7 +331,7 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public func update(id: String, user: String?, title: String?, order: Int?, completed: Bool?, oncompletion: (TodoItem?) -> Void ) throws {
+    public func update(id: String, user: String?, title: String?, order: Int?, completed: Bool?, oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
         
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
@@ -269,13 +367,24 @@ public class TodoList: TodoListAPI {
                     } catch {
                         Log.error("Could not get document")
                     }
+                    
+                    /*if let testID = self.get(id){
+                        document in
+                        if let document = document {
+                            oncompletion(document)
+                        }
+                    
+                    }
+                    else{
+                        Log.error("Could not get document")
+                    }*/
                 }
             }
         }
         
     }
     
-    public func delete(_ id: String, oncompletion: (Void) -> Void) {
+    public func delete(_ id: String, oncompletion: (Void, ErrorProtocol?) -> Void) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
