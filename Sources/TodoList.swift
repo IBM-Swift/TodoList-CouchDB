@@ -71,9 +71,9 @@ public class TodoList: TodoListAPI {
             if let document = document where error == nil {
                 
                 if let numberOfTodos = document["rows"][0]["value"].int {
-                    oncompletion( numberOfTodos )
+                    oncompletion( numberOfTodos , nil)
                 } else {
-                    oncompletion( 0 )
+                    oncompletion( 0 , nil)
                 }
                 
                 
@@ -87,15 +87,15 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         
-        database.queryByView("total_todos", ofDesign: "example", usingParameters: []) {
+        database.queryByView("user_todos", ofDesign: "example", usingParameters: [.keys([user])]) {
             document, error in
             
             if let document = document where error == nil {
                 
                 if let numberOfTodos = document["rows"][0]["value"].int {
-                    oncompletion( numberOfTodos )
+                    oncompletion( numberOfTodos , nil)
                 } else {
-                    oncompletion( 0 )
+                    oncompletion( 0 , nil)
                 }
                 
                 
@@ -105,7 +105,7 @@ public class TodoList: TodoListAPI {
     }
     
     
-    public func clear(_ oncompletion: (Void, ErrorProtocol?) -> Void) {
+    public func clear(_ oncompletion: (ErrorProtocol?) -> Void) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -126,7 +126,7 @@ public class TodoList: TodoListAPI {
             let count = idRevs.count
             
             if count == 0 {
-                oncompletion()
+                oncompletion( nil )
             } else {
                 var numberCompleted = 0
                 
@@ -143,7 +143,7 @@ public class TodoList: TodoListAPI {
                         numberCompleted += 1
                         
                         if numberCompleted == count {
-                            oncompletion()
+                            oncompletion( nil )
                         }
                         
                     }
@@ -153,13 +153,13 @@ public class TodoList: TodoListAPI {
         }
     }
     
-    public func clearByUser(user: String, _ oncompletion: (Void, ErrorProtocol?) -> Void) {
+    public func clearByUser(user: String, _ oncompletion: (ErrorProtocol?) -> Void) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         
         database.queryByView("all_todos", ofDesign: "example",
-                             usingParameters: [.descending(true), .includeDocs(true)])
+                             usingParameters: [.descending(true), .includeDocs(true), .keys([user])])
         { document, error in
             
             guard let document = document else {
@@ -174,7 +174,7 @@ public class TodoList: TodoListAPI {
             let count = idRevs.count
             
             if count == 0 {
-                oncompletion()
+                oncompletion( nil )
             } else {
                 var numberCompleted = 0
                 
@@ -191,7 +191,7 @@ public class TodoList: TodoListAPI {
                         numberCompleted += 1
                         
                         if numberCompleted == count {
-                            oncompletion()
+                            oncompletion( nil )
                         }
                         
                     }
@@ -208,7 +208,7 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         
-        database.queryByView("all_todos", ofDesign: "example",
+        database.queryByView("total_todos", ofDesign: "example",
                              usingParameters: [.descending(true), .includeDocs(true)]) {
             document, error in
             
@@ -216,7 +216,7 @@ public class TodoList: TodoListAPI {
         
                 do {
                     let todoItems = try parseTodoItemList(document)
-                    oncompletion(todoItems)
+                    oncompletion(todoItems, nil)
                 } catch {
                     
                 }
@@ -234,14 +234,14 @@ public class TodoList: TodoListAPI {
         let database = couchDBClient.database(databaseName)
         
         database.queryByView("all_todos", ofDesign: "example",
-                             usingParameters: [.descending(true), .includeDocs(true)]) {
+                             usingParameters: [.descending(true), .includeDocs(true), .keys([user])]) {
                                 document, error in
                                 
                                 if let document = document where error == nil {
                                     
                                     do {
                                         let todoItems = try parseTodoItemList(document)
-                                        oncompletion(todoItems)
+                                        oncompletion(todoItems, nil)
                                     } catch {
                                         
                                     }
@@ -293,7 +293,7 @@ public class TodoList: TodoListAPI {
                 
                 let todoItem = TodoItem(id: sid, user: suser, order: sorder, title: stitle, completed: scompleted)
                 
-                oncompletion(todoItem)
+                oncompletion(todoItem, nil)
                 
             }
             
@@ -323,7 +323,7 @@ public class TodoList: TodoListAPI {
             if let id = id {
                 let todoItem = TodoItem(id: id, user: user, order: order, title: title, completed: completed)
                 
-                oncompletion( todoItem )
+                oncompletion( todoItem , nil)
             }
             
         }
@@ -354,7 +354,7 @@ public class TodoList: TodoListAPI {
                 database.update(id, rev: rev, document: JSON(json)) {
                     rev, document, error in
                     
-                    do {
+                    /*do {
                         try self.get(id) {
                             document in
                         
@@ -366,17 +366,17 @@ public class TodoList: TodoListAPI {
                         }
                     } catch {
                         Log.error("Could not get document")
-                    }
+                    }*/
                     
-                    /*if let testID = self.get(id){
+                    /*self.get(id){
                         document in
-                        if let document = document {
+                        
+                        if let document = document{
                             oncompletion(document)
                         }
-                    
-                    }
-                    else{
-                        Log.error("Could not get document")
+                        else{
+                            Log.error("Could not get document")
+                        }
                     }*/
                 }
             }
@@ -384,7 +384,7 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public func delete(_ id: String, oncompletion: (Void, ErrorProtocol?) -> Void) {
+    public func delete(_ id: String, oncompletion: (ErrorProtocol?) -> Void) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -399,7 +399,7 @@ public class TodoList: TodoListAPI {
                 database.delete( id, rev: rev) {
                     error in
                     
-                    oncompletion()
+                    oncompletion(nil)
                 }
 
                 
