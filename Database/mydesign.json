@@ -1,28 +1,15 @@
 {
-	"_id": "_design/example",
-	"views" : {
-		"all_todos" : {
-			"map" : "function(doc) { 
-				if (doc.type == 'todo' && doc.active) { 
-					emit(doc._id, [doc.title, doc.completed, doc.order]); 
-					}
-				}"
-			},
-			“user_todos": {
-				"map" : "function(doc) { 
-					if (doc.type == 'todo' && doc.active) { 
-						emit(doc.user, [doc.title, doc.completed, doc.order]); 
-						}
-					}"
-				},
-				"total_todos": {
-					"map" : "function(doc) { 
-						if (doc.type == 'todo' && doc.active) { 
-							emit(doc.id, 1); 
-						}
-					}",
-					"reduce" : "_count"
-				}
-			}
+"_id": "_design/tododb",
+"views" : {
+  "all_todos" : {
+    "map" : "function(doc) { if (doc.type == 'todo') { emit(doc._id, [doc.title, doc.completed, doc.order]); }}"
+  },
+  "user_todos": {
+       "map": "function(doc) { if (doc.type == 'todo') { emit(doc.user, [doc.title, doc.completed, doc.order]); }}"
+  },
+  "total_todos": {
+    "map" : "function(doc) { if (doc.type == 'todo') { emit(doc.id, 1); }}",
+    "reduce" : "_count"
+  }
 }
-
+}

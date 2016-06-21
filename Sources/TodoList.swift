@@ -331,6 +331,11 @@ public class TodoList: TodoListAPI {
         
     }
     
+    enum TodoListError : ErrorProtocol {
+        case DatabaseError(String)
+        case ConnectionError(String)
+    }
+    
     public func update(id: String, user: String?, title: String?, order: Int?, completed: Bool?, oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
         
         
@@ -353,6 +358,11 @@ public class TodoList: TodoListAPI {
                 
                 database.update(id, rev: rev, document: JSON(json)) {
                     rev, document, error in
+                    
+                    if error != nil {
+                        
+                        oncompletion(nil, error)
+                    }
                     
                     /*do {
                         try self.get(id) {
@@ -438,11 +448,13 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
     let todos: [TodoItem] = rows.flatMap {
         
         let doc = $0["value"]
-        let id = $0["id"].string
-        let user = doc[0].string
-        let title = doc[1].string
-        let order = doc[3].int
+        
+        let id = doc[0].string
+     
+        let title = doc[0].string
         let completed = doc[2].bool
+        let order = doc[2].int
+        
  
         return TodoItem(id: id!, user: user!, order: order!, title: title!, completed: completed!)
        
