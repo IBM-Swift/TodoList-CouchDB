@@ -314,7 +314,6 @@ public class TodoList: TodoListAPI {
     public func add(user: String, title: String, order: Int = 0, completed: Bool = false, oncompletion: (TodoItem, ErrorProtocol?) -> Void ) {
         
         let json: [String: Valuetype] = [
-                                            "active": true,
                                             "type": "todo",
                                             "user": user,
                                             "title": title,
@@ -354,6 +353,7 @@ public class TodoList: TodoListAPI {
                 let rev = document["_rev"].string!
                 
                 let json: [String: Valuetype] = [
+                                                    "type": "todo",
                                                     "user": user != nil ? user! : document["user"].string!,
                                                     "title": title != nil ? title! : document["title"].string!,
                                                     "order": order != nil ? order! : document["order"].int!,
