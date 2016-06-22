@@ -394,24 +394,26 @@ public class TodoList: TodoListAPI {
         
     }
     
-    public func delete(_ id: String, oncompletion: (ErrorProtocol?) -> Void) {
+    public func delete(user: String, _ id: String, oncompletion: (ErrorProtocol?) -> Void) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
-        
+    
         database.retrieve(id) {
             document, error in
             
             if let document = document {
                 
                 let rev = document["_rev"].string!
+                let docuser = document["user"].string!
                 
-                database.delete( id, rev: rev) {
-                    error in
+                if user == docuser{
+                    database.delete( id, rev: rev) {
+                        error in
                     
-                    oncompletion(nil)
+                        oncompletion(nil)
+                    }
                 }
-
                 
             }
         }
@@ -450,9 +452,10 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
         let doc = $0["value"]
         
         let id = doc[0].string
-     
-        let title = doc[0].string
-        let completed = doc[2].bool
+        
+        let user = $0["user"].string
+        let title = doc[1].string
+        let completed = doc[3].bool
         let order = doc[2].int
         
  
