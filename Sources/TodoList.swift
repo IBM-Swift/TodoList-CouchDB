@@ -84,12 +84,12 @@ public class TodoList: TodoListAPI {
         }
     }
 
-    public func count(withUser: String, oncompletion: (Int, ErrorProtocol?) -> Void) {
+    public func count(withUserID: String, oncompletion: (Int, ErrorProtocol?) -> Void) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        database.queryByView("user_todos", ofDesign: designName, usingParameters: [.keys([withUser])]) {
+        database.queryByView("user_todos", ofDesign: designName, usingParameters: [.keys([withUserID])]) {
             document, error in
 
             if let document = document where error == nil {
@@ -115,89 +115,90 @@ public class TodoList: TodoListAPI {
         database.queryByView("all_todos", ofDesign: designName,
                              usingParameters: [.descending(true), .includeDocs(true)]) { document, error in
 
-            guard let document = document else {
-                return
-            }
+                                guard let document = document else {
+                                    return
+                                }
 
 
-            guard let idRevs = try? parseGetIDandRev(document) else {
-                return
-            }
+                                guard let idRevs = try? parseGetIDandRev(document) else {
+                                    return
+                                }
 
-            let count = idRevs.count
+                                let count = idRevs.count
 
-            if count == 0 {
-                oncompletion( nil )
-            } else {
-                var numberCompleted = 0
+                                if count == 0 {
+                                    oncompletion( nil )
+                                } else {
+                                    var numberCompleted = 0
 
-                for i in 0...count-1 {
-                    let item = idRevs[i]
+                                    for i in 0...count-1 {
+                                        let item = idRevs[i]
 
-                    database.delete(item.0, rev: item.1) {
-                        error in
+                                        database.delete(item.0, rev: item.1) {
+                                            error in
 
-                        if error != nil {
-                            return
-                        }
+                                            if error != nil {
+                                                return
+                                            }
 
-                        numberCompleted += 1
+                                            numberCompleted += 1
 
-                        if numberCompleted == count {
-                            oncompletion( nil )
-                        }
+                                            if numberCompleted == count {
+                                                oncompletion( nil )
+                                            }
 
-                    }
+                                        }
 
-                }
-            }
+                                    }
+                                }
         }
     }
 
-    public func clear(withUser: String, oncompletion: (ErrorProtocol?) -> Void) {
+    public func clear(withUserID: String, oncompletion: (ErrorProtocol?) -> Void) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
         database.queryByView("user_todos", ofDesign: designName,
-                             usingParameters: [.descending(true), .includeDocs(true), .keys([withUser])]) { document, error in
+                             usingParameters: [.descending(true), .includeDocs(true), .keys([withUserID])]) {
+                                document, error in
 
-            guard let document = document else {
-                return
-            }
+                                guard let document = document else {
+                                    return
+                                }
 
 
-            guard let idRevs = try? parseGetIDandRev(document) else {
-                return
-            }
+                                guard let idRevs = try? parseGetIDandRev(document) else {
+                                    return
+                                }
 
-            let count = idRevs.count
+                                let count = idRevs.count
 
-            if count == 0 {
-                oncompletion( nil )
-            } else {
-                var numberCompleted = 0
+                                if count == 0 {
+                                    oncompletion( nil )
+                                } else {
+                                    var numberCompleted = 0
 
-                for i in 0...count-1 {
-                    let item = idRevs[i]
+                                    for i in 0...count-1 {
+                                        let item = idRevs[i]
 
-                    database.delete(item.0, rev: item.1) {
-                        error in
+                                        database.delete(item.0, rev: item.1) {
+                                            error in
 
-                        if error != nil {
-                            return
-                        }
+                                            if error != nil {
+                                                return
+                                            }
 
-                        numberCompleted += 1
+                                            numberCompleted += 1
 
-                        if numberCompleted == count {
-                            oncompletion( nil )
-                        }
+                                            if numberCompleted == count {
+                                                oncompletion( nil )
+                                            }
 
-                    }
+                                        }
 
-                }
-            }
+                                    }
+                                }
         }
     }
 
@@ -228,13 +229,13 @@ public class TodoList: TodoListAPI {
 
     }
 
-    public func get(withUser: String, oncompletion: ([TodoItem], ErrorProtocol?) -> Void ) {
+    public func get(withUserID: String, oncompletion: ([TodoItem], ErrorProtocol?) -> Void ) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
         database.queryByView("user_todos", ofDesign: designName,
-                             usingParameters: [.descending(true), .includeDocs(true), .keys([withUser])]) {
+                             usingParameters: [.descending(true), .includeDocs(true), .keys([withUserID])]) {
                                 document, error in
 
                                 if let document = document where error == nil {
@@ -255,28 +256,29 @@ public class TodoList: TodoListAPI {
 
     }
 
-    public func get(withUser: String, withId: String, oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
+    public func get(withUserID: String, withDocumentID: String,
+                    oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        database.retrieve(withId) {
+        database.retrieve(withDocumentID) {
             document, error in
 
 
             if let document = document {
-                let id = document["_id"].string
-                let user = document["user"].string
+                let documentID = document["_id"].string
+                let userID = document["user"].string
                 let title = document["title"].string
                 let order = document["order"].int
                 let completed = document["completed"].bool
 
-                if withUser == user {
-                    guard let sid = id else {
+                if withUserID == userID {
+                    guard let sdocumentID = documentID else {
                         return
                     }
 
-                    guard let suser = user else {
+                    guard let suserID = userID else {
                         return
                     }
 
@@ -292,11 +294,12 @@ public class TodoList: TodoListAPI {
                         return
                     }
 
-                    let todoItem = TodoItem(id: sid, user: suser, order: sorder, title: stitle, completed: scompleted)
+                    let todoItem = TodoItem(documentID: sdocumentID, userID: suserID, order: sorder,
+                                            title: stitle, completed: scompleted)
 
                     oncompletion(todoItem, nil)
                 } else {
-                    oncompletion(nil, TodoCollectionError.authError)
+                    oncompletion(nil, TodoCollectionError.AuthError)
                 }
 
             }
@@ -307,11 +310,12 @@ public class TodoList: TodoListAPI {
 
     }
 
-    public func add(user: String, title: String, order: Int = 0, completed: Bool = false, oncompletion: (TodoItem, ErrorProtocol?) -> Void ) {
+    public func add(userID: String, title: String, order: Int = 0, completed: Bool = false,
+                    oncompletion: (TodoItem, ErrorProtocol?) -> Void ) {
 
         let json: [String: Valuetype] = [
                                             "type": "todo",
-                                            "user": user,
+                                            "user": userID,
                                             "title": title,
                                             "order": order,
                                             "completed": completed
@@ -325,7 +329,8 @@ public class TodoList: TodoListAPI {
             id, rev, document, error in
 
             if let id = id {
-                let todoItem = TodoItem(id: id, user: user, order: order, title: title, completed: completed)
+                let todoItem = TodoItem(documentID: id, userID: userID, order: order,
+                                        title: title, completed: completed)
 
                 oncompletion( todoItem, nil)
             }
@@ -335,13 +340,14 @@ public class TodoList: TodoListAPI {
 
     }
 
-    public func update(id: String, user: String?, title: String?, order: Int?, completed: Bool?, oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
+    public func update(documentID: String, userID: String?, title: String?,
+                       order: Int?, completed: Bool?, oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
 
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        database.retrieve(id) {
+        database.retrieve(documentID) {
             document, error in
 
             if let document = document {
@@ -350,56 +356,35 @@ public class TodoList: TodoListAPI {
 
                 let json: [String: Valuetype] = [
                                                     "type": "todo",
-                                                    "user": user != nil ? user! : document["user"].string!,
-                                                    "title": title != nil ? title! : document["title"].string!,
-                                                    "order": order != nil ? order! : document["order"].int!,
-                                                    "completed": completed != nil ? completed! : document["completed"].bool!
+                                                    "user": userID != nil ? userID! :
+                                                        document["user"].string!,
+                                                    "title": title != nil ? title! :
+                                                        document["title"].string!,
+                                                    "order": order != nil ? order! :
+                                                        document["order"].int!,
+                                                    "completed": completed != nil ? completed! :
+                                                        document["completed"].bool!
                 ]
 
-                database.update(id, rev: rev, document: JSON(json)) {
+                database.update(documentID, rev: rev, document: JSON(json)) {
                     rev, document, error in
 
                     if error != nil {
 
                         oncompletion(nil, error)
                     }
-
-                    /*do {
-                     try self.get(id) {
-                     document in
-
-                     if let document = document {
-
-                     oncompletion(document)
-
-                     }
-                     }
-                     } catch {
-                     Log.error("Could not get document")
-                     }*/
-
-                    /*self.get(id){
-                     document in
-
-                     if let document = document{
-                     oncompletion(document)
-                     }
-                     else{
-                     Log.error("Could not get document")
-                     }
-                     }*/
                 }
             }
         }
 
     }
 
-    public func delete(withUser: String, withId id: String, oncompletion: (ErrorProtocol?) -> Void) {
+    public func delete(withUserID: String, withDocumentID: String, oncompletion: (ErrorProtocol?) -> Void) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        database.retrieve(id) {
+        database.retrieve(withDocumentID) {
             document, error in
 
             if let document = document {
@@ -407,8 +392,8 @@ public class TodoList: TodoListAPI {
                 let rev = document["_rev"].string!
                 let user = document["user"].string!
 
-                if withUser == user {
-                    database.delete( id, rev: rev) {
+                if withUserID == user {
+                    database.delete( withDocumentID, rev: rev) {
                         error in
 
                         oncompletion(nil)
@@ -427,7 +412,7 @@ public class TodoList: TodoListAPI {
 
 func parseGetIDandRev(_ document: JSON) throws -> [(String, String)] {
     guard let rows = document["rows"].array else {
-        throw TodoCollectionError.parseError
+        throw TodoCollectionError.ParseError
     }
 
     return rows.flatMap {
@@ -444,7 +429,7 @@ func parseGetIDandRev(_ document: JSON) throws -> [(String, String)] {
 
 func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
     guard let rows = document["rows"].array else {
-        throw TodoCollectionError.parseError
+        throw TodoCollectionError.ParseError
     }
 
     let todos: [TodoItem] = rows.flatMap {
@@ -458,7 +443,7 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
         let order = doc[4].int
 
 
-        return TodoItem(id: id!, user: user!, order: order!, title: title!, completed: completed!)
+        return TodoItem(documentID: id!, userID: user!, order: order!, title: title!, completed: completed!)
 
     }
 
