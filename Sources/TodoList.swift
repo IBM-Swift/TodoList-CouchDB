@@ -76,7 +76,7 @@ public class TodoList: TodoListAPI {
                 if let numberOfTodos = document["rows"][0]["value"].int {
                     oncompletion( numberOfTodos, nil)
                 } else {
-                    oncompletion( nil, error)
+                    oncompletion( 0, nil)
                 }
 
             } else {
@@ -98,7 +98,7 @@ public class TodoList: TodoListAPI {
                 if let numberOfTodos = document["rows"][0]["value"].int {
                     oncompletion( numberOfTodos, nil)
                 } else {
-                    oncompletion( nil, error)
+                    oncompletion( 0, nil)
                 }
 
             } else {
@@ -369,33 +369,44 @@ public class TodoList: TodoListAPI {
 
         database.retrieve(documentID) {
             document, error in
+            if let document = document, userID = userID {
+                if userID == document["user"].string {
 
-            if let document = document {
+                    let rev = document["_rev"].string!
 
-                let rev = document["_rev"].string!
+                    let json: [String: Valuetype] = [
+                                                        "type": "todo",
+                                                        "user": userID,
+                                                        "title": title != nil ? title! :
+                                                            document["title"].string!,
+                                                        "order": order != nil ? order! :
+                                                            document["order"].int!,
+                                                        "completed": completed != nil ? completed! :
+                                                            document["completed"].bool!
+                    ]
 
-                let json: [String: Valuetype] = [
-                                                    "type": "todo",
-                                                    "user": userID != nil ? userID! :
-                                                        document["user"].string!,
-                                                    "title": title != nil ? title! :
-                                                        document["title"].string!,
-                                                    "order": order != nil ? order! :
-                                                        document["order"].int!,
-                                                    "completed": completed != nil ? completed! :
-                                                        document["completed"].bool!
-                ]
+                    database.update(documentID, rev: rev, document: JSON(json)) {
+                        rev, document, error in
 
-                database.update(documentID, rev: rev, document: JSON(json)) {
-                    rev, document, error in
+                        if error != nil {
 
-                    if error != nil {
-
-                        oncompletion(nil, error)
+                            oncompletion(nil, error)
+                        } else {
+                            self.get(withUserID: userID, withDocumentID: documentID) {
+                                document, error in
+                                if let document = document {
+                                    oncompletion(document, nil)
+                                } else {
+                                    oncompletion(nil, error)
+                                }
+                            }
+                        }
                     }
+                } else {
+                    oncompletion(nil, error)
                 }
             } else {
-                oncompletion(nil, error)
+                oncompletion(nil, TodoCollectionError.AuthError)
             }
         }
 
