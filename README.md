@@ -75,3 +75,28 @@ Quick start:
     ```
 
     Set the reduce function to `_count` which will tally all of the returned documents.
+
+Example design file:
+
+```
+{
+"_id": "_design/tododb",
+"views" : {
+  "all_todos" : {
+    "map" : "function(doc) { if (doc.type == 'todo') { emit(doc._id, [doc._id, doc.user, doc.title, doc.completed, doc.order]); }}"
+  },
+  "user_todos": {
+       "map": "function(doc) { if (doc.type == 'todo') { emit(doc.user, [doc._id, doc.user, doc.title, doc.completed, doc.order]); }}"
+  },
+  "total_todos": {
+    "map" : "function(doc) { if (doc.type == 'todo') { emit(doc.id, 1); }}",
+    "reduce" : "_count"
+  }
+}
+}
+```
+
+8. Push design to bluemix using 
+```
+curl -u "'bluemixServiceUserName':'bluemixServicePassword'" -X PUT 'bluemixServiceURL'/todlist/_design/'databaseName'--data-binary @'designFileName'
+```
