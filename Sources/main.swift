@@ -30,9 +30,9 @@ Log.logger = HeliumLogger()
 
 
 extension DatabaseConfiguration {
-    
+
     init(withService: Service) {
-        if let credentials = withService.credentials{
+        if let credentials = withService.credentials {
             self.host = credentials["host"].stringValue
             self.username = credentials["username"].stringValue
             self.password = credentials["password"].stringValue
@@ -47,10 +47,10 @@ extension DatabaseConfiguration {
     }
 }
 
-let databaseConfiguration : DatabaseConfiguration
-let todos : TodoList
+let databaseConfiguration: DatabaseConfiguration
+let todos: TodoList
 
-if let service = try CloudFoundryEnv.getAppEnv().getService(spec: "TodoList-Cloudant"){
+if let service = try CloudFoundryEnv.getAppEnv().getService(spec: "TodoList-Cloudant") {
 
     databaseConfiguration = DatabaseConfiguration(withService: service)
     todos = TodoList(databaseConfiguration)
