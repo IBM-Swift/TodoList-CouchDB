@@ -53,7 +53,8 @@ public class TodoList: TodoListAPI {
 
     }
 
-    public init(database: String = TodoList.defaultDatabaseName, host: String = TodoList.defaultCouchHost,
+    public init(database: String = TodoList.defaultDatabaseName,
+                host: String = TodoList.defaultCouchHost,
                 port: UInt16 = TodoList.defaultCouchPort,
                 username: String? = nil, password: String? = nil) {
 
@@ -70,20 +71,21 @@ public class TodoList: TodoListAPI {
 
         let userParameter = withUserID == nil ? "default" : withUserID!
 
-        database.queryByView("user_todos", ofDesign: designName, usingParameters: [.keys([userParameter])]) {
-            document, error in
+        database.queryByView("user_todos", ofDesign: designName,
+                             usingParameters: [.keys([userParameter])]) {
+                                document, error in
 
-            if let document = document where error == nil {
+                                if let document = document where error == nil {
 
-                if let numberOfTodos = document["rows"][0]["value"].int {
-                    oncompletion( numberOfTodos, nil)
-                } else {
-                    oncompletion( 0, nil)
-                }
+                                    if let numberOfTodos = document["rows"][0]["value"].int {
+                                        oncompletion( numberOfTodos, nil)
+                                    } else {
+                                        oncompletion( 0, nil)
+                                    }
 
-            } else {
-                oncompletion(nil, error)
-            }
+                                } else {
+                                    oncompletion(nil, error)
+                                }
         }
     }
 
@@ -95,48 +97,49 @@ public class TodoList: TodoListAPI {
         let userParameter = withUserID == nil ? "default" : withUserID!
 
         database.queryByView("user_todos", ofDesign: designName,
-                             usingParameters: [.descending(true), .includeDocs(true), .keys([userParameter])]) {
-                                document, error in
+                             usingParameters: [.descending(true), .includeDocs(true),
+                                               .keys([userParameter])]) {
+                                                document, error in
 
-                                guard let document = document else {
-                                    oncompletion(error)
-                                    return
-                                }
+                                                guard let document = document else {
+                                                    oncompletion(error)
+                                                    return
+                                                }
 
 
-                                guard let idRevs = try? parseGetIDandRev(document) else {
-                                    oncompletion(error)
-                                    return
-                                }
+                                                guard let idRevs = try? parseGetIDandRev(document) else {
+                                                    oncompletion(error)
+                                                    return
+                                                }
 
-                                let count = idRevs.count
+                                                let count = idRevs.count
 
-                                if count == 0 {
-                                    oncompletion( nil )
-                                } else {
-                                    var numberCompleted = 0
+                                                if count == 0 {
+                                                    oncompletion( nil )
+                                                } else {
+                                                    var numberCompleted = 0
 
-                                    for i in 0...count-1 {
-                                        let item = idRevs[i]
+                                                    for i in 0...count-1 {
+                                                        let item = idRevs[i]
 
-                                        database.delete(item.0, rev: item.1) {
-                                            error in
+                                                        database.delete(item.0, rev: item.1) {
+                                                            error in
 
-                                            if error != nil {
-                                                oncompletion(error)
-                                                return
-                                            }
+                                                            if error != nil {
+                                                                oncompletion(error)
+                                                                return
+                                                            }
 
-                                            numberCompleted += 1
+                                                            numberCompleted += 1
 
-                                            if numberCompleted == count {
-                                                oncompletion( nil )
-                                            }
+                                                            if numberCompleted == count {
+                                                                oncompletion( nil )
+                                                            }
 
-                                        }
+                                                        }
 
-                                    }
-                                }
+                                                    }
+                                                }
         }
     }
 
@@ -199,22 +202,23 @@ public class TodoList: TodoListAPI {
         let userParameter = withUserID == nil ? "default" : withUserID!
 
         database.queryByView("user_todos", ofDesign: designName,
-                             usingParameters: [.descending(true), .includeDocs(true), .keys([userParameter])]) {
-                                document, error in
+                             usingParameters: [.descending(true), .includeDocs(true),
+                                               .keys([userParameter])]) {
+                                                document, error in
 
-                                if let document = document where error == nil {
+                                                if let document = document where error == nil {
 
-                                    do {
-                                        let todoItems = try parseTodoItemList(document)
-                                        oncompletion(todoItems, nil)
-                                    } catch {
-                                        oncompletion(nil, error)
+                                                    do {
+                                                        let todoItems = try parseTodoItemList(document)
+                                                        oncompletion(todoItems, nil)
+                                                    } catch {
+                                                        oncompletion(nil, error)
 
-                                    }
+                                                    }
 
-                                } else {
-                                    oncompletion(nil, error)
-                                }
+                                                } else {
+                                                    oncompletion(nil, error)
+                                                }
 
 
         }
@@ -290,11 +294,11 @@ public class TodoList: TodoListAPI {
         let userID = userID == nil ? "default" : userID!
 
         let json: [String: Valuetype] = [
-                                            "type": "todo",
-                                            "user": userID,
-                                            "title": title,
-                                            "order": order,
-                                            "completed": completed
+            "type": "todo",
+            "user": userID,
+            "title": title,
+            "order": order,
+            "completed": completed
         ]
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
@@ -335,14 +339,14 @@ public class TodoList: TodoListAPI {
                     let rev = document["_rev"].string!
 
                     let json: [String: Valuetype] = [
-                                                        "type": "todo",
-                                                        "user": userID,
-                                                        "title": title != nil ? title! :
-                                                            document["title"].string!,
-                                                        "order": order != nil ? order! :
-                                                            document["order"].int!,
-                                                        "completed": completed != nil ? completed! :
-                                                            document["completed"].bool!
+                        "type": "todo",
+                        "user": userID,
+                        "title": title != nil ? title! :
+                            document["title"].string!,
+                        "order": order != nil ? order! :
+                            document["order"].int!,
+                        "completed": completed != nil ? completed! :
+                            document["completed"].bool!
                     ]
 
                     database.update(documentID, rev: rev, document: JSON(json)) {
