@@ -39,7 +39,7 @@ public class TodoList: TodoListAPI {
 
     let databaseName = "todolist"
 
-    let designName = "tododb"
+    let designName = "TodoList-CouchDB"
 
     let connectionProperties: ConnectionProperties
 

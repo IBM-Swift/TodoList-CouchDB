@@ -43,24 +43,32 @@ extension DatabaseConfiguration {
             self.password = nil
             self.port = UInt16(5984)
         }
-        self.options = ["test" : "test"]
+        self.options = [String : AnyObject]()
     }
 }
 
 let databaseConfiguration: DatabaseConfiguration
 let todos: TodoList
 
-if let service = try CloudFoundryEnv.getAppEnv().getService(spec: "TodoList-Cloudant") {
-
-    databaseConfiguration = DatabaseConfiguration(withService: service)
-    todos = TodoList(databaseConfiguration)
-} else {
-    todos = TodoList()
+do {
+    if let service = try CloudFoundryEnv.getAppEnv().getService(spec: "TodoList-CouchDB") {
+        Log.verbose("Found TodoList-CouchDB on CloudFoundry")
+        databaseConfiguration = DatabaseConfiguration(withService: service)
+        todos = TodoList(databaseConfiguration)
+    } else {
+        todos = TodoList()
+    }
+    
+    let controller = TodoListController(backend: todos)
+    
+    let port = try CloudFoundryEnv.getAppEnv().port
+    Log.verbose("Assigned port is \(port)")
+    
+    Kitura.addHTTPServer(onPort: port, with: controller.router)
+    Kitura.run()
+    
+} catch CloudFoundryEnvError.InvalidValue {
+    Log.error("Oops... something went wrong. Server did not start!")
 }
-
-let controller = TodoListController(backend: todos)
-
-Kitura.addHTTPServer(onPort: 8090, with: controller.router)
-Kitura.run()
 //Server.run()
 //Log.info("Server started on \(config.url).")

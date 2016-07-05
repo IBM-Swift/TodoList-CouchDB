@@ -1,0 +1,13 @@
+declared-services:
+  TodoList-CouchDB:
+    label: cloudantNoSQLDB
+    plan: shared
+applications:
+- name: todolist-couchdb
+  memory: 256M
+  instances: 2
+  random-route: true
+  services:
+  - TodoList-CouchDB
+  buildpack: https://github.com/IBM-Swift/swift-buildpack.git#develop
+
