@@ -1,1 +1,1 @@
-web: todolistcouchdb
+web: TodoList

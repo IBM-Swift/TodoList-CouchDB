@@ -69,7 +69,7 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        let userParameter = withUserID == nil ? "default" : withUserID!
+        let userParameter = withUserID ?? "default"
 
         database.queryByView("user_todos", ofDesign: designName,
                              usingParameters: [.keys([userParameter])]) {
@@ -78,9 +78,9 @@ public class TodoList: TodoListAPI {
                                 if let document = document where error == nil {
 
                                     if let numberOfTodos = document["rows"][0]["value"].int {
-                                        oncompletion( numberOfTodos, nil)
+                                        oncompletion(numberOfTodos, nil)
                                     } else {
-                                        oncompletion( 0, nil)
+                                        oncompletion(0, nil)
                                     }
 
                                 } else {
@@ -94,8 +94,8 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        let userParameter = withUserID == nil ? "default" : withUserID!
-
+        let userParameter = withUserID ?? "default"
+        
         database.queryByView("user_todos", ofDesign: designName,
                              usingParameters: [.descending(true), .includeDocs(true),
                                                .keys([userParameter])]) {
@@ -199,7 +199,7 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        let userParameter = withUserID == nil ? "default" : withUserID!
+        let userParameter = withUserID ?? "default"
 
         database.queryByView("user_todos", ofDesign: designName,
                              usingParameters: [.descending(true), .includeDocs(true),
@@ -231,59 +231,52 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        let withUserID = withUserID == nil ? "default" : withUserID!
+        let withUserID = withUserID ?? "default"
 
         database.retrieve(withDocumentID) {
             document, error in
-
-
-            if let document = document {
-                let documentID = document["_id"].string
-                let userID = document["user"].string
-                let title = document["title"].string
-                let order = document["order"].int
-                let completed = document["completed"].bool
-
-                if withUserID == userID {
-                    guard let sdocumentID = documentID else {
-                        oncompletion(nil, error)
-                        return
-                    }
-
-                    guard let suserID = userID else {
-                        oncompletion(nil, error)
-                        return
-                    }
-
-                    guard let stitle = title else {
-                        oncompletion(nil, error)
-                        return
-                    }
-
-                    guard let sorder = order else {
-                        oncompletion(nil, error)
-                        return
-                    }
-
-                    guard let scompleted = completed else {
-                        oncompletion(nil, error)
-                        return
-                    }
-
-                    let todoItem = TodoItem(documentID: sdocumentID, userID: suserID, order: sorder,
-                                            title: stitle, completed: scompleted)
-
-                    oncompletion(todoItem, nil)
-                } else {
-                    oncompletion(nil, TodoCollectionError.AuthError)
-                }
-
-            } else {
+            
+            guard let document = document else {
                 oncompletion(nil, error)
+                return
+            }
+            
+            guard let userID = document["user"].string else {
+                oncompletion(nil, error)
+                return
+            }
+            
+            guard withUserID == userID else {
+                oncompletion(nil, TodoCollectionError.AuthError)
+                return
             }
 
+            guard let documentID = document["_id"].string else {
+                oncompletion(nil, error)
+                return
+            }
+            
+            guard let title = document["title"].string else {
+                oncompletion(nil, error)
+                return
+            }
+            
+            guard let order = document["order"].int else {
+                oncompletion(nil, error)
+                return
+            }
+            
+            guard let completed = document["completed"].int else {
+                oncompletion(nil, error)
+                return
+            }
+            
+            let completedValue = completed == 1 ? true : false
+            
+            let todoItem = TodoItem(documentID: documentID, userID: userID, order: order,
+                                    title: title, completed: completedValue)
 
-
+            oncompletion(todoItem, nil)
         }
 
     }
@@ -291,14 +284,16 @@ public class TodoList: TodoListAPI {
     public func add(userID: String?, title: String, order: Int = 0, completed: Bool = false,
                     oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
 
-        let userID = userID == nil ? "default" : userID!
-
+        let userID = userID ?? "default"
+        
+        let completedValue = completed ? 1 : 0
+        
         let json: [String: Valuetype] = [
             "type": "todo",
             "user": userID,
             "title": title,
             "order": order,
-            "completed": completed
+            "completed": completedValue
         ]
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
@@ -329,49 +324,55 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        let userID = userID == nil ? "default" : userID
+        let userID = userID ?? "default"
 
         database.retrieve(documentID) {
             document, error in
-            if let document = document, userID = userID {
-                if userID == document["user"].string {
 
-                    let rev = document["_rev"].string!
-
-                    let json: [String: Valuetype] = [
-                        "type": "todo",
-                        "user": userID,
-                        "title": title != nil ? title! :
-                            document["title"].string!,
-                        "order": order != nil ? order! :
-                            document["order"].int!,
-                        "completed": completed != nil ? completed! :
-                            document["completed"].bool!
-                    ]
-
-                    database.update(documentID, rev: rev, document: JSON(json)) {
-                        rev, document, error in
-
-                        if error != nil {
-
-                            oncompletion(nil, error)
-                        } else {
-                            self.get(withUserID: userID, withDocumentID: documentID) {
-                                document, error in
-                                if let document = document {
-                                    oncompletion(document, nil)
-                                } else {
-                                    oncompletion(nil, error)
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    oncompletion(nil, error)
-                }
-            } else {
+            guard let document = document else {
                 oncompletion(nil, TodoCollectionError.AuthError)
+                return
             }
+
+            guard userID == document["user"].string else {
+                oncompletion(nil, TodoCollectionError.ParseError)
+                return
+            }
+
+            guard let rev = document["_rev"].string else {
+                oncompletion(nil, TodoCollectionError.ParseError)
+                return
+            }
+            
+            let type = "todo"
+            let user = userID
+            let title = title != nil ? title! : document["title"].string!
+            let order = order != nil ? order! : document["order"].int!
+            let completed = completed != nil ? completed! : document["completed"].bool!
+
+            let completedValue = completed ? 1 : 0
+            
+            let json: [String: Valuetype] = [
+                "type": type,
+                "user": user,
+                "title": title,
+                "order": order,
+                "completed": completedValue
+            ]
+
+            database.update(documentID, rev: rev, document: JSON(json)) {
+                rev, document, error in
+                
+                guard error == nil else {
+                    oncompletion(nil, error)
+                    return
+                }
+                
+                
+                oncompletion (TodoItem(documentID: documentID, userID: user, order: order, title: title, completed: completed), nil)
+
+                }
+            
         }
 
     }
@@ -381,37 +382,37 @@ public class TodoList: TodoListAPI {
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
 
-        let withUserID = withUserID == nil ? "default" : withUserID
+        let withUserID = withUserID ?? "default"
 
         database.retrieve(withDocumentID) {
             document, error in
 
-            if let document = document {
-
-                let rev = document["_rev"].string!
-                let user = document["user"].string!
-
-                if withUserID == user {
-                    database.delete( withDocumentID, rev: rev) {
-                        error in
-
-                        oncompletion(nil)
-                    }
-                }
-
-            } else {
+            guard let document = document else {
                 oncompletion(error)
+                return
             }
+
+            let rev = document["_rev"].string!
+            let user = document["user"].string!
+
+            if withUserID == user {
+                database.delete( withDocumentID, rev: rev) {
+                    error in
+
+                    oncompletion(nil)
+                }
+            }
+
         }
 
 
     }
 
-
 }
 
 
 func parseGetIDandRev(_ document: JSON) throws -> [(String, String)] {
+
     guard let rows = document["rows"].array else {
         throw TodoCollectionError.ParseError
     }
@@ -429,6 +430,7 @@ func parseGetIDandRev(_ document: JSON) throws -> [(String, String)] {
 }
 
 func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
+
     guard let rows = document["rows"].array else {
         throw TodoCollectionError.ParseError
     }
@@ -437,14 +439,15 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
 
         let doc = $0["value"]
 
-        let id = doc[0].string
-        let user = doc[1].string
-        let title = doc[2].string
-        let completed = doc[3].bool
-        let order = doc[4].int
+        guard let id = doc[0].string, let user = doc[1].string, let title = doc[2].string,
+            let completed = doc[3].int, let order = doc[4].int else {
+                return nil
 
+        }
+        
+        let completedValue = completed == 1 ? true : false
 
-        return TodoItem(documentID: id!, userID: user!, order: order!, title: title!, completed: completed!)
+        return TodoItem(documentID: id, userID: user, order: order, title: title, completed: completedValue)
 
     }
 

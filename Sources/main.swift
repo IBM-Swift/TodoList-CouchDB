@@ -56,19 +56,18 @@ do {
         databaseConfiguration = DatabaseConfiguration(withService: service)
         todos = TodoList(databaseConfiguration)
     } else {
+        Log.verbose("Did not find TodoList-CouchDB on CloudFoundry")
         todos = TodoList()
     }
-    
+
     let controller = TodoListController(backend: todos)
-    
+
     let port = try CloudFoundryEnv.getAppEnv().port
     Log.verbose("Assigned port is \(port)")
-    
+
     Kitura.addHTTPServer(onPort: port, with: controller.router)
     Kitura.run()
-    
+
 } catch CloudFoundryEnvError.InvalidValue {
     Log.error("Oops... something went wrong. Server did not start!")
 }
-//Server.run()
-//Log.info("Server started on \(config.url).")
