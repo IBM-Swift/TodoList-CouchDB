@@ -95,7 +95,7 @@ public class TodoList: TodoListAPI {
         let database = couchDBClient.database(databaseName)
 
         let userParameter = withUserID ?? "default"
-        
+
         database.queryByView("user_todos", ofDesign: designName,
                              usingParameters: [.descending(true), .includeDocs(true),
                                                .keys([userParameter])]) {
@@ -235,17 +235,17 @@ public class TodoList: TodoListAPI {
 
         database.retrieve(withDocumentID) {
             document, error in
-            
+
             guard let document = document else {
                 oncompletion(nil, error)
                 return
             }
-            
+
             guard let userID = document["user"].string else {
                 oncompletion(nil, error)
                 return
             }
-            
+
             guard withUserID == userID else {
                 oncompletion(nil, TodoCollectionError.AuthError)
                 return
@@ -255,24 +255,24 @@ public class TodoList: TodoListAPI {
                 oncompletion(nil, error)
                 return
             }
-            
+
             guard let title = document["title"].string else {
                 oncompletion(nil, error)
                 return
             }
-            
+
             guard let order = document["order"].int else {
                 oncompletion(nil, error)
                 return
             }
-            
+
             guard let completed = document["completed"].int else {
                 oncompletion(nil, error)
                 return
             }
-            
+
             let completedValue = completed == 1 ? true : false
-            
+
             let todoItem = TodoItem(documentID: documentID, userID: userID, order: order,
                                     title: title, completed: completedValue)
 
@@ -285,9 +285,9 @@ public class TodoList: TodoListAPI {
                     oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
 
         let userID = userID ?? "default"
-        
+
         let completedValue = completed ? 1 : 0
-        
+
         let json: [String: Valuetype] = [
             "type": "todo",
             "user": userID,
@@ -343,7 +343,7 @@ public class TodoList: TodoListAPI {
                 oncompletion(nil, TodoCollectionError.ParseError)
                 return
             }
-            
+
             let type = "todo"
             let user = userID
             let title = title != nil ? title! : document["title"].string!
@@ -351,7 +351,7 @@ public class TodoList: TodoListAPI {
             let completed = completed != nil ? completed! : document["completed"].bool!
 
             let completedValue = completed ? 1 : 0
-            
+
             let json: [String: Valuetype] = [
                 "type": type,
                 "user": user,
@@ -362,17 +362,17 @@ public class TodoList: TodoListAPI {
 
             database.update(documentID, rev: rev, document: JSON(json)) {
                 rev, document, error in
-                
+
                 guard error == nil else {
                     oncompletion(nil, error)
                     return
                 }
-                
-                
+
+
                 oncompletion (TodoItem(documentID: documentID, userID: user, order: order, title: title, completed: completed), nil)
 
                 }
-            
+
         }
 
     }
@@ -444,7 +444,7 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
                 return nil
 
         }
-        
+
         let completedValue = completed == 1 ? true : false
 
         return TodoItem(documentID: id, userID: user, order: order, title: title, completed: completedValue)
