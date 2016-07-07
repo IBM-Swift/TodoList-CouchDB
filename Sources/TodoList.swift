@@ -346,11 +346,18 @@ public class TodoList: TodoListAPI {
 
             let type = "todo"
             let user = userID
-            let title = title != nil ? title! : document["title"].string!
-            let order = order != nil ? order! : document["order"].int!
-            let completed = completed != nil ? completed! : document["completed"].bool!
-
-            let completedValue = completed ? 1 : 0
+            let title = title ?? document["title"].string!
+            let order = order ?? document["order"].int!
+            
+            var completedValue : Int
+        
+            if let completed = completed {
+                completedValue = completed ? 1 : 0
+            } else {
+                completedValue = document["completed"].int!
+            }
+            
+            let completedBool = completedValue == 1 ? true : false
 
             let json: [String: Valuetype] = [
                 "type": type,
@@ -369,7 +376,7 @@ public class TodoList: TodoListAPI {
                 }
 
 
-                oncompletion (TodoItem(documentID: documentID, userID: user, order: order, title: title, completed: completed), nil)
+                oncompletion (TodoItem(documentID: documentID, userID: user, order: order, title: title, completed: completedBool), nil)
 
                 }
 
