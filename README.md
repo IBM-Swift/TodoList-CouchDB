@@ -4,6 +4,7 @@ Todolist implemented for Cloudant (CouchDB) backend
 
 Quick start:
 
+
 - Download the [Swift DEVELOPMENT 06-06 snapshot](https://swift.org/download/#snapshots)
 - Download CouchDB
   You can use `brew install couchdb` or `apt-get install couchdb`
