@@ -4,7 +4,7 @@ Todolist implemented for Cloudant (CouchDB) backend
 
 Quick start:
 
-- Download the [Swift DEVELOPMENT 05-03 snapshot](https://swift.org/download/#snapshots)
+- Download the [Swift DEVELOPMENT 06-06 snapshot](https://swift.org/download/#snapshots)
 - Download CouchDB
   You can use `brew install couchdb` or `apt-get install couchdb`
 - Clone the TodoList CouchDB repository
@@ -28,7 +28,7 @@ Quick start:
 
 3. Run `cf push`
 
-    ***Note** The uploading droplet stage should take a long time, roughly 5-7 minutes. If it worked correctly, it should say:
+    ***Note** This step could take a few minutes
 
     ```
     1 of 1 instances running 
@@ -43,60 +43,41 @@ Quick start:
     cf bind-service Kitura-TodoList database_name
     cf restage
     ```
+5. On the Bluemix console, click on the service created in step 4. Click on the green button titled `Launch`
 
-5. Create a new design in Cloudant
+6. Click on `Create Database` near the top right of the page after launching. Name the database whatever (repo is currently set to expect database name to be `todo`)
 
-    Log in to Bluemix, and select New View. Create a new design called `_design/example`. Inside of the design example, create 2 views:
+7. Create a design file.
 
-6. Create a view named `all_todos` in the example design:
-
-    This view will return all of the todo elements in your database. Add the following Map function:
-
-    ```javascript
-    function(doc) {
-        if (doc.type == 'todo' && doc.active) {
-            emit(doc._id, [doc.title, doc.completed, doc.order]);
-        }
+  Example design file:
+  
+  ```
+  {
+  "_id": "_design/tododb",
+  "views" : {
+    "all_todos" : {
+      "map" : "function(doc) { if (doc.type == 'todo') { emit(doc._id, [doc._id, doc.user, doc.title, doc.completed, doc.order]); }}"
+    },
+    "user_todos": {
+         "map": "function(doc) { if (doc.type == 'todo') { emit(doc.user, [doc._id, doc.user, doc.title, doc.completed, doc.order]); }}"
+    },
+    "total_todos": {
+      "map" : "function(doc) { if (doc.type == 'todo') { emit(doc.id, 1); }}",
+      "reduce" : "_count"
     }
-    ```
-
-    Leave Reduce as None.
-
-7. Create a view named `total_todos` in the example design:
-
-    This view will return the count of all the todo documents in your database.
-
-    ```javascript
-    function(doc) {
-        if (doc.type == 'todo' && doc.active) {
-            emit(doc.id, 1);
-        }
-    }
-    ```
-
-    Set the reduce function to `_count` which will tally all of the returned documents.
-
-Example design file:
-
-```
-{
-"_id": "_design/tododb",
-"views" : {
-  "all_todos" : {
-    "map" : "function(doc) { if (doc.type == 'todo') { emit(doc._id, [doc._id, doc.user, doc.title, doc.completed, doc.order]); }}"
-  },
-  "user_todos": {
-       "map": "function(doc) { if (doc.type == 'todo') { emit(doc.user, [doc._id, doc.user, doc.title, doc.completed, doc.order]); }}"
-  },
-  "total_todos": {
-    "map" : "function(doc) { if (doc.type == 'todo') { emit(doc.id, 1); }}",
-    "reduce" : "_count"
   }
-}
-}
-```
+  }
+  ```
 
-8. Push design to bluemix using 
+8. Go back to the service's main page and click on `Service Credentials` which can be found directly under the service name.
+
+9. Click on the blue button `Add New Credential` and add a new credential.
+
+10. Push design to Bluemix using 
 ```
-curl -u "'bluemixServiceUserName':'bluemixServicePassword'" -X PUT 'bluemixServiceURL'/todlist/_design/'databaseName'--data-binary @'designFileName'
+curl -u "'bluemixServiceUserName':'bluemixServicePassword'" -X PUT 'bluemixServiceURL'/todolist/_design/'databaseName' --data-binary @'designFileName'
 ```
+  - 'bluemixServiceUserName', 'bluemixServicePassword', and 'bluemixServiceURL' come from the credential made in step 9
+  - 'databaseName' comes from the database made in step 6
+  - 'designFileName' comes from the design file made in step 7
+  
