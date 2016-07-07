@@ -23,7 +23,7 @@ before_install:
   - git clone https://github.com/IBM-Swift/todolist-tests
   - mv todolist-tests Tests
   - cd Database
-  - ccurl -X PUT http://127.0.0.1:5984/todolist/_design/TodoList-CouchDB --data-binary @mydesign.json
+  - curl -X PUT http://127.0.0.1:5984/todolist/_design/TodoList-CouchDB --data-binary @mydesign.json
   - cd ..
   - cd Database && sh ./setup.sh && cd ..
 
