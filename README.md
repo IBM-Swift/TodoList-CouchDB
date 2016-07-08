@@ -1,4 +1,6 @@
 # Todolist CouchDB
+[![Build Status](https://travis-ci.org/IBM-Swift/todolist-couchdb.svg?branch=master)](https://travis-ci.org/IBM-Swift/todolist-couchdb)
+
 
 Todolist implemented for Cloudant (CouchDB) backend
 
