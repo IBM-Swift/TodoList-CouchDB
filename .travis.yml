@@ -31,6 +31,4 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then swift build -Xcc -fblocks -Xlinker -rpath -Xlinker .build/debug ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then swift build ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then swift test ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd Tests ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PATH=swift-DEVELOPMENT-SNAPSHOT-2016-06-06-a-ubuntu14.04/usr/bin:$PATH    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then swift test ; fi
