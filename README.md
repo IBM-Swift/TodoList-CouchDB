@@ -77,9 +77,10 @@ Quick start:
 9. Click on the blue button `Add New Credential` and add a new credential.
 
 10. Push design to Bluemix using 
-```
-curl -u "'bluemixServiceUserName':'bluemixServicePassword'" -X PUT 'bluemixServiceURL'/todolist/_design/'databaseName' --data-binary @'designFileName'
-```
+  ```
+  curl -u "'bluemixServiceUserName':'bluemixServicePassword'" -X PUT 'bluemixServiceURL'/todolist/_design/'databaseName' --data-binary @'designFileName'
+  ```
+  
   - 'bluemixServiceUserName', 'bluemixServicePassword', and 'bluemixServiceURL' come from the credential made in step 9
   - 'databaseName' comes from the database made in step 6
   - 'designFileName' comes from the design file made in step 7
