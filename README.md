@@ -19,7 +19,7 @@ Quick start:
 
 1. Get an account for [Bluemix](https://new-console.ng.bluemix.net/?direct=classic)
 
-2. Dowload and install the [Cloud Foundry tools](https://new-console.ng.bluemix.net/docs/starters/install_cli.html):
+2. Download and install the [Cloud Foundry tools](https://new-console.ng.bluemix.net/docs/starters/install_cli.html):
 
     ```
     cf login
@@ -54,7 +54,7 @@ Quick start:
 
   Example design file:
   
-  ```
+  ```json
   {
   "_id": "_design/tododb",
   "views" : {
