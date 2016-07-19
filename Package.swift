@@ -10,6 +10,6 @@ let package = Package(
         .Package(url: "https://github.com/IBM-Swift/HeliumLogger.git",
                  majorVersion: 0, minor: 9),
         .Package(url: "https://github.com/IBM-Swift/todolist-web",
-                 majorVersion: 0)
+                 majorVersion: 0, minor: 2)
     ]
 )
