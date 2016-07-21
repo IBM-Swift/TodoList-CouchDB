@@ -1,13 +1,13 @@
 # Todolist CouchDB/Cloudant backend
 [![Build Status](https://travis-ci.org/IBM-Swift/todolist-couchdb.svg?branch=master)](https://travis-ci.org/IBM-Swift/todolist-couchdb)
-
+[![Swift 3 6-06](https://img.shields.io/badge/Swift%203-6/20-blue.svg)]
 
 Todolist implemented for CouchDB or Cloudant backend
 
 Quick start:
 
 
-- Download the [Swift DEVELOPMENT 06-06 snapshot](https://swift.org/download/#snapshots)
+- Download the [Swift DEVELOPMENT 06-20 snapshot](https://swift.org/download/#snapshots)
 - Download CouchDB
   You can use `brew install couchdb` or `apt-get install couchdb`
 - Clone the TodoList CouchDB repository
