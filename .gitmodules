@@ -1,6 +1,0 @@
-[submodule "Tests"]
-	path = Tests
-	url = https://github.com/IBM-Swift/todolist-tests
-[submodule "todolist-tests"]
-	path = todolist-tests
-	url = https://github.com/IBM-Swift/todolist-tests
