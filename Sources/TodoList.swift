@@ -26,7 +26,7 @@ import CouchDB
 #if os(Linux)
     typealias Valuetype = Any
 #else
-    typealias Valuetype = AnyObject
+    typealias Valuetype = Any
 #endif
 
 
@@ -64,7 +64,7 @@ public class TodoList: TodoListAPI {
 
     }
 
-    public func count(withUserID: String? = nil, oncompletion: (Int?, ErrorProtocol?) -> Void) {
+    public func count(withUserID: String? = nil, oncompletion: @escaping (Int?, Error?) -> Void) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -72,10 +72,10 @@ public class TodoList: TodoListAPI {
         let userParameter = withUserID ?? "default"
 
         database.queryByView("user_todos", ofDesign: designName,
-                             usingParameters: [.keys([userParameter])]) {
+                             usingParameters: [.keys([userParameter as AnyObject])]) {
                                 document, error in
 
-                                if let document = document where error == nil {
+                                if let document = document , error == nil {
 
                                     if let numberOfTodos = document["rows"][0]["value"].int {
                                         oncompletion(numberOfTodos, nil)
@@ -89,7 +89,7 @@ public class TodoList: TodoListAPI {
         }
     }
 
-    public func clear(withUserID: String? = nil, oncompletion: (ErrorProtocol?) -> Void) {
+    public func clear(withUserID: String? = nil, oncompletion: @escaping (Error?) -> Void) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -98,7 +98,7 @@ public class TodoList: TodoListAPI {
 
         database.queryByView("user_todos", ofDesign: designName,
                              usingParameters: [.descending(true), .includeDocs(true),
-                                               .keys([userParameter])]) {
+                                               .keys([userParameter as AnyObject])]) {
                                                 document, error in
 
                                                 guard let document = document else {
@@ -143,7 +143,7 @@ public class TodoList: TodoListAPI {
         }
     }
 
-    public func clearAll(oncompletion: (ErrorProtocol?) -> Void) {
+    public func clearAll(oncompletion: @escaping (Error?) -> Void) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -194,7 +194,7 @@ public class TodoList: TodoListAPI {
         }
     }
 
-    public func get(withUserID: String?, oncompletion: ([TodoItem]?, ErrorProtocol?) -> Void ) {
+    public func get(withUserID: String?, oncompletion: @escaping ([TodoItem]?, Error?) -> Void ) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -203,10 +203,10 @@ public class TodoList: TodoListAPI {
 
         database.queryByView("user_todos", ofDesign: designName,
                              usingParameters: [.descending(true), .includeDocs(true),
-                                               .keys([userParameter])]) {
+                                               .keys([userParameter as AnyObject])]) {
                                                 document, error in
 
-                                                if let document = document where error == nil {
+                                                if let document = document , error == nil {
 
                                                     do {
                                                         let todoItems = try parseTodoItemList(document)
@@ -226,7 +226,7 @@ public class TodoList: TodoListAPI {
     }
 
     public func get(withUserID: String?, withDocumentID: String,
-                    oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
+                    oncompletion: @escaping (TodoItem?, Error?) -> Void ) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
@@ -282,7 +282,7 @@ public class TodoList: TodoListAPI {
     }
 
     public func add(userID: String?, title: String, order: Int = 0, completed: Bool = false,
-                    oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
+                    oncompletion: @escaping (TodoItem?, Error?) -> Void ) {
 
         let userID = userID ?? "default"
 
@@ -318,7 +318,7 @@ public class TodoList: TodoListAPI {
     }
 
     public func update(documentID: String, userID: String?, title: String?,
-                       order: Int?, completed: Bool?, oncompletion: (TodoItem?, ErrorProtocol?) -> Void ) {
+                       order: Int?, completed: Bool?, oncompletion: @escaping (TodoItem?, Error?) -> Void ) {
 
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
@@ -384,7 +384,7 @@ public class TodoList: TodoListAPI {
 
     }
 
-    public func delete(withUserID: String?, withDocumentID: String, oncompletion: (ErrorProtocol?) -> Void) {
+    public func delete(withUserID: String?, withDocumentID: String, oncompletion: @escaping (Error?) -> Void) {
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
