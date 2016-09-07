@@ -29,7 +29,7 @@ Quick start:
 
     Be sure to change the directory to the Kitura-TodoList directory where the manifest.yml file is located.
 
-3. Run `cf push`
+3. Run `cf push`   
 
     ***Note** This step could take a few minutes
 
