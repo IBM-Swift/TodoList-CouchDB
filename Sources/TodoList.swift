@@ -261,7 +261,7 @@ public class TodoList: TodoListAPI {
                 return
             }
 
-            guard let order = document["order"].int else {
+            guard let rank = document["rank"].int else {
                 oncompletion(nil, error)
                 return
             }
@@ -273,7 +273,7 @@ public class TodoList: TodoListAPI {
 
             let completedValue = completed == 1 ? true : false
 
-            let todoItem = TodoItem(documentID: documentID, userID: userID, order: order,
+            let todoItem = TodoItem(documentID: documentID, userID: userID, rank: rank,
                                     title: title, completed: completedValue)
 
             oncompletion(todoItem, nil)
@@ -281,7 +281,7 @@ public class TodoList: TodoListAPI {
 
     }
 
-    public func add(userID: String?, title: String, order: Int = 0, completed: Bool = false,
+    public func add(userID: String?, title: String, rank: Int = 0, completed: Bool = false,
                     oncompletion: @escaping (TodoItem?, Error?) -> Void ) {
 
         let userID = userID ?? "default"
@@ -292,7 +292,7 @@ public class TodoList: TodoListAPI {
             "type": "todo",
             "user": userID,
             "title": title,
-            "order": order,
+            "rank": rank,
             "completed": completedValue
         ]
 
@@ -304,7 +304,7 @@ public class TodoList: TodoListAPI {
             id, rev, document, error in
 
             if let id = id {
-                let todoItem = TodoItem(documentID: id, userID: userID, order: order,
+                let todoItem = TodoItem(documentID: id, userID: userID, rank: rank,
                                         title: title, completed: completed)
 
                 oncompletion( todoItem, nil)
@@ -318,7 +318,7 @@ public class TodoList: TodoListAPI {
     }
 
     public func update(documentID: String, userID: String?, title: String?,
-                       order: Int?, completed: Bool?, oncompletion: @escaping (TodoItem?, Error?) -> Void ) {
+                       rank: Int?, completed: Bool?, oncompletion: @escaping (TodoItem?, Error?) -> Void ) {
 
 
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
@@ -347,7 +347,7 @@ public class TodoList: TodoListAPI {
             let type = "todo"
             let user = userID
             let title = title ?? document["title"].string!
-            let order = order ?? document["order"].int!
+            let rank = rank ?? document["rank"].int!
             
             var completedValue : Int
         
@@ -363,7 +363,7 @@ public class TodoList: TodoListAPI {
                 "type": type,
                 "user": user,
                 "title": title,
-                "order": order,
+                "rank": rank,
                 "completed": completedValue
             ]
 
@@ -376,7 +376,7 @@ public class TodoList: TodoListAPI {
                 }
 
 
-                oncompletion (TodoItem(documentID: documentID, userID: user, order: order, title: title, completed: completedBool), nil)
+                oncompletion (TodoItem(documentID: documentID, userID: user, rank: rank, title: title, completed: completedBool), nil)
 
                 }
 
@@ -447,14 +447,14 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
         let doc = $0["value"]
 
         guard let id = doc[0].string, let user = doc[1].string, let title = doc[2].string,
-            let completed = doc[3].int, let order = doc[4].int else {
+            let completed = doc[3].int, let rank = doc[4].int else {
                 return nil
 
         }
 
         let completedValue = completed == 1 ? true : false
 
-        return TodoItem(documentID: id, userID: user, order: order, title: title, completed: completedValue)
+        return TodoItem(documentID: id, userID: user, rank: rank, title: title, completed: completedValue)
 
     }
 

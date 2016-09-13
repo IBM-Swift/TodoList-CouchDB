@@ -59,10 +59,10 @@ Quick start:
   "_id": "_design/tododb",
   "views" : {
     "all_todos" : {
-      "map" : "function(doc) { if (doc.type == 'todo') { emit(doc._id, [doc._id, doc.user, doc.title, doc.completed, doc.order]); }}"
+      "map" : "function(doc) { if (doc.type == 'todo') { emit(doc._id, [doc._id, doc.user, doc.title, doc.completed, doc.rank]); }}"
     },
     "user_todos": {
-         "map": "function(doc) { if (doc.type == 'todo') { emit(doc.user, [doc._id, doc.user, doc.title, doc.completed, doc.order]); }}"
+         "map": "function(doc) { if (doc.type == 'todo') { emit(doc.user, [doc._id, doc.user, doc.title, doc.completed, doc.rank]); }}"
     },
     "total_todos": {
       "map" : "function(doc) { if (doc.type == 'todo') { emit(doc.id, 1); }}",
