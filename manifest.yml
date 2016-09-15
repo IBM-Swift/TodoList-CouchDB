@@ -1,7 +1,7 @@
 declared-services:
   TodoList-CouchDB:
     label: cloudantNoSQLDB
-    plan: shared
+    plan: Shared
 applications:
 - name: todolist-couchdb
   memory: 256M
