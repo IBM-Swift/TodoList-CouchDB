@@ -25,7 +25,7 @@ Quick start:
     bluemix login -u username -o org_name -s space_name
     ```
 
-    Be sure to change the directory to the Kitura-TodoList directory where the manifest.yml file is located.
+    Be sure to run this in the directory where the manifest.yml file is located.
 
 3. Run `cf push`   
 
@@ -37,7 +37,8 @@ Quick start:
     App started
     ```
 
-4. Add a `url` environment variable, with the hostname of the application,to the app on bluemix.    
+4. Add a `url` environment variable, with the hostname of the application, to the app on bluemix.
+   To add environment variables on the 'new console' bluemix: go to compute -> <App> -> Runtime -> Environment Variables 
 
 5. Create the Cloudant backend and attach it to your instance.
 
