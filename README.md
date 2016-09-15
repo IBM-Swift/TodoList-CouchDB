@@ -1,13 +1,11 @@
 # Todolist CouchDB/Cloudant backend
 [![Build Status](https://travis-ci.org/IBM-Swift/TodoList-CouchDB.svg?branch=master)](https://travis-ci.org/IBM-Swift/TodoList-CouchDB)
-[![Swift 3 9-05](https://img.shields.io/badge/Swift%203-9/05 SNAPSHOT-blue.svg)](https://swift.org/download/#snapshots)
 
 Todolist implemented for CouchDB or Cloudant backend
 
 Quick start:
 
-
-- Download the [Swift DEVELOPMENT 09-05 snapshot](https://swift.org/download/#snapshots)
+- Download [Xcode 8](https://swift.org/download/)
 - Download CouchDB
   You can use `brew install couchdb` or `apt-get install couchdb`
 - Clone the TodoList CouchDB repository
@@ -39,18 +37,20 @@ Quick start:
     App started
     ```
 
-4. Create the Cloudant backend and attach it to your instance.
+4. Add a `url` environment variable, with the hostname of the application,to the app on bluemix.    
+
+5. Create the Cloudant backend and attach it to your instance.
 
     ```
     cf create-service cloudantNoSQLDB Shared database_name
     cf bind-service Kitura-TodoList database_name
     cf restage
     ```
-5. On the Bluemix console, click on the service created in step 4. Click on the green button titled `Launch`
+6. On the Bluemix console, click on the service created in step 4. Click on the green button titled `Launch`
 
-6. Click on `Create Database` near the top right of the page after launching. Name the database whatever (repo is currently set to expect database name to be `todo`)
+7. Click on `Create Database` near the top right of the page after launching. Name the database whatever (repo is currently set to expect database name to be `todo`)
 
-7. Create a design file.
+8. Create a design file.
 
   Example design file:
   
@@ -72,11 +72,11 @@ Quick start:
   }
   ```
 
-8. Go back to the service's main page and click on `Service Credentials` which can be found directly under the service name.
+9. Go back to the service's main page and click on `Service Credentials` which can be found directly under the service name.
 
-9. Click on the blue button `Add New Credential` and add a new credential.
+10. Click on the blue button `Add New Credential` and add a new credential.
 
-10. Push design to Bluemix using 
+11. Push design to Bluemix using 
   ```
   curl -u "'bluemixServiceUserName':'bluemixServicePassword'" -X PUT 'bluemixServiceURL'/todolist/_design/'databaseName' --data-binary @'designFileName'
   ```
