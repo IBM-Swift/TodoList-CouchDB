@@ -24,6 +24,7 @@ import CloudFoundryEnv
 import TodoListAPI
 import TodoListWeb
 
+import TodoList
 
 Log.logger = HeliumLogger()
 

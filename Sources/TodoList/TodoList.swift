@@ -22,13 +22,7 @@ import SwiftyJSON
 
 import CouchDB
 
-
-#if os(Linux)
-    typealias Valuetype = Any
-#else
-    typealias Valuetype = Any
-#endif
-
+typealias Valuetype = Any
 
 /// TodoList for CouchDB
 public class TodoList: TodoListAPI {

@@ -1,1 +1,1 @@
-web: TodoList
+web: Deploy
