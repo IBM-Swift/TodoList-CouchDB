@@ -1,8 +1,14 @@
 # ToDo CouchDB and Cloudant backend
 
+Todo backend is an example of using the [Kitura](https://github.com/IBM-Swift/Kitura) Swift framework for building a productivity app with a database for storage of tasks.
+
 [![Build Status](https://travis-ci.org/IBM-Swift/TodoList-CouchDB.svg?branch=master)](https://travis-ci.org/IBM-Swift/TodoList-CouchDB)
+![](https://img.shields.io/badge/Swift-3.0%20RELEASE-orange.svg?style=flat)
+![](https://img.shields.io/badge/platform-Linux,%20macOS-blue.svg?style=flat)
 
 ## Quick start for local development:
+
+You can set up your development environment and use XCode 8 for editing, building, debugging, and testing your server application. To use XCode, you must use the command line tools for generating an XCode project.
 
 1. Download [Xcode 8](https://swift.org/download/)
 2. Download [CouchDB](http://couchdb.apache.org/)
@@ -23,6 +29,8 @@
   
 ## Quick start on Linux
 
+To build the project in Linux, you need to first install the Swift 3 toolchain.
+
 1. Install the [Swift 3.0 RELEASE toolchain](http://www.swift.org)
 
 2. Install CouchDB:
@@ -40,6 +48,8 @@
  `.build/debug/Deploy`
 
 ## Deploying to BlueMix
+
+Bluemix is a hosting platform from IBM that makes it easy to deploy your app to the cloud. 
 
 1. Get an account for [Bluemix](https://new-console.ng.bluemix.net/?direct=classic)
 
