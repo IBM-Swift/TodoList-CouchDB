@@ -1,17 +1,43 @@
-# Todolist CouchDB/Cloudant backend
+# ToDo CouchDB and Cloudant backend
+
 [![Build Status](https://travis-ci.org/IBM-Swift/TodoList-CouchDB.svg?branch=master)](https://travis-ci.org/IBM-Swift/TodoList-CouchDB)
 
-Todolist implemented for CouchDB or Cloudant backend
+## Quick start for local development:
 
-Quick start:
+1. Download [Xcode 8](https://swift.org/download/)
+2. Download [CouchDB](http://couchdb.apache.org/)
+ 
+ You can use `brew install couchdb` 
 
-- Download [Xcode 8](https://swift.org/download/)
-- Download CouchDB
-  You can use `brew install couchdb` or `apt-get install couchdb`
-- Clone the TodoList CouchDB repository
-- Fetch the test cases by running `git submodule init` then `git submodule update`
-- Compile the library with `swift build` on Mac OS or `swift build -Xcc -fblocks` on Linux
-- Run the test cases with `swift test`
+3. Clone the TodoList CouchDB repository:
+
+  `git clone https://github.com/IBM-Swift/TodoList-CouchDB`
+  
+4. Install the test cases:
+
+  `git clone https://github.com/IBM-Swift/todolist-tests Tests`
+  
+5. Make an XCode project
+
+  `swift package generate-xcodeproj`
+  
+## Quick start on Linux
+
+1. Install the [Swift 3.0 RELEASE toolchain](http://www.swift.org)
+
+2. Install CouchDB:
+
+  `sudo apt-get install couchdb`
+  
+3. Clone the repository:
+
+  `git clone https://github.com/IBM-Swift/TodoList-CouchDB`
+  
+4. Compile the project with `swift build` on Linux
+
+5. Run the server:
+
+ `.build/debug/Deploy`
 
 ## Deploying to BlueMix
 
@@ -86,3 +112,12 @@ Quick start:
   - 'databaseName' comes from the database made in step 6
   - 'designFileName' comes from the design file made in step 7
   
+## License
+
+Copyright 2016 IBM
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
