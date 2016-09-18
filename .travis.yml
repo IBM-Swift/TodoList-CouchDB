@@ -21,9 +21,9 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo couchdb -b && sleep 5 ; fi
 
   - cd Database && sh ./setup.sh && cd ..
-  
+
 script:
-  - git clone -b 9/05-migration https://github.com/IBM-Swift/todolist-tests
+  - git clone https://github.com/IBM-Swift/todolist-tests
   - mv todolist-tests Tests
   - cd Database
   - curl -X PUT http://127.0.0.1:5984/todolist/_design/TodoList-CouchDB --data-binary @mydesign.json
