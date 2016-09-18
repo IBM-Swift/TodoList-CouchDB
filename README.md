@@ -93,7 +93,7 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
     ```
 6. On the Bluemix console, click on the service created in step 4. Click on the green button titled `Launch`
 
-7. Click on `Create Database` near the top right of the page after launching. Name the database whatever (repo is currently set to expect database name to be `todolist`)
+7. Click on `Create Database` near the top right of the page after launching. Name the database `todolist`
 
 8. Create a design file.
 
