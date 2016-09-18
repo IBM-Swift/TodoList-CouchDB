@@ -27,6 +27,10 @@ You can set up your development environment and use XCode 8 for editing, buildin
 
   `swift package generate-xcodeproj`
   
+6. Set up your database
+
+  `./Database/setup.sh`
+  
 ## Quick start on Linux
 
 To build the project in Linux, you need to first install the Swift 3 toolchain.
@@ -46,10 +50,14 @@ To build the project in Linux, you need to first install the Swift 3 toolchain.
 5. Run the server:
 
  `.build/debug/Deploy`
+ 
+6. Set up your database
+
+  `./Database/setup.sh`
 
 ## Deploying to BlueMix
 
-Bluemix is a hosting platform from IBM that makes it easy to deploy your app to the cloud. 
+Bluemix is a hosting platform from IBM that makes it easy to deploy your app to the cloud. Bluemix also provides various popular databases. [Cloudant](https://cloudant.com/) is an offering that is compatible with the CouchDB database, but provides additional features. You can use Cloudant with your deployed TodoList-CouchDB application.
 
 1. Get an account for [Bluemix](https://new-console.ng.bluemix.net/?direct=classic)
 
@@ -89,7 +97,8 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
 
 8. Create a design file.
 
-  Example design file:
+ Cloudant uses designs that are programs represented in JSON that perform a map reduce operation in the database. This makes the operation perform very quickly in a distributed database.
+ 
   
   ```json
   {
