@@ -23,12 +23,9 @@ import TodoListWeb
 import CloudFoundryEnv
 import TodoListAPI
 import TodoListWeb
-
 import TodoList
 
 Log.logger = HeliumLogger()
-
-
 
 extension DatabaseConfiguration {
 
@@ -52,8 +49,9 @@ let databaseConfiguration: DatabaseConfiguration
 let todos: TodoList
 
 do {
-    if let service = try CloudFoundryEnv.getAppEnv().getService(spec: "TodoList-CouchDB") {
-        Log.verbose("Found TodoList-CouchDB on CloudFoundry")
+    let config = Configuration.getConfiguration()
+    if let service = try CloudFoundryEnv.getAppEnv().getService(spec: "cloudantNoSQLDB") {
+        Log.verbose("Found cloudantNoSQLDB on CloudFoundry")
         databaseConfiguration = DatabaseConfiguration(withService: service)
         todos = TodoList(databaseConfiguration)
     } else {
