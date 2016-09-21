@@ -50,8 +50,8 @@ let todos: TodoList
 
 do {
     let config = Configuration.getConfiguration()
-    if let service = try CloudFoundryEnv.getAppEnv().getService(spec: "cloudantNoSQLDB") {
-        Log.verbose("Found cloudantNoSQLDB on CloudFoundry")
+    if let service = config {
+        Log.verbose("Found TodoList-CouchDB on CloudFoundry")
         databaseConfiguration = DatabaseConfiguration(withService: service)
         todos = TodoList(databaseConfiguration)
     } else {

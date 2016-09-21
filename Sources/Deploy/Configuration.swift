@@ -24,19 +24,22 @@ public struct Configuration {
 
     private static var configurationFile = "cloud_config.json"
 
-    public static func getConfiguration() -> JSON? {
+    public static func getConfiguration() -> Service? {
+        var appEnv: AppEnv
         do {
             let path = Configuration.getAbsolutePath(relativePath: "/\(configurationFile)", useFallback: false)
-            if let finalPath = path {
-                let data = try Data(contentsOf: URL(fileURLWithPath: finalPath))
+            if path != nil {
+                let data = try Data(contentsOf: URL(fileURLWithPath: path!))
                 let configJson = JSON(data: data)
+                appEnv = try CloudFoundryEnv.getAppEnv(options: configJson)
                 Log.info("Using configuration values from '\(configurationFile)'.")
-                return configJson["VCAP_SERVICES"]
             } else {
                 Log.warning("Could not find '\(configurationFile)'.")
-                return nil
+                appEnv = try CloudFoundryEnv.getAppEnv()
             }
+            return appEnv.getService(spec: "TodoList-CouchDB")
         } catch {
+            Log.warning("An error occurred while trying to read configurations.")
             return nil
         }
     }
