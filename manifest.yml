@@ -9,5 +9,4 @@ applications:
   random-route: true
   services:
   - TodoList-CouchDB
-  buildpack: https://github.com/IBM-Swift/swift-buildpack.git#develop
 
