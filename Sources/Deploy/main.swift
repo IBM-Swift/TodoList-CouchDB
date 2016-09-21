@@ -49,8 +49,7 @@ let databaseConfiguration: DatabaseConfiguration
 let todos: TodoList
 
 do {
-    let config = Configuration.getConfiguration()
-    if let service = config {
+    if let service = Configuration.getConfiguration() {
         Log.verbose("Found TodoList-CouchDB on CloudFoundry")
         databaseConfiguration = DatabaseConfiguration(withService: service)
         todos = TodoList(databaseConfiguration)

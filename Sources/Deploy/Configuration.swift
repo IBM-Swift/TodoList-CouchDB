@@ -57,11 +57,7 @@ public struct Configuration {
             // Get path in alternate way, if first way fails
             let currentPath = fileManager.currentDirectoryPath
             filePath = currentPath + relativePath
-            if fileManager.fileExists(atPath: filePath) {
-                return filePath
-            } else {
-                return nil
-            }
+            return fileManager.fileExists(atPath: filePath) ? filePath : nil
         } else {
               return nil
         }
