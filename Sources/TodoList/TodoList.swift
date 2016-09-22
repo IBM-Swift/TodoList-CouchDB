@@ -66,7 +66,7 @@ public class TodoList: TodoListAPI {
         let userParameter = withUserID ?? "default"
 
         database.queryByView("user_todos", ofDesign: designName,
-                             usingParameters: [.keys([userParameter as! AnyObject])]) {
+                             usingParameters: [.keys([userParameter as Any])]) {
                                 document, error in
 
                                 if let document = document , error == nil {
@@ -92,7 +92,7 @@ public class TodoList: TodoListAPI {
 
         database.queryByView("user_todos", ofDesign: designName,
                              usingParameters: [.descending(true), .includeDocs(true),
-                                               .keys([userParameter as! AnyObject])]) {
+                                               .keys([userParameter as Any])]) {
                                                 document, error in
 
                                                 guard let document = document else {
@@ -197,7 +197,7 @@ public class TodoList: TodoListAPI {
 
         database.queryByView("user_todos", ofDesign: designName,
                              usingParameters: [.descending(true), .includeDocs(true),
-                                               .keys([userParameter as! AnyObject])]) {
+                                               .keys([userParameter as Any])]) {
                                                 document, error in
 
                                                 if let document = document , error == nil {
