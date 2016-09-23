@@ -55,7 +55,15 @@ To build the project in Linux, you need to first install the Swift 3 toolchain.
 
   `./Database/setup.sh`
 
-## Deploying to BlueMix
+## Deploying to Bluemix
+
+### Deploy to Bluemix Button
+
+You can use this button to deploy ToDo your Bluemix account, all from the browser. The button will create the application, create and bind any services specified in the manifest.yml file and deploy.
+
+[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB)
+
+### Manually
 
 Bluemix is a hosting platform from IBM that makes it easy to deploy your app to the cloud. Bluemix also provides various popular databases. [Cloudant](https://cloudant.com/) is an offering that is compatible with the CouchDB database, but provides additional features. You can use Cloudant with your deployed TodoList-CouchDB application.
 
