@@ -1,5 +1,5 @@
 {
-"_id": "_design/TodoList-CouchDB",
+"_id": "_design/todosdesign",
 "views" : {
   "all_todos" : {
     "map" : "function(doc) { if (doc.type == 'todo') { emit(doc._id, [doc._id, doc.user, doc.title, doc.completed, doc.rank]); }}"
