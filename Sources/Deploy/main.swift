@@ -27,6 +27,8 @@ import TodoList
 
 HeliumLogger.use()
 
+let databaseName = "TodoList"
+
 extension DatabaseConfiguration {
 
     init(withService: Service) {
@@ -45,15 +47,37 @@ extension DatabaseConfiguration {
     }
 }
 
-let databaseConfiguration: DatabaseConfiguration
+
+extension TodoList {
+    public convenience init(withService: Service) {
+        
+        let host: String
+        let username: String?
+        let password: String?
+        let port: UInt16
+        
+        if let credentials = withService.credentials {
+            host = credentials["host"].stringValue
+            username = credentials["username"].stringValue
+            password = credentials["password"].stringValue
+            port = UInt16(credentials["port"].stringValue)!
+        } else {
+            host = "127.0.0.1"
+            username = nil
+            password = nil
+            port = UInt16(5984)
+        }
+        
+        self.init(database: databaseName, host: host, port: port, username: username, password: password)
+    }
+}
 
 let todos: TodoList
 
 do {
     if let service = Configuration.getConfiguration() {
-        Log.verbose("Found TodoList-CouchDB on CloudFoundry")
-        databaseConfiguration = DatabaseConfiguration(withService: service)
-        todos = TodoList(databaseConfiguration)
+        let database = "TodoList"
+        todos = TodoList(withService: service)
     } else {
         Log.verbose("Did not find TodoList-CouchDB on CloudFoundry")
         todos = TodoList()
