@@ -19,6 +19,8 @@ import Foundation
 import LoggerAPI
 import TodoListAPI
 import SwiftyJSON
+import MiniPromiseKit
+import Dispatch
 
 import CouchDB
 
@@ -38,6 +40,8 @@ public class TodoList: TodoListAPI {
     let databaseName = "todolist"
     let designName = "TodoList-CouchDB"
     let connectionProperties: ConnectionProperties
+    
+    let queue = DispatchQueue(label: "com.ibm.todolist", qos: .userInitiated, attributes: .concurrent)
 
     public init(_ dbConfiguration: DatabaseConfiguration) {
 
@@ -54,8 +58,19 @@ public class TodoList: TodoListAPI {
                 port: UInt16 = TodoList.defaultCouchPort,
                 username: String? = nil, password: String? = nil) {
 
-        connectionProperties = ConnectionProperties(host: host, port: Int16(port), secured: false,
+        connectionProperties = ConnectionProperties(host: host, port: Int16(port), secured: true,
                                                     username: username, password: password)
+    }
+    
+    public func createDatabase() {
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        firstly {
+            couchDBClient.dbExists(databaseName)
+            }.then(on: queue) { result in
+            print("Existence of database is \(result)")
+            }.catch (on: queue) { error in
+                
+        }
     }
 
     public func count(withUserID: String? = nil, oncompletion: @escaping (Int?, Error?) -> Void) {
