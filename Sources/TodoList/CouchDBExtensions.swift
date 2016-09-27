@@ -26,5 +26,17 @@ extension CouchDBClient {
         }
     }
     
+    public func createDB(_ dbName: String) -> Promise<Database> {
+        return Promise { fulfill, reject in
+            createDB(dbName) { (result, error) in
+                if error != nil {
+                    reject(error!)
+                } else {
+                    fulfill(result!)
+                }
+            }
+        }
+    }
+    
         
 }
