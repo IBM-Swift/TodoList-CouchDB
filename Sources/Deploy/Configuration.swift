@@ -22,7 +22,8 @@ import CloudFoundryEnv
 
 public struct Configuration {
 
-    private static var configurationFile = "cloud_config.json"
+    private static let serviceName = "TodoListCloudantDatabase"
+    private static let configurationFile = "cloud_config.json"
 
     public static func getConfiguration() -> Service? {
         var appEnv: AppEnv
@@ -37,7 +38,7 @@ public struct Configuration {
                 Log.warning("Could not find '\(configurationFile)'.")
                 appEnv = try CloudFoundryEnv.getAppEnv()
             }
-            return appEnv.getService(spec: "TodoList-CouchDB")
+            return appEnv.getService(spec: Configuration.serviceName)
         } catch {
             Log.warning("An error occurred while trying to read configurations.")
             return nil
