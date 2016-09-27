@@ -62,7 +62,9 @@ public class TodoList: TodoListAPI {
                 port: UInt16 = TodoList.defaultCouchPort,
                 username: String? = nil, password: String? = nil) {
         
-        connectionProperties = ConnectionProperties(host: host, port: Int16(port), secured: true,
+        let secured = (host == TodoList.defaultCouchHost) ? false : true
+        
+        connectionProperties = ConnectionProperties(host: host, port: Int16(port), secured: secured,
                                                     username: username, password: password)
     }
     
