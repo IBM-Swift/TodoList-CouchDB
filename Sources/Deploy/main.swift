@@ -25,7 +25,7 @@ import TodoListAPI
 import TodoListWeb
 import TodoList
 
-Log.logger = HeliumLogger()
+HeliumLogger.use()
 
 extension DatabaseConfiguration {
 
@@ -46,6 +46,7 @@ extension DatabaseConfiguration {
 }
 
 let databaseConfiguration: DatabaseConfiguration
+
 let todos: TodoList
 
 do {
