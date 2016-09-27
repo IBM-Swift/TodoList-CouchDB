@@ -1,3 +1,4 @@
 .build/*
 Packages/*
 Database/*
+cloud_config.json

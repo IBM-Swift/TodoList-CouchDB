@@ -29,7 +29,7 @@ You can set up your development environment and use XCode 8 for editing, buildin
   
 6. Set up your database
 
-  `./Database/setup.sh`
+  `./Database/setup.sh http://localhost:5984 username password`
   
 ## Quick start on Linux
 
@@ -53,9 +53,15 @@ To build the project in Linux, you need to first install the Swift 3 toolchain.
  
 6. Set up your database
 
-  `./Database/setup.sh`
+  `./Database/setup.sh http://localhost:5984 username password`
 
 ## Deploying to Bluemix
+
+### Using the IBM Cloud Tools for Swift
+
+The TodoList for Cloudant is deployable with a graphical user interface. Download:
+
+- [IBM Cloud Tools for Swift](http://cloudtools.bluemix.net/)
 
 ### Deploy to Bluemix Button
 
@@ -89,55 +95,29 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
     App started
     ```
 
-4. Add a `url` environment variable, with the hostname of the application, to the app on bluemix.
-   To add environment variables on the 'new console' bluemix: go to compute -> <App> -> Runtime -> Environment Variables 
-
-5. Create the Cloudant backend and attach it to your instance.
+4. Create the Cloudant backend and attach it to your instance.
 
     ```
     cf create-service cloudantNoSQLDB Shared database_name
-    cf bind-service Kitura-TodoList database_name
+    cf bind-service TodoListCloudantApp TodoListCloudantDatabase
     cf restage
     ```
-6. On the Bluemix console, click on the service created in step 4. Click on the green button titled `Launch`
+5. Setup your database
 
-7. Click on `Create Database` near the top right of the page after launching. Name the database `todolist`
+    Run `cf env` or use the Bluemix dashboard to discover the hostname, username, and password. Run the setup script, passing
+    in these variables through command line arguments
 
-8. Create a design file.
+    ```
+    cd Database
+    ./setup.sh BLUEMIX_DATABASE_HOST USERNAME PASSWORD
+    ```
 
- Cloudant uses designs that are programs represented in JSON that perform a map reduce operation in the database. This makes the operation perform very quickly in a distributed database.
- 
-  
-  ```json
-  {
-  "_id": "_design/tododb",
-  "views" : {
-    "all_todos" : {
-      "map" : "function(doc) { if (doc.type == 'todo') { emit(doc._id, [doc._id, doc.user, doc.title, doc.completed, doc.rank]); }}"
-    },
-    "user_todos": {
-         "map": "function(doc) { if (doc.type == 'todo') { emit(doc.user, [doc._id, doc.user, doc.title, doc.completed, doc.rank]); }}"
-    },
-    "total_todos": {
-      "map" : "function(doc) { if (doc.type == 'todo') { emit(doc.id, 1); }}",
-      "reduce" : "_count"
-    }
-  }
-  }
-  ```
-
-9. Go back to the service's main page and click on `Service Credentials` which can be found directly under the service name.
-
-10. Click on the blue button `Add New Credential` and add a new credential.
-
-11. Push design to Bluemix using 
-  ```
-  curl -u "'bluemixServiceUserName':'bluemixServicePassword'" -X PUT 'bluemixServiceURL'/todolist/_design/'databaseName' --data-binary @'designFileName'
-  ```
-  
-  - 'bluemixServiceUserName', 'bluemixServicePassword', and 'bluemixServiceURL' come from the credential made in step 9
-  - 'databaseName' comes from the database made in step 6
-  - 'designFileName' comes from the design file made in step 7
+    For example,
+    ```
+    ./setup.sh https://1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix.cloudant.com:443  \
+               1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix \
+               somepassword
+    ```
   
 ## License
 

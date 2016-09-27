@@ -9,25 +9,19 @@ matrix:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update   ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install http-parser curl mosquitto openssl couchdb; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then /usr/local/sbin/mosquitto -c /usr/local/etc/mosquitto/mosquitto.conf -d   ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install curl openssl couchdb; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then couchdb -b && sleep 5 ; fi
 
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -y ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://swift.org/builds/swift-3.0-release/ubuntu1404/swift-3.0-RELEASE/swift-3.0-RELEASE-ubuntu14.04.tar.gz    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tar xzvf swift-3.0-RELEASE-ubuntu14.04.tar.gz    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export PATH=swift-3.0-RELEASE-ubuntu14.04/usr/bin:$PATH    ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install couchdb clang-3.8 lldb-3.8 libicu-dev libkqueue-dev libtool libcurl4-openssl-dev libbsd-dev libblocksruntime-dev build-essential libwrap0-dev libssl-dev libc-ares-dev uuid-dev xsltproc ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install couchdb clang-3.8 ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo couchdb -b && sleep 5 ; fi
 
   - cd Database && sh ./setup.sh && cd ..
+  - git clone https://github.com/IBM-Swift/todolist-tests Tests
 
 script:
-  - git clone https://github.com/IBM-Swift/todolist-tests
-  - mv todolist-tests Tests
-  - cd Database
-  - curl -X PUT http://127.0.0.1:5984/todolist/_design/TodoList-CouchDB --data-binary @mydesign.json
-  - cd ..
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then swift build -Xcc -fblocks -Xlinker -rpath -Xlinker .build/debug ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then swift build ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then swift test ; fi
+  - swift build
+  - swift test 
