@@ -29,7 +29,7 @@ HeliumLogger.use()
 
 let configFile = "cloud_config.json"
 let databaseServiceName = "TodoListCloudantDatabase"
-let databaseName = "TodoList"
+let databaseName = "todolist"
 
 extension TodoList {
     public convenience init(withService: Service) {
@@ -64,9 +64,6 @@ do {
         let database = "TodoList"
         todos = TodoList(withService: service)
   
-
-        todos.createDatabase()
-
         let controller = TodoListController(backend: todos)
 
         let port = try CloudFoundryEnv.getAppEnv().port
