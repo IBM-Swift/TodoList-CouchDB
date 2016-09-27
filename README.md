@@ -29,7 +29,7 @@ You can set up your development environment and use XCode 8 for editing, buildin
   
 6. Set up your database
 
-  `./Database/setup.sh http://localhost:5984 username password`
+  `./Database/setup.sh`
   
 ## Quick start on Linux
 
@@ -53,7 +53,7 @@ To build the project in Linux, you need to first install the Swift 3 toolchain.
  
 6. Set up your database
 
-  `./Database/setup.sh http://localhost:5984 username password`
+  `./Database/setup.sh`
 
 ## Deploying to Bluemix
 
@@ -85,9 +85,15 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
 
     Be sure to run this in the directory where the manifest.yml file is located.
 
+2. Create your Cloudant Service
+
+  ```
+  cf create-service cloudantNoSQLDB Shared database_name
+  ```
+
 3. Run `cf push`   
 
-    ***Note** This step could take a few minutes
+    ***Note** This step will take 3-5 minutes
 
     ```
     1 of 1 instances running 
@@ -95,13 +101,6 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
     App started
     ```
 
-4. Create the Cloudant backend and attach it to your instance.
-
-    ```
-    cf create-service cloudantNoSQLDB Shared database_name
-    cf bind-service TodoListCloudantApp TodoListCloudantDatabase
-    cf restage
-    ```
 5. Setup your database
 
     Run `cf env` or use the Bluemix dashboard to discover the hostname, username, and password. Run the setup script, passing
