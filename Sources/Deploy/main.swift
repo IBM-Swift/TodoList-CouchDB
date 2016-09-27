@@ -27,26 +27,9 @@ import TodoList
 
 HeliumLogger.use()
 
+let configFile = "cloud_config.json"
+let databaseServiceName = "TodoListCloudantDatabase"
 let databaseName = "TodoList"
-
-extension DatabaseConfiguration {
-
-    init(withService: Service) {
-        if let credentials = withService.credentials {
-            self.host = credentials["host"].stringValue
-            self.username = credentials["username"].stringValue
-            self.password = credentials["password"].stringValue
-            self.port = UInt16(credentials["port"].stringValue)!
-        } else {
-            self.host = "127.0.0.1"
-            self.username = nil
-            self.password = nil
-            self.port = UInt16(5984)
-        }
-        self.options = [String : Any]()
-    }
-}
-
 
 extension TodoList {
     public convenience init(withService: Service) {
@@ -74,22 +57,24 @@ extension TodoList {
 
 let todos: TodoList
 
+
 do {
-    if let service = Configuration.getConfiguration() {
+    if let service = try getConfiguration(configFile: configFile,
+                                          serviceName: databaseServiceName) {
         let database = "TodoList"
         todos = TodoList(withService: service)
-    } else {
-        Log.verbose("Did not find TodoList-CouchDB on CloudFoundry")
-        todos = TodoList()
+  
+
+        todos.createDatabase()
+
+        let controller = TodoListController(backend: todos)
+
+        let port = try CloudFoundryEnv.getAppEnv().port
+        Log.verbose("Assigned port is \(port)")
+
+        Kitura.addHTTPServer(onPort: port, with: controller.router)
+        Kitura.run()
     }
-
-    let controller = TodoListController(backend: todos)
-
-    let port = try CloudFoundryEnv.getAppEnv().port
-    Log.verbose("Assigned port is \(port)")
-
-    Kitura.addHTTPServer(onPort: port, with: controller.router)
-    Kitura.run()
 
 } catch CloudFoundryEnvError.InvalidValue {
     Log.error("Oops... something went wrong. Server did not start!")
