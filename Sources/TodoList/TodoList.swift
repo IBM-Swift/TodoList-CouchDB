@@ -68,27 +68,6 @@ public class TodoList: TodoListAPI {
                                                     username: username, password: password)
     }
     
-    public func createDatabase() {
-        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
-        firstly {
-            couchDBClient.dbExists(databaseName)
-            
-            }.then(on: queue) { doesExist -> Promise<Database> in
-                print("Existence of database is \(doesExist)")
-                if doesExist == true {
-                    throw TodoListError.databaseAlreadyExists
-                }
-                
-                return couchDBClient.createDB(self.databaseName)
-                
-            }.then (on: queue) { database in
-                
-            }
-            .catch (on: queue) { error in
-                Log.error(error.localizedDescription)
-        }
-    }
-    
     public func count(withUserID: String? = nil, oncompletion: @escaping (Int?, Error?) -> Void) {
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
