@@ -34,6 +34,11 @@ enum TodoListError: LocalizedError {
     case databaseAlreadyExists
 }
 
+enum Result<T> {
+    case success(T)
+    case error(Error)
+}
+
 /// TodoList for CouchDB
 public class TodoList: TodoListAPI {
     
@@ -432,8 +437,11 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
         
         let doc = $0["value"]
         
-        guard let id = doc[0].string, let user = doc[1].string, let title = doc[2].string,
-            let completed = doc[3].int, let rank = doc[4].int else {
+        guard   let id = doc[0].string,
+                let user = doc[1].string,
+                let title = doc[2].string,
+                let completed = doc[3].int,
+                let rank = doc[4].int else {
                 return nil
                 
         }
