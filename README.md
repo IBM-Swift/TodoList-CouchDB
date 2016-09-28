@@ -101,6 +101,27 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
     App started
     ```
 
+4. Get the credential information:
+
+   ```
+   cf env TodoListCloudantApp
+   ```
+   
+   Note you will see something similar to the following, note the hostname, username, and password:
+   
+   ```
+   "VCAP_SERVICES": {
+  "cloudantNoSQLDB": [
+   {
+    "credentials": {
+     "host": "465ed079-35a8-4731-9425-911843621d7c-bluemix.cloudant.com",
+     "password": "<password is here>",
+     "port": 443,
+     "url": "https://465ed079-35a8-4731-9425-911843621d7c-bluemix:efe561fc02805bcb1e2b013dea4c928942951d31cd74cb2e01df3814751d9f45@465ed079-35a8-4731-9425-911843621d7c-bluemix.cloudant.com",
+     "username": "<username is here>"
+    },
+    ```
+
 5. Setup your database
 
     Run `cf env` or use the Bluemix dashboard to discover the hostname, username, and password. Run the setup script, passing
