@@ -24,7 +24,7 @@ struct ConfigurationError : LocalizedError {
     var errorDescription: String? { return "Could not read configuration information" }
 }
 
-func getConfiguration(configFile: String, serviceName: String) throws -> Service? {
+func getConfiguration(configFile: String, serviceName: String) throws -> Service {
     var appEnv: AppEnv
     do {
         let path = getAbsolutePath(relativePath: "/\(configFile)", useFallback: false)
@@ -38,7 +38,12 @@ func getConfiguration(configFile: String, serviceName: String) throws -> Service
             appEnv = try CloudFoundryEnv.getAppEnv()
         }
         
-        return appEnv.getService(spec: serviceName)
+        guard let service = appEnv.getService(spec: serviceName) else {
+            throw ConfigurationError()
+        }
+        
+        return service
+        
     } catch {
         Log.warning("An error occurred while trying to read configurations.")
         throw ConfigurationError()

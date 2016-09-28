@@ -34,6 +34,11 @@ enum TodoListError: LocalizedError {
     case databaseAlreadyExists
 }
 
+enum Result<T> {
+    case success(T)
+    case error(Error)
+}
+
 /// TodoList for CouchDB
 public class TodoList: TodoListAPI {
     
@@ -66,27 +71,6 @@ public class TodoList: TodoListAPI {
         
         connectionProperties = ConnectionProperties(host: host, port: Int16(port), secured: secured,
                                                     username: username, password: password)
-    }
-    
-    public func createDatabase() {
-        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
-        firstly {
-            couchDBClient.dbExists(databaseName)
-            
-            }.then(on: queue) { doesExist -> Promise<Database> in
-                print("Existence of database is \(doesExist)")
-                if doesExist == true {
-                    throw TodoListError.databaseAlreadyExists
-                }
-                
-                return couchDBClient.createDB(self.databaseName)
-                
-            }.then (on: queue) { database in
-                
-            }
-            .catch (on: queue) { error in
-                Log.error(error.localizedDescription)
-        }
     }
     
     public func count(withUserID: String? = nil, oncompletion: @escaping (Int?, Error?) -> Void) {
@@ -453,8 +437,11 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
         
         let doc = $0["value"]
         
-        guard let id = doc[0].string, let user = doc[1].string, let title = doc[2].string,
-            let completed = doc[3].int, let rank = doc[4].int else {
+        guard   let id = doc[0].string,
+                let user = doc[1].string,
+                let title = doc[2].string,
+                let completed = doc[3].int,
+                let rank = doc[4].int else {
                 return nil
                 
         }
