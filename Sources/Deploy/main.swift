@@ -51,7 +51,8 @@ extension TodoList {
             port = UInt16(5984)
         }
         
-        self.init(database: databaseName, host: host, port: port, username: username, password: password)
+        self.init(database: databaseName, host: host, port: port,
+                  username: username, password: password)
     }
 }
 
@@ -59,20 +60,25 @@ let todos: TodoList
 
 
 do {
-    if let service = try getConfiguration(configFile: configFile,
-                                          serviceName: databaseServiceName) {
-        let database = "TodoList"
-        todos = TodoList(withService: service)
-  
-        let controller = TodoListController(backend: todos)
+    let service = try getConfiguration(configFile: configFile,
+                                       serviceName: databaseServiceName)
+    todos = TodoList(withService: service)
+    
+} catch {
+    todos = TodoList()
+}
 
-        let port = try CloudFoundryEnv.getAppEnv().port
-        Log.verbose("Assigned port is \(port)")
 
-        Kitura.addHTTPServer(onPort: port, with: controller.router)
-        Kitura.run()
-    }
+let controller = TodoListController(backend: todos)
 
+do {
+    let port = try CloudFoundryEnv.getAppEnv().port
+    Log.verbose("Assigned port is \(port)")
+    
+    Kitura.addHTTPServer(onPort: port, with: controller.router)
+    Kitura.run()
+    
+    
 } catch CloudFoundryEnvError.InvalidValue {
     Log.error("Oops... something went wrong. Server did not start!")
 }
