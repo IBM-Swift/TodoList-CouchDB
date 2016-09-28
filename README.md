@@ -88,7 +88,7 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
 2. Create your Cloudant Service
 
   ```
-  cf create-service cloudantNoSQLDB Shared database_name
+  cf create-service cloudantNoSQLDB Shared TodoListCloudantDatabase
   ```
 
 3. Run `cf push`   
