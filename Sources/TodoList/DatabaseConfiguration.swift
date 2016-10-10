@@ -16,7 +16,6 @@
 
 import Foundation
 
-
 public struct DatabaseConfiguration {
 
     public var host: String?

@@ -15,7 +15,6 @@
  **/
 
 import Foundation
-import TodoListAPI
 import CloudFoundryEnv
 
 typealias JSONDictionary = [String : Any]

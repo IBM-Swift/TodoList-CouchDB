@@ -19,9 +19,6 @@ import Foundation
 import Kitura
 import LoggerAPI
 import SwiftyJSON
-import TodoListAPI
-import Credentials
-import CredentialsFacebook
 
 class AllRemoteOriginMiddleware: RouterMiddleware {
     func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Swift.Void) {
@@ -35,12 +32,8 @@ public final class TodoListController {
     public let todos: TodoListAPI
     public let router = Router()
 
-    private let credentialsMiddleware = Credentials()
-    private let fbCredentialsPlugin = CredentialsFacebookToken()
-
     public init(backend: TodoListAPI) {
         self.todos = backend
-        credentialsMiddleware.register(plugin: fbCredentialsPlugin)
         setupRoutes()
     }
 
@@ -49,7 +42,6 @@ public final class TodoListController {
 
         router.all("/*", middleware: BodyParser())
         router.all("/*", middleware: AllRemoteOriginMiddleware())
-        //router.all("/*", middleware: credentialsMiddleware)
         router.get("/", handler: onGetTodos)
         router.get(id, handler: onGetByID)
         router.options("/*", handler: onGetOptions)
@@ -61,7 +53,7 @@ public final class TodoListController {
     }
 
     private func onGetTodos(request: RouterRequest, response: RouterResponse, next: () -> Void) {
-        let userID: String = request.userProfile?.id ?? "default"
+        let userID: String = "default"
         todos.get(withUserID: userID) {
             todos, error in
             do {
@@ -89,7 +81,7 @@ public final class TodoListController {
             return
         }
 
-        let userID: String = request.userProfile?.id ?? "default"
+        let userID: String = "default"
         todos.get(withUserID: userID, withDocumentID: id) {
             item, error in
             do {
@@ -137,7 +129,7 @@ public final class TodoListController {
             return
         }
 
-        let userID: String = request.userProfile?.id ?? "default"
+        let userID: String = "default"
         let title = json["title"].stringValue
         let rank = json["order"].intValue
         let completed = json["completed"].boolValue
@@ -195,7 +187,7 @@ public final class TodoListController {
             return
         }
 
-        let userID: String = request.userProfile?.id ?? "default"
+        let userID: String = "default"
         let title: String? = json["title"].stringValue == "" ? nil : json["title"].stringValue
         let rank = json["order"].intValue
         let completed = json["completed"].boolValue
@@ -228,7 +220,7 @@ public final class TodoListController {
             return
         }
 
-        let userID: String = request.userProfile?.id ?? "default"
+        let userID: String = "default"
 
         todos.delete(withUserID: userID, withDocumentID: documentID) {
             error in
@@ -247,7 +239,7 @@ public final class TodoListController {
     }
 
     private func onDeleteAll(request: RouterRequest, response: RouterResponse, next: () -> Void) {
-        let userID: String = request.userProfile?.id ?? "default"
+        let userID: String = "default"
         todos.clearAll() {
             error in
             do {
