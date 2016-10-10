@@ -20,7 +20,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo couchdb -b && sleep 5 ; fi
 
   - cd Database && sh ./setup.sh && cd ..
-  - git clone https://github.com/IBM-Swift/todolist-tests Tests
 
 script:
   - swift build
