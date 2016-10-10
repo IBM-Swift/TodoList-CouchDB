@@ -17,7 +17,6 @@
 import Foundation
 
 import LoggerAPI
-import TodoListAPI
 import SwiftyJSON
 import MiniPromiseKit
 import Dispatch
