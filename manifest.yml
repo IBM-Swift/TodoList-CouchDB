@@ -1,7 +1,7 @@
 declared-services:
   TodoListCloudantDatabase:
     label: cloudantNoSQLDB
-    plan: Shared
+    plan: Lite
 applications:
 - name: TodoListCloudantApp
   memory: 256M
