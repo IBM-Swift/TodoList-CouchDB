@@ -382,9 +382,8 @@ public class TodoList: TodoListAPI {
             }     
         }   
     }
-}
 
-    func setupDatabaseDesign(db:Database) {
+    private func setupDatabaseDesign(db:Database) {
         let design : [String:Any] = [
             "_id": "_design/todosdesign",
             "views" : [
@@ -401,7 +400,7 @@ public class TodoList: TodoListAPI {
             ]
         ]
         
-        db.createDesign(designName, document: JSON(design), callback: {
+        db.createDesign(self.designName, document: JSON(design), callback: {
             json, error in
             
             if (error != nil) {
@@ -412,8 +411,8 @@ public class TodoList: TodoListAPI {
         })
     }
 
-    func setupDB() {
-        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+    private func setupDB() {
+        let couchDBClient = CouchDBClient(connectionProperties: self.connectionProperties)
         couchDBClient.dbExists(databaseName, callback: {
             exists, error in
             
@@ -434,6 +433,7 @@ public class TodoList: TodoListAPI {
             }
         })
     }
+}
 
 func parseGetIDandRev(_ document: JSON) throws -> [(String, String)] {
     guard let rows = document["rows"].array else {
