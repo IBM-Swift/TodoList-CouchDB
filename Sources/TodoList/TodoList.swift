@@ -50,7 +50,58 @@ public class TodoList: TodoListAPI {
     let connectionProperties: ConnectionProperties
     
     let queue = DispatchQueue(label: "com.ibm.todolist", qos: .userInitiated, attributes: .concurrent)
-    
+
+	func setupDatabaseDesign(db:Database) {
+		let design : [String:Any] = [
+			"_id": "_design/todosdesign",
+			"views" : [
+				"all_todos" : [
+					"map" : "function(doc) { if (doc.type == 'todo') { emit(doc._id, [doc._id, doc.user, doc.title, doc.completed, doc.rank]); }}"
+				],
+				"user_todos": [
+					"map": "function(doc) { if (doc.type == 'todo') { emit(doc.user, [doc._id, doc.user, doc.title, doc.completed, doc.rank]); }}"
+				],
+				"total_todos": [
+					"map" : "function(doc) { if (doc.type == 'todo') { emit(doc.id, 1); }}",
+					"reduce" : "_count"
+				]
+			]
+		]
+		
+		db.createDesign(designName, document: JSON(design), callback: {
+			json, error in
+			
+			if (error != nil) {
+				Log.error("Bad news! Creating design caused a failure: \(error)")
+			} else {
+				Log.info("Good news! We created the design \(json)")
+			}
+		})
+	}
+	
+	func setupDB() {
+		let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+		couchDBClient.dbExists(databaseName, callback: {
+			exists, error in
+			
+			if (exists) {
+				Log.info("Good news! Database exists")
+			} else {
+				Log.error("Bad news! Database does not exist \(error)")
+				couchDBClient.createDB(self.databaseName, callback: {
+					database, error in
+					
+					if (database != nil) {
+						Log.info("Good news!  We created the database")
+						self.setupDatabaseDesign(db: database!)
+					} else {
+						Log.error("Bad news!  We were not able to create the database \(self.databaseName) due to error: \(error)")
+					}
+				})
+			}
+		})
+	}
+	
     public init(_ dbConfiguration: DatabaseConfiguration) {
         
         connectionProperties = ConnectionProperties(host: dbConfiguration.host!,
@@ -58,6 +109,7 @@ public class TodoList: TodoListAPI {
                                                     secured: true,
                                                     username: dbConfiguration.username,
                                                     password: dbConfiguration.password)
+		setupDB()
         
     }
     
@@ -70,6 +122,7 @@ public class TodoList: TodoListAPI {
         
         connectionProperties = ConnectionProperties(host: host, port: Int16(port), secured: secured,
                                                     username: username, password: password)
+		setupDB()
     }
     
     public func count(withUserID: String? = nil, oncompletion: @escaping (Int?, Error?) -> Void) {
