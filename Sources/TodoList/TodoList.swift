@@ -250,15 +250,15 @@ public class TodoList: TodoListAPI {
                 return
             }
             
-            guard let completed = document["completed"].int else {
+            guard let completed = document["completed"].bool else {
                 oncompletion(nil, error)
                 return
             }
             
-            let completedValue = completed == 1 ? true : false
+            //let completedValue = completed == 1 ? true : false
             
             let todoItem = TodoItem(documentID: documentID, userID: userID, rank: rank,
-                                    title: title, completed: completedValue)
+                                    title: title, completed: completed)
             
             oncompletion(todoItem, nil)
         }
@@ -269,18 +269,19 @@ public class TodoList: TodoListAPI {
                     oncompletion: @escaping (TodoItem?, Error?) -> Void ) {
         
         let userID = userID ?? "default"
-        let completedValue = completed ? 1 : 0
         let json: [String: Any] = [
             "type": "todo",
             "user": userID,
             "title": title,
             "rank": rank,
-            "completed": completedValue
+            "completed": completed
         ]
         
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
-        
+        print("String[]: \(json)")
+        let x = JSON(json)
+        print("JSON: \(x.rawString())")
         database.create(JSON(json)) {
             id, rev, document, error in
             
@@ -288,7 +289,7 @@ public class TodoList: TodoListAPI {
                 let todoItem = TodoItem(documentID: id, userID: userID, rank: rank,
                                         title: title, completed: completed)
                 
-                oncompletion( todoItem, nil)
+                oncompletion(todoItem, nil)
             } else {
                 oncompletion(nil, error)
             }
@@ -326,8 +327,8 @@ public class TodoList: TodoListAPI {
             let user = userID
             let title = title ?? document["title"].string!
             let rank = rank ?? document["rank"].int!
-            
-            var completedValue : Int
+            let completed = completed ?? document["completed"].bool!
+            /*var completedValue : Int
             
             if let completed = completed {
                 completedValue = completed ? 1 : 0
@@ -335,14 +336,14 @@ public class TodoList: TodoListAPI {
                 completedValue = document["completed"].int!
             }
             
-            let completedBool = completedValue == 1 ? true : false
+            let completedBool = completedValue == 1 ? true : false*/
             
             let json: [String: Any] = [
                 "type": type,
                 "user": user,
                 "title": title,
                 "rank": rank,
-                "completed": completedValue
+                "completed": completed
             ]
             
             database.update(documentID, rev: rev, document: JSON(json)) {
@@ -352,7 +353,7 @@ public class TodoList: TodoListAPI {
                     oncompletion(nil, error)
                     return
                 }
-                oncompletion (TodoItem(documentID: documentID, userID: user, rank: rank, title: title, completed: completedBool), nil)
+                oncompletion (TodoItem(documentID: documentID, userID: user, rank: rank, title: title, completed: completed), nil)
             }  
         }
     }
@@ -458,13 +459,11 @@ func parseTodoItemList(_ document: JSON) throws -> [TodoItem] {
         guard   let id = doc[0].string,
                 let user = doc[1].string,
                 let title = doc[2].string,
-                let completed = doc[3].int,
+                let completed = doc[3].bool,
                 let rank = doc[4].int else {
                 return nil           
         }
-        
-        let completedValue = completed == 1 ? true : false    
-        return TodoItem(documentID: id, userID: user, rank: rank, title: title, completed: completedValue)      
+        return TodoItem(documentID: id, userID: user, rank: rank, title: title, completed: completed)
     }
     return todos
 }
