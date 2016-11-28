@@ -80,9 +80,9 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
 2. Download and install the [Cloud Foundry tools](https://new-console.ng.bluemix.net/docs/starters/install_cli.html):
 
     ```
-    cf login
-    bluemix api https://api.ng.bluemix.net
-    bluemix login -u username -o org_name -s space_name
+    $ cf login
+    $ bluemix api https://api.ng.bluemix.net
+    $ bluemix login -u username -o org_name -s space_name
     ```
 
     Be sure to run this in the directory where the manifest.yml file is located.
@@ -90,7 +90,7 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
 2. Create your Cloudant Service
 
   ```
-  cf create-service cloudantNoSQLDB Shared TodoListCloudantDatabase
+  $ cf create-service cloudantNoSQLDB Shared TodoListCloudantDatabase
   ```
 
 3. Run `cf push`   
@@ -106,12 +106,12 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
 4. Get the credential information:
 
    ```
-   cf env TodoListCloudantApp
+   $ cf env TodoListCloudantApp
    ```
    
    Note you will see something similar to the following, note the hostname, username, and password:
    
-   ```
+   ```json
    "VCAP_SERVICES": {
   "cloudantNoSQLDB": [
    {
@@ -129,16 +129,16 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
     Run `cf env` or use the Bluemix dashboard to discover the hostname, username, and password. Run the setup script, passing
     in these variables through command line arguments
 
-    ```
-    cd Database
-    ./setup.sh BLUEMIX_DATABASE_HOST USERNAME PASSWORD
+    ```bash
+    $ cd Database
+    $ ./setup.sh BLUEMIX_DATABASE_HOST USERNAME PASSWORD
     ```
 
     For example,
     ```
-    ./setup.sh https://1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix.cloudant.com:443  \
-               1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix \
-               somepassword
+    $ ./setup.sh https://1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix.cloudant.com:443  \
+                 1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix \
+                 somepassword
     ```
   
 ## License
