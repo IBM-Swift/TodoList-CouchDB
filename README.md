@@ -19,17 +19,17 @@ You can set up your development environment and use XCode 8 for editing, buildin
 
   `git clone https://github.com/IBM-Swift/TodoList-CouchDB`
   
-4. Install the test cases:
-
-  `git clone https://github.com/IBM-Swift/todolist-tests Tests`
-  
-5. Make an XCode project
+4. Make an XCode project
 
   `swift package generate-xcodeproj`
   
+5. Start up CouchDB with the `couchdb` command.
+  
 6. Set up your database
 
-  `./Database/setup.sh`
+  `cd Database && ./setup.sh`
+  
+7. Run the `Deploy` target in Xcode and access [http://localhost:8090/](http://localhost:8090/) in your browser to see an empty database.
   
 ## Quick start on Linux
 
@@ -46,14 +46,16 @@ To build the project in Linux, you need to first install the Swift 3 toolchain.
   `git clone https://github.com/IBM-Swift/TodoList-CouchDB`
   
 4. Compile the project with `swift build` on Linux
+ 
+5. Set up your database
 
-5. Run the server:
+  `cd Database && ./setup.sh`
+
+6. Run the server:
 
  `.build/debug/Deploy`
  
-6. Set up your database
-
-  `./Database/setup.sh`
+ Then access [http://localhost:8090/](http://localhost:8090/) in your browser to see an empty database.
 
 ## Deploying to Bluemix
 
