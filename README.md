@@ -71,6 +71,58 @@ You can use this button to deploy ToDo your Bluemix account, all from the browse
 
 [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB)
 
+### Deploying Docker to IBM Bluemix Container
+
+1. Download and install the Bluemix CLI and CF CLI:
+
+  - [Bluemix CLI](http://clis.ng.bluemix.net/ui/home.html)
+  - [CF](https://github.com/cloudfoundry/cli/releases)
+
+2. Install the IBM Containers plugin for CF:
+
+  [Directions are here](https://console.ng.bluemix.net/docs/containers/container_cli_cfic_install.html)
+  
+
+  ```
+  $ bluemix plugin install IBM-Containers -r Bluemix
+  $ bx api https://api.ng.bluemix.net
+  $ bx login 
+  $ cf ic login
+  ```
+  
+  Note the namespace you see:
+  
+  ```
+  Authenticating with the IBM Containers registry host registry.ng.bluemix.net...
+  OK
+  You are authenticated with the IBM Containers registry.
+  Your organization's private Bluemix registry: registry.ng.bluemix.net/<your namespace>
+  ```
+
+5. Build a Docker Image
+  
+  ```
+  $ docker build -t todolist-couchdb . 
+  ```
+  
+6. Tag the Docker image:
+
+  ```
+  $ docker tag todolist-couchdb registry.ng.bluemix.net/<your namespace>/todolist-couchdb
+  ```
+  
+7. Push the Docker image: 
+
+  ```
+  $ docker push registry.ng.bluemix.net/<your namespace>/todolist-couchdb
+  ```
+  
+8. Run the image in Bluemix:
+
+  ```
+  cf ic group create --anti --auto --desired 3 -m 128 --name todo-couchdb -p 8090 -n <hostname you want> -d mybluemix.net registry.ng.bluemix.net/<your namespace>/todolist-couchdb
+  ```
+
 ### Manually
 
 Bluemix is a hosting platform from IBM that makes it easy to deploy your app to the cloud. Bluemix also provides various popular databases. [Cloudant](https://cloudant.com/) is an offering that is compatible with the CouchDB database, but provides additional features. You can use Cloudant with your deployed TodoList-CouchDB application.
