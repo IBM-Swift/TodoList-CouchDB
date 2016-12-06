@@ -73,21 +73,18 @@ You can use this button to deploy ToDo your Bluemix account, all from the browse
 
 ### Deploying Docker to IBM Bluemix Container
 
-1. Download and install the Bluemix CLI and CF CLI:
-
-  - [Bluemix CLI](http://clis.ng.bluemix.net/ui/home.html)
-  - [CF](https://github.com/cloudfoundry/cli/releases)
+1. Download and install the CloudFoundry CLI [here](https://github.com/cloudfoundry/cli/releases).
 
 2. Install the IBM Containers plugin for CF:
 
-  [Directions are here](https://console.ng.bluemix.net/docs/containers/container_cli_cfic_install.html)
+  [Directions are here](https://console.ng.bluemix.net/docs/containers/container_cli_cfic_install.html) for different operating systems.
   
 
   ```
-  $ bluemix plugin install IBM-Containers -r Bluemix
-  $ bx api https://api.ng.bluemix.net
-  $ bx login 
-  $ cf ic login
+  cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-mac
+  cf api https://api.ng.bluemix.net
+  cf login 
+  cf ic login
   ```
   
   Note the namespace you see:
@@ -102,25 +99,31 @@ You can use this button to deploy ToDo your Bluemix account, all from the browse
 5. Build a Docker Image
   
   ```
-  $ docker build -t todolist-couchdb . 
+  docker build -t todolist-couchdb . 
   ```
   
 6. Tag the Docker image:
 
   ```
-  $ docker tag todolist-couchdb registry.ng.bluemix.net/<your namespace>/todolist-couchdb
+  docker tag todolist-couchdb registry.ng.bluemix.net/<your namespace>/todolist-couchdb
   ```
   
 7. Push the Docker image: 
 
   ```
-  $ docker push registry.ng.bluemix.net/<your namespace>/todolist-couchdb
+  docker push registry.ng.bluemix.net/<your namespace>/todolist-couchdb
   ```
   
-8. Run the image in Bluemix:
+8. Create Cloudant service:
 
   ```
-  cf ic group create --anti --auto --desired 3 -m 128 --name todo-couchdb -p 8090 -n <hostname you want> -d mybluemix.net registry.ng.bluemix.net/<your namespace>/todolist-couchdb
+  cf create-service cloudantNoSQLDB Lite TodoList-Cloudant
+  ```
+  
+8. Create the Docker group:
+
+  ```
+  cf ic group create --anti --auto --desired 2 -m 128 --name todo-couchdb -p 8090 -n <hostname you want> -d mybluemix.net registry.ng.bluemix.net/<your namespace>/todolist-couchdb
   ```
 
 ### Manually
