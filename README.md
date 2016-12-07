@@ -117,13 +117,27 @@ You can use this button to deploy ToDo your Bluemix account, all from the browse
 8. Create Cloudant service:
 
   ```
-  cf create-service cloudantNoSQLDB Lite TodoList-Cloudant
+  cf create-service cloudantNoSQLDB Lite TodoListCloudantDatabase
+  ```
+  
+8. Create a new local directory with an `empty.txt` file, then navigate into that directory.
+  
+8. Create a bridge application:
+
+  ```
+   cf push containerbridge -p . -i 1 -d mybluemix.net -k 1M -m 64M --no-hostname --no-manifest --no-route --no-start
+  ```
+  
+8. Bind service to bridge app:
+
+  ```
+  cf bind-service containerbridge TodoListCloudantDatabase
   ```
   
 8. Create the Docker group:
 
   ```
-  cf ic group create --anti --auto --desired 2 -m 128 --name todo-couchdb -p 8090 -n <hostname you want> -d mybluemix.net registry.ng.bluemix.net/<your namespace>/todolist-couchdb
+  cf ic group create --name todolist-couchdb -n <hostname you want> -d mybluemix.net -p 8090 -e "CCS_BIND_APP=containerbridge" registry.ng.bluemix.net/<your namespace>/todolist-couchdb
   ```
 
 ### Manually
