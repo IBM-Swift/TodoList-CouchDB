@@ -137,7 +137,7 @@ You can use this button to deploy ToDo your Bluemix account, all from the browse
 8. Create the Docker group:
 
   ```
-  cf ic group create --name todolist-couchdb -n <hostname you want> -d mybluemix.net -p 8090 -e "CCS_BIND_APP=containerbridge" registry.ng.bluemix.net/<your namespace>/todolist-couchdb
+  cf ic group create --name todolist-couchdb -n <hostname you want> -d mybluemix.net -p 8090 -m 128 -e "CCS_BIND_APP=containerbridge" registry.ng.bluemix.net/<your namespace>/todolist-couchdb
   ```
 
 ### Manually

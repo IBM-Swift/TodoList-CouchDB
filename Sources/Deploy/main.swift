@@ -25,7 +25,6 @@ import TodoList
 HeliumLogger.use()
 
 let configFile = "cloud_config.json"
-let databaseServiceName = "TodoListCloudantDatabase"
 let databaseName = "todolist"
 
 extension TodoList {
@@ -57,8 +56,7 @@ let todos: TodoList
 
 
 do {
-    let service = try getConfiguration(configFile: configFile,
-                                       serviceName: databaseServiceName)
+    let service = try getConfiguration(configFile: configFile)
     todos = TodoList(withService: service)
     
 } catch {

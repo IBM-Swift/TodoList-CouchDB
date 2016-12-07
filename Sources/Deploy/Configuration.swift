@@ -24,7 +24,7 @@ struct ConfigurationError : LocalizedError {
     var errorDescription: String? { return "Could not read configuration information" }
 }
 
-func getConfiguration(configFile: String, serviceName: String) throws -> Service {
+func getConfiguration(configFile: String) throws -> Service {
     var appEnv: AppEnv
     do {
         let path = getAbsolutePath(relativePath: "/\(configFile)", useFallback: false)
@@ -38,10 +38,12 @@ func getConfiguration(configFile: String, serviceName: String) throws -> Service
             appEnv = try CloudFoundryEnv.getAppEnv()
         }
         
-        guard let service = appEnv.getService(spec: serviceName) else {
+        let services = appEnv.getServices()
+        let servicePair = services.filter { element in element.value.label == "cloudantNoSQLDB" }.first
+        guard let service = servicePair?.value else {
             throw ConfigurationError()
         }
-        
+ 
         return service
         
     } catch {
