@@ -144,14 +144,13 @@ You can use this button to deploy ToDo your Bluemix account, all from the browse
 
 Bluemix is a hosting platform from IBM that makes it easy to deploy your app to the cloud. Bluemix also provides various popular databases. [Cloudant](https://cloudant.com/) is an offering that is compatible with the CouchDB database, but provides additional features. You can use Cloudant with your deployed TodoList-CouchDB application.
 
-1. Get an account for [Bluemix](https://new-console.ng.bluemix.net/?direct=classic)
+1. Get an account for [Bluemix](https://console.ng.bluemix.net/registration/)
 
 2. Download and install the [Cloud Foundry tools](https://new-console.ng.bluemix.net/docs/starters/install_cli.html):
 
     ```
-    $ cf login
-    $ bluemix api https://api.ng.bluemix.net
-    $ bluemix login -u username -o org_name -s space_name
+    cf api https://api.ng.bluemix.net
+    cf login
     ```
 
     Be sure to run this in the directory where the manifest.yml file is located.
@@ -175,7 +174,7 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
 4. Get the credential information:
 
    ```
-   $ cf env TodoListCloudantApp
+   cf env TodoListCloudantApp
    ```
    
    Note you will see something similar to the following, note the hostname, username, and password:
@@ -199,13 +198,13 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
     in these variables through command line arguments
 
     ```bash
-    $ cd Database
-    $ ./setup.sh BLUEMIX_DATABASE_HOST USERNAME PASSWORD
+    cd Database
+    ./setup.sh BLUEMIX_DATABASE_HOST USERNAME PASSWORD
     ```
 
     For example,
     ```
-    $ ./setup.sh https://1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix.cloudant.com:443  \
+    ./setup.sh https://1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix.cloudant.com:443  \
                  1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix \
                  somepassword
     ```
