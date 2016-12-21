@@ -39,12 +39,12 @@ extension TodoList {
             let tempHost = credentials["host"] as? String,
             let tempUsername = credentials["username"] as? String,
             let tempPswd = credentials["password"] as? String,
-            let tempPort = credentials["port"] as? UInt16 {
-            
+            let tempPort = credentials["port"] as? Int {
+
             host = tempHost
             username = tempUsername
             password = tempPswd
-            port = tempPort
+            port = UInt16(tempPort)
         } else {
             host = "127.0.0.1"
             username = nil
