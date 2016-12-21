@@ -16,7 +16,6 @@
 
 import Foundation
 import CouchDB
-import SwiftyJSON
 import LoggerAPI
 import CloudFoundryEnv
 
@@ -25,20 +24,24 @@ struct ConfigurationError : LocalizedError {
 }
 
 func getConfiguration(configFile: String) throws -> Service {
-    var appEnv: AppEnv
+    var appEnv: AppEnv?
     do {
         let path = getAbsolutePath(relativePath: "/\(configFile)", useFallback: false)
         if path != nil {
             let data = try Data(contentsOf: URL(fileURLWithPath: path!))
-            let configJson = JSON(data: data)
-            appEnv = try CloudFoundryEnv.getAppEnv(options: configJson)
-            Log.info("Using configuration values from '\(configFile)'.")
-        } else {
+            if let jsonDictionary = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves) as? [String: Any] {
+                appEnv = try CloudFoundryEnv.getAppEnv(options: jsonDictionary)
+                Log.info("Using configuration values from '\(configFile)'.")
+            }
+        }
+        Log.warning("AppENV status: \(appEnv)")
+        if appEnv == nil {
             Log.warning("No \(configFile) using CloudFoundry environment instead.")
             appEnv = try CloudFoundryEnv.getAppEnv()
         }
+        Log.warning("AppENV status NOW: \(appEnv)")
         
-        let services = appEnv.getServices()
+        let services = appEnv!.getServices()
         let servicePair = services.filter { element in element.value.label == "cloudantNoSQLDB" }.first
         guard let service = servicePair?.value else {
             throw ConfigurationError()
