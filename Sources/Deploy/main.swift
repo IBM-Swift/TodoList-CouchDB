@@ -35,11 +35,16 @@ extension TodoList {
         let password: String?
         let port: UInt16
         
-        if let credentials = withService.credentials {
-            host = credentials["host"].stringValue
-            username = credentials["username"].stringValue
-            password = credentials["password"].stringValue
-            port = UInt16(credentials["port"].stringValue)!
+        if let credentials = withService.credentials,
+            let tempHost = credentials["host"] as? String,
+            let tempUsername = credentials["username"] as? String,
+            let tempPswd = credentials["password"] as? String,
+            let tempPort = credentials["port"] as? Int {
+
+            host = tempHost
+            username = tempUsername
+            password = tempPswd
+            port = UInt16(tempPort)
         } else {
             host = "127.0.0.1"
             username = nil
