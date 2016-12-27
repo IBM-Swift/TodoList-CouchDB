@@ -1,9 +1,9 @@
-# ToDo CouchDB and Cloudant backend
+# TodoList CouchDB and Cloudant backend
 
 Todo backend is an example of using the [Kitura](https://github.com/IBM-Swift/Kitura) Swift framework for building a productivity app with a database for storage of tasks.
 
 [![Build Status](https://travis-ci.org/IBM-Swift/TodoList-CouchDB.svg?branch=master)](https://travis-ci.org/IBM-Swift/TodoList-CouchDB)
-![](https://img.shields.io/badge/Swift-3.0%20RELEASE-orange.svg?style=flat)
+![](https://img.shields.io/badge/Swift-3.0.2%20RELEASE-orange.svg?style=flat)
 ![](https://img.shields.io/badge/platform-Linux,%20macOS-blue.svg?style=flat)
 
 ## Quick start for local development:
@@ -96,7 +96,7 @@ You can use this button to deploy ToDo your Bluemix account, all from the browse
   Your organization's private Bluemix registry: registry.ng.bluemix.net/<your namespace>
   ```
 
-5. Build a Docker Image
+5. Build a Docker image
   
   ```
   docker build -t todolist-couchdb . 
