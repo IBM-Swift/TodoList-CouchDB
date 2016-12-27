@@ -20,6 +20,7 @@ import Kitura
 import HeliumLogger
 import LoggerAPI
 import CloudFoundryEnv
+import CloudFoundryDeploymentTracker
 import TodoList
 
 HeliumLogger.use()
@@ -75,6 +76,7 @@ do {
     let port = try CloudFoundryEnv.getAppEnv().port
     Log.verbose("Assigned port is \(port)")
     
+    CloudFoundryDeploymentTracker(repositoryURL: "https://github.com/IBM-Swift/TodoList-CouchDB.git").track()
     Kitura.addHTTPServer(onPort: port, with: controller.router)
     Kitura.run()
     
