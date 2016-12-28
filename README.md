@@ -5,6 +5,7 @@ Todo backend is an example of using the [Kitura](https://github.com/IBM-Swift/Ki
 [![Build Status](https://travis-ci.org/IBM-Swift/TodoList-CouchDB.svg?branch=master)](https://travis-ci.org/IBM-Swift/TodoList-CouchDB)
 ![](https://img.shields.io/badge/Swift-3.0.2%20RELEASE-orange.svg?style=flat)
 ![](https://img.shields.io/badge/platform-Linux,%20macOS-blue.svg?style=flat)
+![Bluemix Deployments](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/badge.svg)
 
 ## Quick start for local development:
 
@@ -13,7 +14,7 @@ You can set up your development environment and use XCode 8 for editing, buildin
 1. Download [Xcode 8](https://swift.org/download/)
 2. Download [CouchDB](http://couchdb.apache.org/)
  
- You can use `brew install couchdb` 
+ You can use `brew install couchdb`
 
 3. Clone the TodoList CouchDB repository:
 
@@ -69,7 +70,7 @@ The TodoList for Cloudant is deployable with a graphical user interface. Downloa
 
 You can use this button to deploy ToDo your Bluemix account, all from the browser. The button will create the application, create and bind any services specified in the manifest.yml file and deploy.
 
-[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB)
+[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB.git)
 
 ### Deploying Docker to IBM Bluemix Container
 
