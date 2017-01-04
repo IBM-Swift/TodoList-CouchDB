@@ -4,7 +4,7 @@ let package = Package(
     name: "TodoList",
     targets: [
         Target(
-            name: "Deploy",
+            name: "Server",
             dependencies: [.Target(name: "TodoList")]
         ),
         Target(
