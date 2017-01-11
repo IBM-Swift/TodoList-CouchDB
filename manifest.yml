@@ -7,7 +7,7 @@ applications:
   memory: 256M
   instances: 1
   random-route: true
-  command: Deploy
+  command: Server
   services:
   - TodoListCloudantDatabase
 
