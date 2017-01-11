@@ -30,4 +30,4 @@ COPY . $HOME
 # Compile the application
 RUN swift build --configuration release
 
-CMD .build/release/Deploy
+CMD .build/release/Server
