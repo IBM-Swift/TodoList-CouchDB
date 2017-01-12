@@ -74,6 +74,79 @@ You can use this button to deploy TodoList to your Bluemix account, all from the
 
 ### Deploying Docker to IBM Bluemix Container
 
+For the following instructions, we will be using our [Bash Script](config.sh) located in the root directory.
+You can attempt to complete the whole process with the following command:
+
+```
+./config.sh all <imageName>
+```
+
+Or, you can follow the step-by-step instructions below.
+
+1. Install the Cloud Foundry CLI tool and the IBM Containers plugin for CF with the following
+
+  ```
+  ./config.sh install-tools
+  ```
+
+2. Ensure you are logged in with
+
+  ```
+  ./config.sh login
+  ```
+
+3. Build and run a Docker container with the following
+
+  ```
+  ./config.sh build <imageName>
+  ```
+  To test out created Docker image, use
+
+  ```
+  ./config.sh run <imageName>
+  ./config.sh stop <imageName>
+  ```
+  
+4. Push created Docker container to Bluemix
+
+  ```
+  ./config.sh push-docker <imageName>
+  ```
+
+5. Create a bridge CF application to later bind to your container
+
+  ```
+  ./config.sh create-bridge
+  ```
+  
+6. Create the Compose for PostgreSQL service and bind to your bridge CF application.
+
+  ```
+  ./config.sh create-db
+  ```
+  
+7. Create a Bluemix container group where your app will live, binding it to your bridge CF application in the process
+
+  ```
+  ./config.sh deploy <imageName>
+  ```
+
+  Afterwards, you can ensure PostgreSQL was bound correctly by viewing all credentials for your group
+
+  ```
+  cf ic group inspect <imageName>
+  ```
+  
+8. Lastly, we need to setup our database with some data
+
+  ```
+  ./config.sh populate-db
+  ```
+
+Once you run that command, you are done! Accessing your apps route should return your todos, which should be `[]` to start. 
+
+### Deploying Docker to IBM Bluemix Container (old)
+
 1. Download and install the CloudFoundry CLI [here](https://github.com/cloudfoundry/cli/releases).
 
 2. Install the IBM Containers plugin for CF:
