@@ -119,7 +119,7 @@ Or, you can follow the step-by-step instructions below.
   ./config.sh create-bridge
   ```
   
-6. Create the Compose for PostgreSQL service and bind to your bridge CF application.
+6. Create the Cloudant service and bind to your bridge CF application.
 
   ```
   ./config.sh create-db
@@ -131,7 +131,7 @@ Or, you can follow the step-by-step instructions below.
   ./config.sh deploy <imageName>
   ```
 
-  Afterwards, you can ensure PostgreSQL was bound correctly by viewing all credentials for your group
+  Afterwards, you can ensure Cloudant was bound correctly by viewing all credentials for your group
 
   ```
   cf ic group inspect <imageName>
