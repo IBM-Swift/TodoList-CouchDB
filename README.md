@@ -136,77 +136,14 @@ Or, you can follow the step-by-step instructions below.
   ```
   cf ic group inspect <imageName>
   ```
-
-At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` to start. 
-
-### Deploying Docker to IBM Bluemix Container (old)
-
-1. Download and install the CloudFoundry CLI [here](https://github.com/cloudfoundry/cli/releases).
-
-2. Install the IBM Containers plugin for CF:
-
-  [Directions are here](https://console.ng.bluemix.net/docs/containers/container_cli_cfic_install.html) for different operating systems.
   
+8. Optionally, if you want to populate your database with some sample data, run the following command with your image name:
 
   ```
-  cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-mac
-  cf api https://api.ng.bluemix.net
-  cf login 
-  cf ic login
-  ```
-  
-  Note the namespace you see:
-  
-  ```
-  Authenticating with the IBM Containers registry host registry.ng.bluemix.net...
-  OK
-  You are authenticated with the IBM Containers registry.
-  Your organization's private Bluemix registry: registry.ng.bluemix.net/<your namespace>
+  ./config.sh populate-db <imageName>
   ```
 
-5. Build a Docker image
-  
-  ```
-  docker build -t todolist-couchdb . 
-  ```
-  
-6. Tag the Docker image:
-
-  ```
-  docker tag todolist-couchdb registry.ng.bluemix.net/<your namespace>/todolist-couchdb
-  ```
-  
-7. Push the Docker image: 
-
-  ```
-  docker push registry.ng.bluemix.net/<your namespace>/todolist-couchdb
-  ```
-  
-8. Create Cloudant service:
-
-  ```
-  cf create-service cloudantNoSQLDB Lite TodoListCloudantDatabase
-  ```
-  
-8. Create a new local directory with an `empty.txt` file, then navigate into that directory.
-  
-8. Create a bridge application:
-
-  ```
-   cf push containerbridge -p . -i 1 -d mybluemix.net -k 1M -m 64M --no-hostname --no-manifest --no-route --no-start
-  ```
-  
-8. Bind service to bridge app:
-
-  ```
-  cf bind-service containerbridge TodoListCloudantDatabase
-  ```
-  
-8. Create the Docker group:
-
-  ```
-  cf ic group create --anti --auto --name todolist-couchdb -n <hostname you want> -d mybluemix.net -p 8090 -m 128 -e "CCS_BIND_APP=containerbridge" registry.ng.bluemix.net/<your namespace>/todolist-couchdb
-  ```
+At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` if you did not populate the database. 
 
 ### Manually
 

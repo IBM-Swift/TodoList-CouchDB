@@ -26,7 +26,7 @@ function help {
 	    create-bridge				Creates empty bridge application
 	    create-db				        Creates database service and binds to bridge
 	    deploy <imageName>				Binds everything together (app, db, container) through container group
-	    populate-db					Populates database with initial data
+	    populate-db	<imageName>			Populates database with initial data
 	    delete <imageName>				Delete the group container and deletes created service if possible
 	    all <imageName>                 		Combines all necessary commands to deploy an app to Bluemix in a Docker container.
 !!EOF
@@ -132,16 +132,16 @@ deployContainer () {
 }
 
 populateDB () {
-	if [ -z $BRIDGE_APP_NAME ]
+	if [ -z "$1" ]
 	then
-		echo "Error: Could not deploy container to Bluemix, missing variables."
+		echo "Error: Could not populate db with sample data, missing imageName."
 		return
 	fi
-	rawValue=$(cf env $BRIDGE_APP_NAME | grep 'uri_cli' | awk -F: '{print $2}')
-	commanToRun=$(echo $rawValue | tr -d '\' | sed -e 's/^"//' -e 's/"$//')
-	
-	password=$(cf env $BRIDGE_APP_NAME | grep 'postgres://' | sed -e 's/@bluemix.*$//' -e 's/^.*admin://')
-	eval PGPASSWORD=$password $commanToRun < Database/schema.sql
+
+	appURL="https://"$1"-app.mybluemix.net"
+	eval $(curl -X POST -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $appURL)
+	eval $(curl -X POST -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $appURL)
+	eval $(curl -X POST -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $appURL)
 }
 
 delete () {
@@ -193,7 +193,7 @@ case $ACTION in
 "create-bridge")		 createBridge;;
 "create-db")		     createDatabase;;
 "deploy")				 deployContainer "$2";;
-"populate-db")			 populateDB;;
+"populate-db")			 populateDB "$2";;
 "delete")				 delete "$2";;
 "all")					 all "$2";;
 *)                       help;;
