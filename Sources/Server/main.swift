@@ -22,6 +22,8 @@ import LoggerAPI
 import CloudFoundryEnv
 import CloudFoundryDeploymentTracker
 import TodoList
+import SwiftConfiguration
+import BluemixConfig
 
 HeliumLogger.use()
 
@@ -62,6 +64,21 @@ let todos: TodoList
 
 
 do {
+    //test
+    let manager = ConfigurationManager()
+    
+    try? manager.loadEnvironmentVariables().loadFile("config.json")
+    
+    let cloudantConfig = manager.getService(type: .cloudant)
+    
+    if let cloudantConfig = cloudantConfig {
+        print("cloudantConfig \(cloudantConfig)")
+    } else {
+        print("*** ERROR")
+    }
+    //test end
+    
+    
     let service = try getConfiguration(configFile: configFile)
     todos = TodoList(withService: service)
     
