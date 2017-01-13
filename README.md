@@ -136,14 +136,8 @@ Or, you can follow the step-by-step instructions below.
   ```
   cf ic group inspect <imageName>
   ```
-  
-8. Lastly, we need to setup our database with some data
 
-  ```
-  ./config.sh populate-db
-  ```
-
-Once you run that command, you are done! Accessing your apps route should return your todos, which should be `[]` to start. 
+At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` to start. 
 
 ### Deploying Docker to IBM Bluemix Container (old)
 
