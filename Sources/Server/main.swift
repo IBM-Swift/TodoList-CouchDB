@@ -31,61 +31,35 @@ let configFile = "cloud_config.json"
 let databaseName = "todolist"
 
 extension TodoList {
-    public convenience init(withService: Service) {
+    public convenience init(config: CloudantService) {
         
-        let host: String
-        let username: String?
-        let password: String?
-        let port: UInt16
-        
-        if let credentials = withService.credentials,
-            let tempHost = credentials["host"] as? String,
-            let tempUsername = credentials["username"] as? String,
-            let tempPswd = credentials["password"] as? String,
-            let tempPort = credentials["port"] as? Int {
-
-            host = tempHost
-            username = tempUsername
-            password = tempPswd
-            port = UInt16(tempPort)
-        } else {
-            host = "127.0.0.1"
-            username = nil
-            password = nil
-            port = UInt16(5984)
-        }
-        
-        self.init(database: databaseName, host: host, port: port,
-                  username: username, password: password)
+        self.init(host: config.host, port: UInt16(config.port),
+                  username: config.username, password: config.password)
     }
 }
 
 let todos: TodoList
 
-
 do {
-    //test
     let manager = ConfigurationManager()
     
-    try? manager.loadEnvironmentVariables().loadFile("config.json")
+    try manager.loadEnvironmentVariables().loadFile("config.json")
     
-    let cloudantConfig = manager.getService(type: .cloudant)
-    
-    if let cloudantConfig = cloudantConfig {
-        print("cloudantConfig \(cloudantConfig)")
+    if let cloudantConfig = manager.getService(type: .cloudant) as? CloudantService {
+        
+        todos = TodoList(config: cloudantConfig)
+        Log.debug("Cloudant configuration: \(cloudantConfig)")
+        
     } else {
-        print("*** ERROR")
+        
+        todos = TodoList()
     }
-    //test end
+}
+catch {
     
-    
-    let service = try getConfiguration(configFile: configFile)
-    todos = TodoList(withService: service)
-    
-} catch {
+    Log.error("Service credentials not found")
     todos = TodoList()
 }
-
 
 let controller = TodoListController(backend: todos)
 
