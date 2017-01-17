@@ -19,7 +19,6 @@ import Foundation
 import Kitura
 import HeliumLogger
 import LoggerAPI
-import CloudFoundryEnv
 import CloudFoundryDeploymentTracker
 import TodoList
 import SwiftConfiguration
@@ -40,8 +39,9 @@ extension TodoList {
 
 let todos: TodoList
 
+let manager = ConfigurationManager()
+
 do {
-    let manager = ConfigurationManager()
     
     try manager.load(.EnvironmentVariables).load(file: "config.json")
     
@@ -64,7 +64,8 @@ catch {
 let controller = TodoListController(backend: todos)
 
 do {
-    let port = try CloudFoundryEnv.getAppEnv().port
+    
+    let port = manager.applicationPort
     Log.verbose("Assigned port is \(port)")
     
     CloudFoundryDeploymentTracker(repositoryURL: "https://github.com/IBM-Swift/TodoList-CouchDB.git").track()
@@ -72,6 +73,6 @@ do {
     Kitura.run()
     
     
-} catch CloudFoundryEnvError.InvalidValue {
+} catch {
     Log.error("Oops... something went wrong. Server did not start!")
 }
