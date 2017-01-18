@@ -19,9 +19,10 @@ import Foundation
 import Kitura
 import HeliumLogger
 import LoggerAPI
-import CloudFoundryEnv
 import CloudFoundryDeploymentTracker
 import TodoList
+import SwiftConfiguration
+import BluemixConfig
 
 HeliumLogger.use()
 
@@ -29,51 +30,41 @@ let configFile = "cloud_config.json"
 let databaseName = "todolist"
 
 extension TodoList {
-    public convenience init(withService: Service) {
+    public convenience init(config: CloudantService) {
         
-        let host: String
-        let username: String?
-        let password: String?
-        let port: UInt16
-        
-        if let credentials = withService.credentials,
-            let tempHost = credentials["host"] as? String,
-            let tempUsername = credentials["username"] as? String,
-            let tempPswd = credentials["password"] as? String,
-            let tempPort = credentials["port"] as? Int {
-
-            host = tempHost
-            username = tempUsername
-            password = tempPswd
-            port = UInt16(tempPort)
-        } else {
-            host = "127.0.0.1"
-            username = nil
-            password = nil
-            port = UInt16(5984)
-        }
-        
-        self.init(database: databaseName, host: host, port: port,
-                  username: username, password: password)
+        self.init(host: config.host, port: UInt16(config.port),
+                  username: config.username, password: config.password)
     }
 }
 
 let todos: TodoList
 
+let manager = ConfigurationManager()
 
 do {
-    let service = try getConfiguration(configFile: configFile)
-    todos = TodoList(withService: service)
     
-} catch {
+    try manager.load(.EnvironmentVariables).load(file: "config.json")
+    
+    if let cloudantConfig = try manager.getCloudantService(name: "TodoListCloudantDatabase") {
+        
+        todos = TodoList(config: cloudantConfig)
+        
+    } else {
+        
+        todos = TodoList()
+    }
+}
+catch {
+    
+    Log.error("Service credentials not found")
     todos = TodoList()
 }
-
 
 let controller = TodoListController(backend: todos)
 
 do {
-    let port = try CloudFoundryEnv.getAppEnv().port
+    
+    let port = manager.applicationPort
     Log.verbose("Assigned port is \(port)")
     
     CloudFoundryDeploymentTracker(repositoryURL: "https://github.com/IBM-Swift/TodoList-CouchDB.git").track()
@@ -81,6 +72,6 @@ do {
     Kitura.run()
     
     
-} catch CloudFoundryEnvError.InvalidValue {
+} catch {
     Log.error("Oops... something went wrong. Server did not start!")
 }
