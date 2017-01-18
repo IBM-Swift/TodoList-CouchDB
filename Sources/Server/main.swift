@@ -48,7 +48,6 @@ do {
     if let cloudantConfig = try manager.getCloudantService(name: "TodoListCloudantDatabase") {
         
         todos = TodoList(config: cloudantConfig)
-        Log.debug("Cloudant configuration: \(cloudantConfig)")
         
     } else {
         
