@@ -26,11 +26,7 @@ You can set up your development environment and use XCode 8 for editing, buildin
   
 5. Start up CouchDB with the `couchdb` command.
   
-6. Set up your database
-
-  `cd Database && ./setup.sh`
-  
-7. Run the `Server` target in Xcode and access [http://localhost:8090/](http://localhost:8090/) in your browser to see an empty database.
+6. Run the `Server` target in Xcode and access [http://localhost:8090/](http://localhost:8090/) in your browser to see an empty database.
   
 ## Quick start on Linux
 
@@ -47,12 +43,8 @@ To build the project in Linux, you need to first install the Swift 3 toolchain.
   `git clone https://github.com/IBM-Swift/TodoList-CouchDB`
   
 4. Compile the project with `swift build` on Linux
- 
-5. Set up your database
 
-  `cd Database && ./setup.sh`
-
-6. Run the server:
+5. Run the server:
 
  `.build/debug/Server`
  
@@ -196,23 +188,7 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
      "username": "<username is here>"
     },
     ```
-
-5. Setup your database
-
-    Run `cf env` or use the Bluemix dashboard to discover the hostname, username, and password. Run the setup script, passing
-    in these variables through command line arguments
-
-    ```bash
-    cd Database
-    ./setup.sh BLUEMIX_DATABASE_HOST USERNAME PASSWORD
-    ```
-
-    For example,
-    ```
-    ./setup.sh https://1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix.cloudant.com:443  \
-                 1e2e6460-4090-4e6d-8d37-70f308ae2155-bluemix \
-                 somepassword
-    ```
+  At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` to start.
   
 ## Privacy Notice
 This Swift application includes code to track deployments to [IBM Bluemix](https://www.bluemix.net/) and other Cloud Foundry platforms. The following information is sent to a [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) service on each deployment:
