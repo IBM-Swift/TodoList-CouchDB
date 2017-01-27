@@ -43,16 +43,10 @@ let manager = ConfigurationManager()
 
 do {
     
-    try manager.load(.EnvironmentVariables).load(file: "config.json")
+    try manager.load(.environmentVariables).load(file: "config.json")
+    let cloudantConfig = try manager.getCloudantService(name: "TodoListCloudantDatabase")
+    todos = TodoList(config: cloudantConfig)
     
-    if let cloudantConfig = try manager.getCloudantService(name: "TodoListCloudantDatabase") {
-        
-        todos = TodoList(config: cloudantConfig)
-        
-    } else {
-        
-        todos = TodoList()
-    }
 }
 catch {
     
