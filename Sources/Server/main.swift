@@ -21,7 +21,7 @@ import HeliumLogger
 import LoggerAPI
 import CloudFoundryDeploymentTracker
 import TodoList
-import SwiftConfiguration
+import Configuration
 import BluemixConfig
 
 HeliumLogger.use()
@@ -55,17 +55,9 @@ catch {
 }
 
 let controller = TodoListController(backend: todos)
+let port = manager.applicationPort
+Log.verbose("Assigned port is \(port)")
 
-do {
-    
-    let port = manager.applicationPort
-    Log.verbose("Assigned port is \(port)")
-    
-    CloudFoundryDeploymentTracker(repositoryURL: "https://github.com/IBM-Swift/TodoList-CouchDB.git").track()
-    Kitura.addHTTPServer(onPort: port, with: controller.router)
-    Kitura.run()
-    
-    
-} catch {
-    Log.error("Oops... something went wrong. Server did not start!")
-}
+CloudFoundryDeploymentTracker(repositoryURL: "https://github.com/IBM-Swift/TodoList-CouchDB.git").track()
+Kitura.addHTTPServer(onPort: port, with: controller.router)
+Kitura.run()
