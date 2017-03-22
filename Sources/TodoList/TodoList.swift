@@ -281,7 +281,7 @@ public class TodoList: TodoListAPI {
         let database = couchDBClient.database(databaseName)
         print("String[]: \(json)")
         let x = JSON(json)
-        print("JSON: \(x.rawString())")
+        print("JSON: \(x.rawString() as String?)")
         database.create(JSON(json)) {
             id, rev, document, error in
             
@@ -405,9 +405,9 @@ public class TodoList: TodoListAPI {
             json, error in
             
             if (error != nil) {
-                Log.error("Bad news! Creating design caused a failure: \(error)")
+                Log.error("Bad news! Creating design caused a failure: \(error as Error?)")
             } else {
-                Log.info("Good news! We created the design \(json)")
+                Log.info("Good news! We created the design \(json as JSON?)")
             }
         })
     }
@@ -420,7 +420,7 @@ public class TodoList: TodoListAPI {
             if (exists) {
                 Log.info("Good news! Database exists")
             } else {
-                Log.error("Bad news! Database does not exist \(error)")
+                Log.error("Bad news! Database does not exist \(error as Error?)")
                 couchDBClient.createDB(self.databaseName, callback: {
                     database, error in
                     
@@ -428,7 +428,7 @@ public class TodoList: TodoListAPI {
                         Log.info("Good news!  We created the database")
                         self.setupDatabaseDesign(db: database!)
                     } else {
-                        Log.error("Bad news!  We were not able to create the database \(self.databaseName) due to error: \(error)")
+                        Log.error("Bad news!  We were not able to create the database \(self.databaseName) due to error: \(error as Error?)")
                     }
                 })
             }
