@@ -26,7 +26,7 @@ You can set up your development environment and use XCode 8 for editing, buildin
   
 5. Start up CouchDB with the `couchdb` command.
   
-6. Run the `Server` target in Xcode and access [http://localhost:8090/](http://localhost:8090/) in your browser to see an empty database.
+6. Run the `Server` target in Xcode and access [http://localhost:8080/](http://localhost:8080/) in your browser to see an empty database.
   
 ## Quick start on Linux
 
@@ -48,7 +48,7 @@ To build the project in Linux, you need to first install the Swift 3 toolchain.
 
  `.build/debug/Server`
  
- Then access [http://localhost:8090/](http://localhost:8090/) in your browser to see an empty database.
+ Then access [http://localhost:8080/](http://localhost:8080/) in your browser to see an empty database.
 
 ## Deploying to Bluemix
 
