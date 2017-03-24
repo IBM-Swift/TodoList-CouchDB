@@ -20,7 +20,7 @@ FROM ibmcom/swift-ubuntu:latest
 MAINTAINER IBM Swift Engineering at IBM Cloud
 LABEL Description="Linux Ubuntu 14.04 image with the Swift binaries and CouchDB driver"
 
-EXPOSE 8090
+EXPOSE 8080
 
 WORKDIR $HOME
 

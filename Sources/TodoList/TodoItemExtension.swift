@@ -19,7 +19,7 @@ import CloudFoundryEnv
 
 typealias JSONDictionary = [String : Any]
 
-let localServerURL = "http://localhost:8090"
+let localServerURL = "http://localhost:8080"
 
 protocol DictionaryConvertible {
     func toDictionary() -> JSONDictionary

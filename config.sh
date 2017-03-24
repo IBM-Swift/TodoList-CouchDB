@@ -60,7 +60,7 @@ runDocker () {
 		echo "Error: run failed, docker name not provided."
 		return
 	fi
-	docker run --name $1 -d -p 8090:8090 $1
+	docker run --name $1 -d -p 8080:8080 $1
 }
 
 stopDocker () {
@@ -125,7 +125,7 @@ deployContainer () {
 	--auto \
 	-m 128 \
 	--name $1 \
-	-p 8090 \
+	-p 8080 \
 	-n $hostname \
 	-e "CCS_BIND_APP="$BRIDGE_APP_NAME \
 	-d mybluemix.net $REGISTRY_URL/$namespace/$1
