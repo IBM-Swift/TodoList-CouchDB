@@ -3,7 +3,7 @@
 Todo backend is an example of using the [Kitura](https://github.com/IBM-Swift/Kitura) Swift framework for building a productivity app with a database for storage of tasks.
 
 [![Build Status](https://travis-ci.org/IBM-Swift/TodoList-CouchDB.svg?branch=master)](https://travis-ci.org/IBM-Swift/TodoList-CouchDB)
-![](https://img.shields.io/badge/Swift-3.0.2%20RELEASE-orange.svg?style=flat)
+![](https://img.shields.io/badge/Swift-3.1%20RELEASE-orange.svg)
 ![](https://img.shields.io/badge/platform-Linux,%20macOS-blue.svg?style=flat)
 ![Bluemix Deployments](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/badge.svg)
 
