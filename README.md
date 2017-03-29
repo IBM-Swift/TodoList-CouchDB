@@ -171,13 +171,13 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
 
     Be sure to run this in the directory where the manifest.yml file is located.
 
-2. Create your Cloudant Service
+3. Create your Cloudant Service
 
    ```
    cf create-service cloudantNoSQLDB Lite TodoListCloudantDatabase
    ```
 
-3. Push your app
+4. Push your app
 
    ```
    cf push
@@ -191,7 +191,7 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
    App started
    ```
 
-4. Get the credential information:
+5. Get the credential information:
 
    ```
    cf env TodoListCloudantApp
@@ -211,7 +211,7 @@ Bluemix is a hosting platform from IBM that makes it easy to deploy your app to 
               "username": "<username is here>"
            },
          }]}
-    ```
+   ```
 
   At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` to start.
   
