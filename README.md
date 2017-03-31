@@ -75,7 +75,7 @@ To build the project in Linux, you need to first install the Swift 3 toolchain.
 
 The TodoList for Cloudant is deployable with a graphical user interface. Download:
 
-- [IBM Cloud Tools for Swift](http://cloudtools.bluemix.net/)
+- [IBM Cloud Application Tools for Swift](http://cloudtools.bluemix.net/)
 
 ### Deploy to Bluemix Button
 
