@@ -1,5 +1,5 @@
 /**
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,10 @@
 
 public struct TodoItem {
 
-    /// ID
     public let documentID: String
 
-    //User
     public let userID: String?
 
-    // Rank
     public let rank: Int
 
     /// Text to display

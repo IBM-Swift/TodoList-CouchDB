@@ -1,5 +1,5 @@
 /**
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  **/
 
 import Foundation
-import CloudFoundryEnv
+import Configuration
 
 typealias JSONDictionary = [String : Any]
 
@@ -30,11 +30,15 @@ extension TodoItem : DictionaryConvertible {
         
         let url: String
         
-        do {
-            let appEnv = try CloudFoundryEnv.getAppEnv()
-            url = appEnv.url
-        } catch {
-            url = ProcessInfo.processInfo.environment["url"] ?? localServerURL
+        let manager = ConfigurationManager()
+        
+        manager.load(.environmentVariables)
+        
+        if let configUrl = manager["url"] {
+            url = configUrl as! String
+        }
+        else {
+            url = localServerURL
         }
         
         return url + "/api/todos/" + documentID
