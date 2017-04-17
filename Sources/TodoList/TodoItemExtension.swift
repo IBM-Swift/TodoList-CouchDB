@@ -31,16 +31,14 @@ extension TodoItem : DictionaryConvertible {
         let url: String
         
         let manager = ConfigurationManager()
-        
         manager.load(.environmentVariables)
-        
-        if let configUrl = manager["url"] {
-            url = configUrl as! String
+
+        if let configUrl = manager["VCAP_APPLICATION:uris:0"] as? String {
+            url = "https://" + configUrl
         }
         else {
-            url = localServerURL
+            url = manager["url"] as? String ?? localServerURL
         }
-        
         return url + "/api/todos/" + documentID
     }
     
