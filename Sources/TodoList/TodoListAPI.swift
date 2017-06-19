@@ -14,7 +14,7 @@
  * limitations under the License.
  **/
 
-
+import Kitura
 
 /**
  TodoListAPI
@@ -22,6 +22,10 @@
  TodoCollection defines the basic operations for todo lists
  */
 public protocol TodoListAPI {
+
+    func exist(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void)
+    func retrieveAll(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void)
+    
     func count(withUserID: String?, oncompletion: @escaping (Int?, Error?) -> Void)
     func clear(withUserID: String?, oncompletion: @escaping (Error?) -> Void)
     func clearAll(oncompletion: @escaping (Error?) -> Void)

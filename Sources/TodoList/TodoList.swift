@@ -21,6 +21,8 @@ import SwiftyJSON
 import MiniPromiseKit
 import Dispatch
 
+import Kitura
+
 import CouchDB
 
 #if os(Linux)
@@ -180,9 +182,47 @@ public class TodoList: TodoListAPI {
             }
         }
     }
-    
+
+    public func exist(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
+
+        Log.info("Entering exist()")
+
+        let dbClient = CouchDBClient(connectionProperties: connectionProperties)
+
+        dbClient.dbExists("todolist") { (exists: Bool, error: NSError?) in
+            if exists {
+                Log.info("Database todolist found.")
+            } else {
+                Log.info("Database todolist WAS NOT found.")
+                //Log.error("error: \(error)")
+            }
+
+        }
+    }
+
+    public func retrieveAll(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
+
+        Log.info("Entering retrieveAll()")
+
+        let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
+        let db = couchDBClient.database(databaseName)
+
+        db.retrieveAll(includeDocuments: true) { docs, error in
+            guard let docs = docs else {
+                Log.error(">> Could not read from database or none exists.")
+                response.status(.badRequest).send("Error could not read from database or none exists")
+                return
+            }
+
+            Log.info(">> Successfully retrived all docs from db.")
+
+            response.status(.OK).send(json: docs)
+            next()
+        }
+    }
+
     public func get(withUserID: String?, oncompletion: @escaping ([TodoItem]?, Error?) -> Void ) {
-        
+
         let couchDBClient = CouchDBClient(connectionProperties: connectionProperties)
         let database = couchDBClient.database(databaseName)
         let userParameter = withUserID ?? "default"

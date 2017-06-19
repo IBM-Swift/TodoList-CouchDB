@@ -50,6 +50,25 @@ public final class TodoListController {
         router.patch(id, handler: onUpdateByID)
         router.delete(id, handler: onDeleteByID)
         router.delete("/", handler: onDeleteAll)
+
+        router.get("/exists", handler: onExists)
+        router.get("/retrieveAll", handler: onRetrieveAll)
+
+    }
+
+    private func onExists(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
+
+        todos.exist(request: request, response: response, next: next)
+
+        
+    }
+
+    private func onRetrieveAll(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
+
+        todos.retrieveAll(request: request, response: response, next: next)
+
+
+        
     }
 
     private func onGetTodos(request: RouterRequest, response: RouterResponse, next: () -> Void) {
