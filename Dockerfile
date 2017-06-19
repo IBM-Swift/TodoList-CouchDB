@@ -16,7 +16,7 @@
 
 # Dockerfile to build a Docker image with the Swift binaries and its dependencies.
 
-FROM ibmcom/swift-ubuntu:latest
+FROM ibmcom/swift-ubuntu:3.1
 MAINTAINER IBM Swift Engineering at IBM Cloud
 LABEL Description="Linux Ubuntu 14.04 image with the Swift binaries and CouchDB driver"
 
