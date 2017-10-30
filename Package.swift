@@ -28,19 +28,19 @@ let package = Package(
         .package(url: "https://github.com/IBM-Swift/Kitura.git",                                from: "1.0.0"),
         .package(url: "https://github.com/davidungar/miniPromiseKit",                           from: "4.0.0"),
         .package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",                        from: "1.7.2"),
-        .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git",                    from: "4.0.5"),
+        .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git",                      from: "4.0.5"),
         .package(url: "https://github.com/IBM-Bluemix/cf-deployment-tracker-client-swift.git",  from: "4.0.1"),
-        .package(url: "https://github.com/SwiftyJSON/SwiftyJSON.git",                           from: "3.1.4")
+        .package(url: "https://github.com/rob-deans/CloudConfiguration.git",                        from: "2.1.0")
     ],
     
     targets: [
         .target(
-            name: "Server",
-            dependencies: [.target(name: "TodoList"), ]
+            name: "TodoList",
+            dependencies: ["CloudEnvironment", "MiniPromiseKit", "CouchDB", "Kitura", "CloudFoundryDeploymentTracker"]
         ),
         .target(
-            name: "TodoList",
-        dependencies: ["CloudEnvironment", "SwiftyJSON", "MiniPromiseKit", "CouchDB", "Kitura", "CloudFoundryDeploymentTracker"]
-        ),
+            name: "Server",
+            dependencies: [.target(name: "TodoList"), "CloudConfiguration"]
+        )
         ]
 )
