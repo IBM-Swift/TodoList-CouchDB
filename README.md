@@ -9,9 +9,9 @@ Todo backend is an example of using the [Kitura](https://github.com/IBM-Swift/Ki
 
 ## Quick start for local development:
 
-You can set up your development environment and use XCode 8 for editing, building, debugging, and testing your server application. To use XCode, you must use the command line tools for generating an XCode project.
+You can set up your development environment and use Xcode 9 for editing, building, debugging, and testing your server application. To use Xcode, you must use the command line tools for generating an Xcode project.
 
-1. Download [Xcode 8](https://swift.org/download/)
+1. Download [Xcode 9](https://swift.org/download/)
 2. Download [CouchDB](http://couchdb.apache.org/) and install
  
    ```
@@ -24,7 +24,7 @@ You can set up your development environment and use XCode 8 for editing, buildin
    git clone https://github.com/IBM-Swift/TodoList-CouchDB
    ```
   
-4. Generate an XCode project
+4. Generate an Xcode project
 
    ```
    swift package generate-xcodeproj
@@ -40,9 +40,9 @@ You can set up your development environment and use XCode 8 for editing, buildin
   
 ## Quick start on Linux
 
-To build the project in Linux, you need to first install the Swift 3 toolchain.
+To build the project in Linux, you need to first install the Swift 4 toolchain.
 
-1. Install the [Swift 3 RELEASE toolchain](http://www.swift.org)
+1. Install the [Swift 4 RELEASE toolchain](http://www.swift.org)
 
 2. Install CouchDB:
 
@@ -242,4 +242,4 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+Unless required by applicable law or agreed to in writing, software :distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
