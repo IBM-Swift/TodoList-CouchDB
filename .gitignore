@@ -5,4 +5,5 @@
 TodoListFull.xcworkspace
 couchdb.stdout
 couchdb.stderr
+Package.pins
 /cloud_config.json
