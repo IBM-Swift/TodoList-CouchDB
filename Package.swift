@@ -41,6 +41,10 @@ let package = Package(
         .target(
             name: "Server",
             dependencies: [.target(name: "TodoList"), "CloudConfiguration"]
+        ),
+        .testTarget(
+            name: "TodoListTests",
+            dependencies: ["TodoList"]
         )
         ]
 )
