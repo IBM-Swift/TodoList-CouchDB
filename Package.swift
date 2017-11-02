@@ -1,3 +1,6 @@
+// swift-tools-version:4.0
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
 /**
  * Copyright IBM Corporation 2017
  *
@@ -16,22 +19,31 @@
 
 import PackageDescription
 
+
 let package = Package(
     name: "TodoList",
-    targets: [
-        Target(
-            name: "Server",
-            dependencies: [.Target(name: "TodoList")]
-        ),
-        Target(
-            name: "TodoList"
-        )
-    ],
+    products: [],
+    
     dependencies: [
-        .Package(url: "https://github.com/IBM-Swift/Kitura.git",                majorVersion: 1),
-        .Package(url: "https://github.com/davidungar/miniPromiseKit",           majorVersion: 4),
-        .Package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",        majorVersion: 1),
-        .Package(url: "https://github.com/IBM-Swift/CloudConfiguration.git",    majorVersion: 2),
-        .Package(url: "https://github.com/IBM-Bluemix/cf-deployment-tracker-client-swift.git", majorVersion: 3)
-    ]
+        .package(url: "https://github.com/IBM-Swift/Kitura.git",                                from: "1.0.0"),
+        .package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",                        from: "1.7.2"),
+        .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git",                      from: "4.0.5"),
+        .package(url: "https://github.com/IBM-Bluemix/cf-deployment-tracker-client-swift.git",  from: "4.0.1"),
+        .package(url: "https://github.com/rob-deans/CloudConfiguration.git",                        from: "2.1.0")
+    ],
+    
+    targets: [
+        .target(
+            name: "TodoList",
+            dependencies: ["CloudEnvironment", "CouchDB", "Kitura", "CloudFoundryDeploymentTracker"]
+        ),
+        .target(
+            name: "Server",
+            dependencies: [.target(name: "TodoList"), "CloudConfiguration"]
+        ),
+        .testTarget(
+            name: "TodoListTests",
+            dependencies: ["TodoList"]
+        )
+        ]
 )

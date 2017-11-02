@@ -2,7 +2,7 @@
 /.build
 /Packages
 /*.xcodeproj
-TodoListFull.xcworkspace
 couchdb.stdout
 couchdb.stderr
+Package.resolved
 /cloud_config.json

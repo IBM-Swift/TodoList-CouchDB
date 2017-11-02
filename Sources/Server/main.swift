@@ -23,12 +23,12 @@ import CloudFoundryDeploymentTracker
 import TodoList
 import Configuration
 import CloudFoundryConfig
+import CloudEnvironment
 
 HeliumLogger.use()
 
 let configFile = "cloud_config.json"
 let databaseName = "todolist"
-
 extension TodoList {
     
     public convenience init(config: CloudantService) {
@@ -41,6 +41,9 @@ extension TodoList {
 let todos: TodoList
 
 let manager = ConfigurationManager()
+
+let cloudEnv = CloudEnv()
+let cloudantCredentials = cloudEnv.getCloudantCredentials(name: "MyTodoListDB")
 
 do {
     manager.load(.environmentVariables).load(file: configFile)
