@@ -3,7 +3,7 @@
 Todo backend is an example of using the [Kitura](https://github.com/IBM-Swift/Kitura) Swift framework for building a productivity app with a database for storage of tasks.
 
 [![Build Status](https://travis-ci.org/IBM-Swift/TodoList-CouchDB.svg?branch=master)](https://travis-ci.org/IBM-Swift/TodoList-CouchDB)
-![](https://img.shields.io/badge/Swift-3.1%20RELEASE-orange.svg)
+![](https://img.shields.io/badge/Swift-4.0%20RELEASE-orange.svg)
 ![](https://img.shields.io/badge/platform-Linux,%20macOS-blue.svg?style=flat)
 ![Bluemix Deployments](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/badge.svg)
 
@@ -69,7 +69,7 @@ To build the project in Linux, you need to first install the Swift 4 toolchain.
  
  Then access [http://localhost:8080/](http://localhost:8080/) in your browser to see an empty database.
 
-## Deploying to Bluemix
+## Deploying to IBM Cloud
 
 ### Using the IBM Cloud Tools for Swift
 
@@ -77,13 +77,13 @@ The TodoList for Cloudant is deployable with a graphical user interface. Downloa
 
 - [IBM Cloud Application Tools for Swift](http://cloudtools.bluemix.net/)
 
-### Deploy to Bluemix Button
+### Deploy to IBM Cloud Button
 
-You can use this button to deploy TodoList to your Bluemix account, all from the browser. The button will create the application, create and bind any services specified in the manifest.yml file and deploy.
+You can use this button to deploy TodoList to your IBM Cloud account, all from the browser. The button will create the application, create and bind any services specified in the manifest.yml file and deploy.
 
 [![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB.git)
 
-### Deploying Docker to IBM Bluemix Container
+### Deploying Docker to IBM Cloud Container
 
 For the following instructions, we will be using our [Bash Script](config.sh) located in the root directory.
 You can attempt to complete the whole process with the following command:
@@ -118,7 +118,7 @@ Or, you can follow the step-by-step instructions below.
    ./config.sh stop <imageName>
    ```
   
-4. Push created Docker container to Bluemix
+4. Push created Docker container to IBM Cloud
 
    ```
    ./config.sh push-docker <imageName>
@@ -136,7 +136,7 @@ Or, you can follow the step-by-step instructions below.
    ./config.sh create-db
    ```
   
-7. Create a Bluemix container group where your app will live, binding it to your bridge CF application in the process
+7. Create a IBM Cloud container group where your app will live, binding it to your bridge CF application in the process
 
    ```
    ./config.sh deploy <imageName>
@@ -158,7 +158,7 @@ At this point, your app should be deployed! Accessing your apps route should ret
 
 ### Manually
 
-Bluemix is a hosting platform from IBM that makes it easy to deploy your app to the cloud. Bluemix also provides various popular databases. [Cloudant](https://cloudant.com/) is an offering that is compatible with the CouchDB database, but provides additional features. You can use Cloudant with your deployed TodoList-CouchDB application.
+IBM Cloud is a hosting platform from IBM that makes it easy to deploy your app to the cloud. IBM Cloud also provides various popular databases. [Cloudant](https://cloudant.com/) is an offering that is compatible with the CouchDB database, but provides additional features. You can use Cloudant with your deployed TodoList-CouchDB application.
 
 1. Get an account for [Bluemix](https://console.ng.bluemix.net/registration/)
 
@@ -227,7 +227,7 @@ This Swift application includes code to track deployments to [IBM Bluemix](https
 * Labels of bound services
 * Number of instances for each bound service and associated plan information
 
-This data is collected from the parameters of the `CloudFoundryDeploymentTracker`, the `VCAP_APPLICATION` and `VCAP_SERVICES` environment variables in IBM Bluemix and other Cloud Foundry platforms. This data is used by IBM to track metrics around deployments of sample applications to IBM Bluemix to measure the usefulness of our examples, so that we can continuously improve the content we offer to you. Only deployments of sample applications that include code to ping the Deployment Tracker service will be tracked.
+This data is collected from the parameters of the `CloudFoundryDeploymentTracker`, the `VCAP_APPLICATION` and `VCAP_SERVICES` environment variables in IBM Cloud and other Cloud Foundry platforms. This data is used by IBM to track metrics around deployments of sample applications to IBM Cloud to measure the usefulness of our examples, so that we can continuously improve the content we offer to you. Only deployments of sample applications that include code to ping the Deployment Tracker service will be tracked.
 
 ### Disabling Deployment Tracking
 Deployment tracking can be disabled by removing the following line from `main.swift`:

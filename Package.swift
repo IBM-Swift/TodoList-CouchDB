@@ -26,7 +26,6 @@ let package = Package(
     
     dependencies: [
         .package(url: "https://github.com/IBM-Swift/Kitura.git",                                from: "1.0.0"),
-        .package(url: "https://github.com/davidungar/miniPromiseKit",                           from: "4.0.0"),
         .package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",                        from: "1.7.2"),
         .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git",                      from: "4.0.5"),
         .package(url: "https://github.com/IBM-Bluemix/cf-deployment-tracker-client-swift.git",  from: "4.0.1"),
@@ -36,7 +35,7 @@ let package = Package(
     targets: [
         .target(
             name: "TodoList",
-            dependencies: ["CloudEnvironment", "MiniPromiseKit", "CouchDB", "Kitura", "CloudFoundryDeploymentTracker"]
+            dependencies: ["CloudEnvironment", "CouchDB", "Kitura", "CloudFoundryDeploymentTracker"]
         ),
         .target(
             name: "Server",

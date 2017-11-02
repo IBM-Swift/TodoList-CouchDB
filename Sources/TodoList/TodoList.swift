@@ -18,7 +18,6 @@ import Foundation
 
 import LoggerAPI
 import SwiftyJSON
-import MiniPromiseKit
 import Dispatch
 
 import CouchDB
