@@ -18,17 +18,17 @@ function help {
 
 	  Where:
 	    install-tools				Installs necessary tools for config, like Cloud Foundry CLI
-	    login					Logs into Bluemix and Container APIs
+	    login					Logs into IBM Cloud and Container APIs
 	    build <imageName>          			Builds Docker container from Dockerfile
 	    run   <imageName>         			Runs Docker container, ensuring it was built properly
 	    stop  <imageName> 				Stops Docker container, if running
-	    push-docker <imageName>			Tags and pushes Docker container to Bluemix
+	    push-docker <imageName>			Tags and pushes Docker container to IBM Cloud
 	    create-bridge				Creates empty bridge application
 	    create-db				        Creates database service and binds to bridge
 	    deploy <imageName>				Binds everything together (app, db, container) through container group
 	    populate-db	<imageName>			Populates database with initial data
 	    delete <imageName>				Delete the group container and deletes created service if possible
-	    all <imageName>                 		Combines all necessary commands to deploy an app to Bluemix in a Docker container.
+	    all <imageName>                 		Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
 !!EOF
 }
 
@@ -75,7 +75,7 @@ stopDocker () {
 pushDocker () {
 	if [ -z "$1" ] || [ -z $REGISTRY_URL ]
 	then
-		echo "Error: Pushing Docker container to Bluemix failed, missing variables."
+		echo "Error: Pushing Docker container to IBM Cloud failed, missing variables."
 		return
 	fi
 	echo "Tagging and pushing docker container..."
@@ -113,7 +113,7 @@ createDatabase () {
 deployContainer () {
 	if [ -z "$1" ] || [ -z $REGISTRY_URL ] || [ -z $BRIDGE_APP_NAME ]
 	then
-		echo "Error: Could not deploy container to Bluemix, missing variables."
+		echo "Error: Could not deploy container to IBM Cloud, missing variables."
 		return
 	fi
 
