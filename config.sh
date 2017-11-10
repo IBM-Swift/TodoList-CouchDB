@@ -79,9 +79,10 @@ pushDocker () {
 		return
 	fi
 	echo "Tagging and pushing docker container..."
-    namespace=$(cf ic namespace get)
-	docker tag $1 $REGISTRY_URL/$namespace/$1
-	docker push $REGISTRY_URL/$namespace/$1
+    namespace=$(docker ps)
+    echo "$namespace"
+	docker tag $1 "shihabmehboob"/$1
+	docker push "shihabmehboob"/$1
 }
 
 createBridge () {
