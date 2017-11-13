@@ -73,16 +73,16 @@ stopDocker () {
 }
 
 pushDocker () {
-	if [ -z "$1" ] || [ -z $REGISTRY_URL ]
+	if [ -z "$1" ] || [ -z $REGISTRY_URL ] || [ -z "$2" ]
 	then
 		echo "Error: Pushing Docker container to Bluemix failed, missing variables."
 		return
 	fi
 	echo "Tagging and pushing docker container..."
-    namespace=$(docker ps)
+    namespace=$(docker ps --format "{{.Names}}")
     echo "$namespace"
-	docker tag $1 "shihabmehboob"/$1
-	docker push "shihabmehboob"/$1
+	docker tag $1 $2/$1
+	docker push $2/$1
 }
 
 createBridge () {
@@ -190,7 +190,7 @@ case $ACTION in
 "build")				 buildDocker "$2";;
 "run")					 runDocker "$2";;
 "stop")				     stopDocker "$2";;
-"push-docker")			 pushDocker "$2";;
+"push-docker")			 pushDocker "$2" "$3";;
 "create-bridge")		 createBridge;;
 "create-db")		     createDatabase;;
 "deploy")				 deployContainer "$2";;
