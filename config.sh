@@ -107,7 +107,9 @@ pushDocker () {
 		echo "Error: push failed, docker name not provided."
 		return
 	fi
+    bx cr login
 	docker push registry.$1.bluemix.net/$NAME_SPACE/todolist-couchdb
+    bx cr images
 }
 
 createBridge () {
@@ -137,24 +139,13 @@ createDatabase () {
 }
 
 deployContainer () {
-	if [ -z "$1" ] || [ -z $REGISTRY_URL ] || [ -z $BRIDGE_APP_NAME ]
-	then
-		echo "Error: Could not deploy container to Bluemix, missing variables."
-		return
-	fi
-
-	namespace=$(cf ic namespace get)
-	hostname=$1"-app"
-
-	cf ic group create \
-	--anti \
-	--auto \
-	-m 128 \
-	--name $1 \
-	-p 8080 \
-	-n $hostname \
-	-e "CCS_BIND_APP="$BRIDGE_APP_NAME \
-	-d mybluemix.net $REGISTRY_URL/$namespace/$1
+    if [ -z "$1" ]
+    then
+        echo "Error: Could not deploy the app to a pod in your cluster, missing region."
+    return
+    fi
+    kubectl run todo-deployment --image=registry.$1.bluemix.net/$NAME_SPACE/todolist-couchdb
+    kubectl expose deployment/todo-deployment --type=NodePort --port=8080 --name=todo-service --target-port=8080
 }
 
 populateDB () {
