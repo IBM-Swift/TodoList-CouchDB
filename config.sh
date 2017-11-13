@@ -8,7 +8,7 @@ VERSION="1.0"
 BUILD_DIR=".build-linux"
 BRIDGE_APP_NAME="containerbridge"
 DATABASE_NAME="TodoListCloudantDatabase"
-REGISTRY_URL="registry.ng.bluemix.net"
+REGISTRY_URL="registry.eu-gb.bluemix.net"
 DATABASE_TYPE="cloudantNoSQLDB"
 DATABASE_LEVEL="Lite"
 NAME_SPACE="todolist_space"
@@ -19,9 +19,9 @@ function help {
 
 	  Where:
 	    install-tools				Installs necessary tools for config, like Cloud Foundry CLI
-        config-cli                  Sets up and configures necessary CLI tools
+      config-cli                      Sets up and configures necessary CLI tools
 	    login					Logs into Bluemix and Container APIs
-        setup <clusterName>                               Sets up the clusters
+      setup <clusterName>                           Sets up the clusters
 	    build <imageName>          			Builds Docker container from Dockerfile
 	    run   <imageName>         			Runs Docker container, ensuring it was built properly
 	    stop  <imageName> 				Stops Docker container, if running
@@ -43,9 +43,11 @@ install-tools () {
 }
 
 config-cli () {
+    printf "Installing Kubernetes CLI...\n"
     curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/darwin/amd64/kubectl
     chmod +x ./kubectl
     sudo mv ./kubectl /usr/local/bin/kubectl
+    printf "\nInstalling IBM Cloud Container Service plugin\n"
     bx plugin install container-registry -r Bluemix
     bx plugin list
 }
@@ -70,13 +72,15 @@ setup () {
     printf "\n${MAGENTA}Copy and paste the command that is displayed in your terminal to set the KUBECONFIG environment variable${NC}\n"
 }
 
+
+
 buildDocker () {
 	if [ -z "$1" ]
 	then
 		echo "Error: build failed, docker name not provided."
 		return
 	fi
-	docker build -t $1 --force-rm .
+	docker build -t registry.$1.bluemix.net/$NAME_SPACE/todolist-couchdb .
 }
 
 runDocker () {
@@ -98,16 +102,12 @@ stopDocker () {
 }
 
 pushDocker () {
-	if [ -z "$1" ] || [ -z $REGISTRY_URL ] || [ -z "$2" ]
+  if [ -z "$1" ]
 	then
-		echo "Error: Pushing Docker container to Bluemix failed, missing variables."
+		echo "Error: push failed, docker name not provided."
 		return
 	fi
-	echo "Tagging and pushing docker container..."
-    namespace=$(docker ps --format "{{.Names}}")
-    echo "$namespace"
-	docker tag $1 $2/$1
-	docker push $2/$1
+	docker push registry.$1.bluemix.net/$NAME_SPACE/todolist-couchdb
 }
 
 createBridge () {
@@ -220,7 +220,7 @@ case $ACTION in
 "build")				 buildDocker "$2";;
 "run")					 runDocker "$2";;
 "stop")				     stopDocker "$2";;
-"push-docker")			 pushDocker "$2" "$3";;
+"push-docker")			 pushDocker "$2";;
 "create-bridge")		 createBridge;;
 "create-db")		     createDatabase;;
 "deploy")				 deployContainer "$2";;
