@@ -11,6 +11,7 @@ DATABASE_NAME="TodoListCloudantDatabase"
 REGISTRY_URL="registry.ng.bluemix.net"
 DATABASE_TYPE="cloudantNoSQLDB"
 DATABASE_LEVEL="Lite"
+NAME_SPACE="todolist_space"
 
 function help {
   cat <<-!!EOF
@@ -18,7 +19,9 @@ function help {
 
 	  Where:
 	    install-tools				Installs necessary tools for config, like Cloud Foundry CLI
+        config-cli                  Sets up and configures necessary CLI tools
 	    login					Logs into Bluemix and Container APIs
+        setup <clusterName>                               Sets up the clusters
 	    build <imageName>          			Builds Docker container from Dockerfile
 	    run   <imageName>         			Runs Docker container, ensuring it was built properly
 	    stop  <imageName> 				Stops Docker container, if running
@@ -36,13 +39,35 @@ install-tools () {
 	brew tap cloudfoundry/tap
 	brew install cf-cli
 	cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-mac
+    bx plugin install container-service -r Bluemix
+}
+
+config-cli () {
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/darwin/amd64/kubectl
+    chmod +x ./kubectl
+    sudo mv ./kubectl /usr/local/bin/kubectl
+    bx plugin install container-registry -r Bluemix
+    bx plugin list
 }
 
 login () {
 	echo "Setting api and login tools."
-	cf api https://api.ng.bluemix.net
-	cf login
-	cf ic login
+	bx login --sso -a api.eu-gb.bluemix.net
+}
+
+setup () {
+    if [ -z "$1" ]
+    then
+        echo "Error: setup failed, cluster name not provided."
+    return
+    fi
+    bx cr namespace-add $NAME_SPACE
+    bx cs workers $1
+    bx cs cluster-config $1
+
+    MAGENTA='\033[1;35m'
+    NC='\033[0m'
+    printf "\n${MAGENTA}Copy and paste the command that is displayed in your terminal to set the KUBECONFIG environment variable${NC}\n"
 }
 
 buildDocker () {
@@ -164,7 +189,10 @@ all () {
 		return
 	fi
 
+    install-tools
+    config-cli
 	login
+    setup $1
 	buildDocker $1
 	pushDocker $1
 	createBridge
@@ -186,7 +214,9 @@ eval "$(swiftenv init -)"
 
 case $ACTION in
 "install-tools")		 install-tools;;
+"config-cli")            config-cli;;
 "login")                 login;;
+"setup")                 setup "$2";;
 "build")				 buildDocker "$2";;
 "run")					 runDocker "$2";;
 "stop")				     stopDocker "$2";;
