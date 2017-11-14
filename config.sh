@@ -23,12 +23,11 @@ function help {
 	    login					Logs into Bluemix and Container APIs
       setup <clusterName>                           Sets up the clusters
 	    build <imageName>          			Builds Docker container from Dockerfile
-	    run   <imageName>         			Runs Docker container, ensuring it was built properly
+        run   <imageName>                     Runs Docker container, ensuring it was built properly
 	    stop  <imageName> 				Stops Docker container, if running
 	    push-docker <imageName>			Tags and pushes Docker container to Bluemix
-	    create-bridge				Creates empty bridge application
-	    create-db				        Creates database service and binds to bridge
-	    deploy <imageName>				Binds everything together (app, db, container) through container group
+	    create-db <imageName>				        Creates database service and binds to bridge
+	    deploy				Binds everything together (app, db, container) through container group
 	    populate-db	<imageName>			Populates database with initial data
 	    delete <imageName>				Delete the group container and deletes created service if possible
 	    all <imageName>                 		Combines all necessary commands to deploy an app to Bluemix in a Docker container.
@@ -63,6 +62,8 @@ setup () {
         echo "Error: setup failed, cluster name not provided."
     return
     fi
+
+    bx cr login
     bx cr namespace-add $NAME_SPACE
     bx cs workers $1
     bx cs cluster-config $1
@@ -72,24 +73,18 @@ setup () {
     printf "\n${MAGENTA}Copy and paste the command that is displayed in your terminal to set the KUBECONFIG environment variable${NC}\n"
 }
 
-
-
 buildDocker () {
-	if [ -z "$1" ]
-	then
-		echo "Error: build failed, docker name not provided."
-		return
-	fi
-	docker build -t registry.$1.bluemix.net/$NAME_SPACE/todolist-couchdb .
+	docker build -t registry.eu-gb.bluemix.net/$NAME_SPACE/todolist-couchdb .
 }
 
 runDocker () {
-	if [ -z "$1" ]
-	then
-		echo "Error: run failed, docker name not provided."
-		return
-	fi
-	docker run --name $1 -d -p 8080:8080 $1
+    if [ -z "$1" ]
+    then
+        echo "Error: run failed, docker name not provided."
+        return
+    fi
+
+    docker run --name $1 -d -p 8080:8080 $1
 }
 
 stopDocker () {
@@ -98,67 +93,49 @@ stopDocker () {
 		echo "Error: clean failed, docker name not provided."
 		return
 	fi
+
 	docker rm -fv $1 || true
 }
 
 pushDocker () {
-  if [ -z "$1" ]
-	then
-		echo "Error: push failed, docker name not provided."
-		return
-	fi
     bx cr login
-	docker push registry.$1.bluemix.net/$NAME_SPACE/todolist-couchdb
+	docker push registry.eu-gb.bluemix.net/$NAME_SPACE/todolist-couchdb
     bx cr images
 }
 
-createBridge () {
-	if [ -z $BRIDGE_APP_NAME ]
-	then
-		echo "Error: Creating bridge application failed, missing BRIDGE_APP_NAME."
-		return
-	fi
-	mkdir $BRIDGE_APP_NAME
-	cd $BRIDGE_APP_NAME
-	touch empty.txt
-	cf push $BRIDGE_APP_NAME -p . -i 1 -d mybluemix.net -k 1M -m 64M --no-hostname --no-manifest --no-route --no-start
-	rm empty.txt
-	cd ..
-	rm -rf $BRIDGE_APP_NAME
+deployContainer () {
+    kubectl run todo-deployment --image=registry.eu-gb.bluemix.net/$NAME_SPACE/todolist-couchdb
+    kubectl expose deployment/todo-deployment --type=NodePort --port=8080 --name=todo-service --target-port=8080
 }
 
 createDatabase () {
-	if [ -z $DATABASE_TYPE ] || [ -z $DATABASE_LEVEL ] || [ -z $DATABASE_NAME ] || [ -z $BRIDGE_APP_NAME ]
+	if [ -z "$1" ] || [ -z "$2" ]
 	then
 		echo "Error: Creating bridge application failed, missing variables."
 		return
 	fi
-	cf create-service $DATABASE_TYPE $DATABASE_LEVEL $DATABASE_NAME
-	cf bind-service $BRIDGE_APP_NAME $DATABASE_NAME
-	cf restage $BRIDGE_APP_NAME
-}
 
-deployContainer () {
-    if [ -z "$1" ]
-    then
-        echo "Error: Could not deploy the app to a pod in your cluster, missing region."
-    return
-    fi
-    kubectl run todo-deployment --image=registry.$1.bluemix.net/$NAME_SPACE/todolist-couchdb
-    kubectl expose deployment/todo-deployment --type=NodePort --port=8080 --name=todo-service --target-port=8080
+    #kubectl --namespace default create secret docker-registry todosecret  --docker-server=https://registry.hub.docker.com/tdlist --docker-username=token --docker-password=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkOGE0ZTYzZC04N2Y4LTVkNmItYmJiMS02NGI5MmNlNzkyN2IiLCJpc3MiOiJyZWdpc3RyeS5ibHVlbWl4Lm5ldCJ9.aiIrgBDkGRXP0G7FC6XkCNNSh1-HfvHi6Gb4_Pp_Ddo --docker-email=shihab.mehboob1@ibm.com
+
+    bx service create cloudantNoSQLDB Lite $1
+    bx cs cluster-service-bind $2 $NAME_SPACE $1
 }
 
 populateDB () {
-	if [ -z "$1" ]
+	if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
 	then
 		echo "Error: Could not populate db with sample data, missing imageName."
 		return
 	fi
 
-	appURL="https://"$1"-app.mybluemix.net"
-	eval $(curl -X POST -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $appURL)
-	eval $(curl -X POST -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $appURL)
-	eval $(curl -X POST -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $appURL)
+    #appURL="https://8f9318e3-185d-4844-91a2-264350bfaa91-bluemix.cloudant.com/todo"
+    #user=8f9318e3-185d-4844-91a2-264350bfaa91-bluemix
+    #pass=fceab640ea22566cdddd0a7edeccd87cd2fb90967dc6fd551235d877a4cd81c4
+    #curl -i -XPOST $appURL --data-urlencode "q=CREATE DATABASE mydb"
+
+    curl -u $2:$3 -X PUT -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $1
+    curl -u $2:$3 -X PUT -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $1
+    curl -u $2:$3 -X PUT -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $1
 }
 
 delete () {
@@ -174,7 +151,7 @@ delete () {
 }
 
 all () {
-	if [ -z "$1" ]
+	if [ -z "$1" ] || [ -z "$2" ]
 	then
 		echo "Error: Could not complete entire deployment process, missing variables."
 		return
@@ -184,11 +161,10 @@ all () {
     config-cli
 	login
     setup $1
-	buildDocker $1
-	pushDocker $1
-	createBridge
-	createDatabase
-	deployContainer $1
+	buildDocker
+	pushDocker
+    deployContainer
+	createDatabase $1 $2
 }
 
 #----------------------------------------------------------
@@ -208,14 +184,13 @@ case $ACTION in
 "config-cli")            config-cli;;
 "login")                 login;;
 "setup")                 setup "$2";;
-"build")				 buildDocker "$2";;
-"run")					 runDocker "$2";;
+"build")				 buildDocker;;
+"run")                   runDocker "$2";;
 "stop")				     stopDocker "$2";;
-"push-docker")			 pushDocker "$2";;
-"create-bridge")		 createBridge;;
-"create-db")		     createDatabase;;
-"deploy")				 deployContainer "$2";;
-"populate-db")			 populateDB "$2";;
+"push-docker")			 pushDocker;;
+"create-db")		     createDatabase "$2" "$3";;
+"deploy")				 deployContainer;;
+"populate-db")			 populateDB "$2" "$3" "$4";;
 "delete")				 delete "$2";;
 "all")					 all "$2";;
 *)                       help;;
