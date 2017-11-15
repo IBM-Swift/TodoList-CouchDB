@@ -25,12 +25,12 @@ function help {
 	    build <imageName>          			Builds Docker container from Dockerfile
         run   <imageName>                     Runs Docker container, ensuring it was built properly
 	    stop  <imageName> 				Stops Docker container, if running
-	    push-docker <imageName>			Tags and pushes Docker container to Bluemix
-	    create-db <imageName>				        Creates database service and binds to bridge
+	    push-docker <imageName>			Tags and pushes Docker container to IBM Cloud
+	    create-db <imageName>				        Creates database service
 	    deploy				Binds everything together (app, db, container) through container group
 	    populate-db	<imageName>			Populates database with initial data
-	    delete <imageName>				Delete the group container and deletes created service if possible
-	    all <imageName>                 		Combines all necessary commands to deploy an app to Bluemix in a Docker container.
+	    delete <imageName>				Delete the created service and cluster if possible
+	    all <imageName>                 		Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
 !!EOF
 }
 
@@ -115,8 +115,6 @@ createDatabase () {
 		return
 	fi
 
-    #kubectl --namespace default create secret docker-registry todosecret  --docker-server=https://registry.hub.docker.com/tdlist --docker-username=token --docker-password=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkOGE0ZTYzZC04N2Y4LTVkNmItYmJiMS02NGI5MmNlNzkyN2IiLCJpc3MiOiJyZWdpc3RyeS5ibHVlbWl4Lm5ldCJ9.aiIrgBDkGRXP0G7FC6XkCNNSh1-HfvHi6Gb4_Pp_Ddo --docker-email=shihab.mehboob1@ibm.com
-
     bx service create cloudantNoSQLDB Lite $1
     bx cs cluster-service-bind $2 $NAME_SPACE $1
 }
@@ -124,14 +122,9 @@ createDatabase () {
 populateDB () {
 	if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
 	then
-		echo "Error: Could not populate db with sample data, missing imageName."
+		echo "Error: Could not populate db with sample data, missing variables."
 		return
 	fi
-
-    #appURL="https://8f9318e3-185d-4844-91a2-264350bfaa91-bluemix.cloudant.com/todo"
-    #user=8f9318e3-185d-4844-91a2-264350bfaa91-bluemix
-    #pass=fceab640ea22566cdddd0a7edeccd87cd2fb90967dc6fd551235d877a4cd81c4
-    #curl -i -XPOST $appURL --data-urlencode "q=CREATE DATABASE mydb"
 
     curl -u $2:$3 -X PUT -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $1
     curl -u $2:$3 -X PUT -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $1
@@ -139,15 +132,14 @@ populateDB () {
 }
 
 delete () {
-	if [ -z "$1" ] || [ -z $DATABASE_NAME ] || [ -z $BRIDGE_APP_NAME ]
+	if [ -z "$1" ] || [ -z "$2" ]
 	then
 		echo "Error: Could not delete container group and service, missing variables."
 		return
 	fi
 
-	cf ic group rm $1
-	cf unbind-service $BRIDGE_APP_NAME $DATABASE_NAME
-	cf delete-service $DATABASE_NAME
+    bx cs cluster-service-unbind $1 $NAME_SPACE $2
+    bx cs cluster-rm $1
 }
 
 all () {
@@ -191,7 +183,7 @@ case $ACTION in
 "create-db")		     createDatabase "$2" "$3";;
 "deploy")				 deployContainer;;
 "populate-db")			 populateDB "$2" "$3" "$4";;
-"delete")				 delete "$2";;
+"delete")				 delete "$2" "$3";;
 "all")					 all "$2";;
 *)                       help;;
 esac
