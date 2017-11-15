@@ -5,7 +5,7 @@ Todo backend is an example of using the [Kitura](https://github.com/IBM-Swift/Ki
 [![Build Status](https://travis-ci.org/IBM-Swift/TodoList-CouchDB.svg?branch=master)](https://travis-ci.org/IBM-Swift/TodoList-CouchDB)
 ![](https://img.shields.io/badge/Swift-4.0%20RELEASE-orange.svg)
 ![](https://img.shields.io/badge/platform-Linux,%20macOS-blue.svg?style=flat)
-![Bluemix Deployments](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/badge.svg)
+![IBM Cloud Deployments](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/badge.svg)
 
 ## Quick start for local development:
 
@@ -13,7 +13,7 @@ You can set up your development environment and use Xcode 9 for editing, buildin
 
 1. Download [Xcode 9](https://swift.org/download/)
 2. Download [CouchDB](http://couchdb.apache.org/) and install
- 
+
    ```
    brew install couchdb
    ```
@@ -23,7 +23,7 @@ You can set up your development environment and use Xcode 9 for editing, buildin
    ```
    git clone https://github.com/IBM-Swift/TodoList-CouchDB
    ```
-  
+
 4. Generate an Xcode project
 
    ```
@@ -31,13 +31,13 @@ You can set up your development environment and use Xcode 9 for editing, buildin
    ```
 
 5. Start CouchDB
-   
+
    ```
    couchdb
    ```
-  
+
 6. Run the `Server` target in Xcode and access [http://localhost:8080/](http://localhost:8080/) in your browser to see an empty database.
-  
+
 ## Quick start on Linux
 
 To build the project in Linux, you need to first install the Swift 4 toolchain.
@@ -49,13 +49,13 @@ To build the project in Linux, you need to first install the Swift 4 toolchain.
    ```
    sudo apt-get install couchdb
    ```
-  
+
 3. Clone the repository:
 
    ```
    git clone https://github.com/IBM-Swift/TodoList-CouchDB
    ```
-  
+
 4. Compile the project
    ```
    swift build
@@ -66,7 +66,7 @@ To build the project in Linux, you need to first install the Swift 4 toolchain.
    ```
    .build/debug/Server
    ```
- 
+
  Then access [http://localhost:8080/](http://localhost:8080/) in your browser to see an empty database.
 
 ## Deploying to IBM Cloud
@@ -81,7 +81,7 @@ The TodoList for Cloudant is deployable with a graphical user interface. Downloa
 
 You can use this button to deploy TodoList to your IBM Cloud account, all from the browser. The button will create the application, create and bind any services specified in the manifest.yml file and deploy.
 
-[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB.git)
+[![Deploy to IBM Cloud](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB.git)
 
 ### Deploying Docker to IBM Cloud Container
 
@@ -117,7 +117,7 @@ Or, you can follow the step-by-step instructions below.
    ./config.sh run <imageName>
    ./config.sh stop <imageName>
    ```
-  
+
 4. Push created Docker container to IBM Cloud
 
    ```
@@ -129,13 +129,13 @@ Or, you can follow the step-by-step instructions below.
    ```
    ./config.sh create-bridge
    ```
-  
+
 6. Create the Cloudant service and bind to your bridge CF application.
 
    ```
    ./config.sh create-db
    ```
-  
+
 7. Create a IBM Cloud container group where your app will live, binding it to your bridge CF application in the process
 
    ```
@@ -147,20 +147,20 @@ Or, you can follow the step-by-step instructions below.
    ```
    cf ic group inspect <imageName>
    ```
-  
+
 8. Optionally, if you want to populate your database with some sample data, run the following command with your image name:
 
    ```
    ./config.sh populate-db <imageName>
    ```
 
-At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` if you did not populate the database. 
+At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` if you did not populate the database.
 
 ### Manually
 
 IBM Cloud is a hosting platform from IBM that makes it easy to deploy your app to the cloud. IBM Cloud also provides various popular databases. [Cloudant](https://cloudant.com/) is an offering that is compatible with the CouchDB database, but provides additional features. You can use Cloudant with your deployed TodoList-CouchDB application.
 
-1. Get an account for [Bluemix](https://console.ng.bluemix.net/registration/)
+1. Get an account for [IBM Cloud](https://console.ng.bluemix.net/registration/)
 
 2. Download and install the [Cloud Foundry tools](https://new-console.ng.bluemix.net/docs/starters/install_cli.html):
 
@@ -186,7 +186,7 @@ IBM Cloud is a hosting platform from IBM that makes it easy to deploy your app t
    ***Note** This step will take 3-5 minutes
 
    ```
-   1 of 1 instances running 
+   1 of 1 instances running
 
    App started
    ```
@@ -196,9 +196,9 @@ IBM Cloud is a hosting platform from IBM that makes it easy to deploy your app t
    ```
    cf env TodoListCloudantApp
    ```
-   
+
    Note you will see something similar to the following, note the hostname, username, and password:
-   
+
    ```json
    "VCAP_SERVICES": {
       "cloudantNoSQLDB": [
@@ -214,9 +214,9 @@ IBM Cloud is a hosting platform from IBM that makes it easy to deploy your app t
    ```
 
   At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` to start.
-  
+
 ## Privacy Notice
-This Swift application includes code to track deployments to [IBM Bluemix](https://www.bluemix.net/) and other Cloud Foundry platforms. The following information is sent to a [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) service on each deployment:
+This Swift application includes code to track deployments to [IBM Cloud](https://www.bluemix.net/) and other Cloud Foundry platforms. The following information is sent to a [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) service on each deployment:
 
 * Swift project code version (if provided)
 * Swift project repository URL
@@ -233,7 +233,7 @@ This data is collected from the parameters of the `CloudFoundryDeploymentTracker
 Deployment tracking can be disabled by removing the following line from `main.swift`:
 
     CloudFoundryDeploymentTracker(repositoryURL: "https://github.com/IBM-Swift/TodoList-CouchDB.git").track()
-  
+
 ## License
 
 Copyright 2017 IBM
