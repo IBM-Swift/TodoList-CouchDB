@@ -18,7 +18,6 @@ import Foundation
 
 import Kitura
 import LoggerAPI
-import SwiftyJSON
 
 class AllRemoteOriginMiddleware: RouterMiddleware {
     func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Swift.Void) {
@@ -66,7 +65,7 @@ public final class TodoListController {
                     try response.status(.internalServerError).end()
                     return
                 }
-                let json = JSON(todos.toDictionary())
+                let json = try JSONEncoder().encode(todos)
                 try response.status(.OK).send(json: json).end()
             } catch {
                 Log.error("Communication error")
@@ -91,7 +90,7 @@ public final class TodoListController {
                     return
                 }
                 if let item = item {
-                    let result = JSON(item.toDictionary())
+                    let result = try JSONEncoder().encode(item)
                     try response.status(.OK).send(json: result).end()
 
                 } else {
@@ -130,9 +129,9 @@ public final class TodoListController {
         }
 
         let userID: String = "default"
-        let title = json["title"].stringValue
-        let rank = json["order"].intValue
-        let completed = json["completed"].boolValue
+        let title = json["title"] as! String
+        let rank = json["order"] as! Int
+        let completed = json["completed"] as! Bool
 
         guard title != "" else {
             response.status(.badRequest)
@@ -154,8 +153,8 @@ public final class TodoListController {
                     Log.error("Item not found")
                     return
                 }
-
-                let result = JSON(newItem.toDictionary())
+                
+                let result = try JSONEncoder().encode(newItem.toDictionary())
                 Log.info("\(userID) added \(title) to their TodoList")
                 do {
                     try response.status(.OK).send(json: result).end()
@@ -188,9 +187,9 @@ public final class TodoListController {
         }
 
         let userID: String = "default"
-        let title: String? = json["title"].stringValue == "" ? nil : json["title"].stringValue
-        let rank = json["order"].intValue
-        let completed = json["completed"].boolValue
+        let title: String? = json["title"] as! String == "" ? nil : (json["title"] as! String)
+        let rank = json["order"] as! Int
+        let completed = json["completed"] as! Bool
 
         todos.update(documentID: documentID, userID: userID, title: title, rank: rank, completed: completed) {
             newItem, error in
@@ -201,7 +200,7 @@ public final class TodoListController {
                     return
                 }
                 if let newItem = newItem {
-                    let result = JSON(newItem.toDictionary())
+                    let result = try JSONEncoder().encode(newItem.toDictionary())
                     try response.status(.OK).send(json: result).end()
                 } else {
                     Log.error("Database returned invalid new item")
