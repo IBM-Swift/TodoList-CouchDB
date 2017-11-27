@@ -11,33 +11,33 @@ DATABASE_NAME="TodoListCloudantDatabase"
 REGISTRY_URL="registry.eu-gb.bluemix.net"
 DATABASE_TYPE="cloudantNoSQLDB"
 DATABASE_LEVEL="Lite"
+INSTANCE_NAME="todolist-couchdb"
 NAME_SPACE="todolist_space"
+LOGIN_URL="api.ng.bluemix.net"
 
 function help {
   cat <<-!!EOF
 	  Usage: $CMD [ build | run | push-docker ] [arguments...]
 
 	  Where:
-	    install-tools				Installs necessary tools for config, like Cloud Foundry CLI
-      config-cli                      Sets up and configures necessary CLI tools
-	    login					Logs into Bluemix and Container APIs
-      setup <clusterName>                           Sets up the clusters
-	    build <imageName>          			Builds Docker container from Dockerfile
-        run   <imageName>                     Runs Docker container, ensuring it was built properly
-	    stop  <imageName> 				Stops Docker container, if running
-	    push-docker <imageName>			Tags and pushes Docker container to IBM Cloud
-	    create-db <imageName>				        Creates database service
-	    deploy				Binds everything together (app, db, container) through container group
-	    populate-db	<imageName>			Populates database with initial data
-	    delete <imageName>				Delete the created service and cluster if possible
-	    all <imageName>                 		Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
+	    install-tools                                   Installs necessary tools for config, like Cloud Foundry CLI
+    config-cli                                      Sets up and configures necessary CLI tools
+	    login                                           Logs into Bluemix and Container APIs
+    setup <clusterName>                             Sets up the clusters
+	    build                                           Builds Docker container from Dockerfile
+    run <imageName>                                 Runs Docker container, ensuring it was built properly
+	    stop <imageName>                                Stops Docker container, if running
+	    push-docker                                     Tags and pushes Docker container to IBM Cloud
+	    create-db <clusterName> <imageName>             Creates database service
+	    deploy                                          Binds everything together (app, db, container) through container group
+	    populate-db	<appURL> <username> <password>      Populates database with initial data
+	    delete <clusterName> <imageName>                Delete the created service and cluster if possible
+	    all <clusterName> <imageName>                   Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
 !!EOF
 }
 
 install-tools () {
-	brew tap cloudfoundry/tap
-	brew install cf-cli
-	cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-mac
+	curl -sL https://ibm.biz/idt-installer | bash
     bx plugin install container-service -r Bluemix
 }
 
@@ -53,7 +53,7 @@ config-cli () {
 
 login () {
 	echo "Setting api and login tools."
-	bx login --sso -a api.eu-gb.bluemix.net
+	bx login -a $LOGIN_URL
 }
 
 setup () {
@@ -74,7 +74,7 @@ setup () {
 }
 
 buildDocker () {
-	docker build -t registry.eu-gb.bluemix.net/$NAME_SPACE/todolist-couchdb .
+	docker build -t $REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME .
 }
 
 runDocker () {
@@ -99,30 +99,30 @@ stopDocker () {
 
 pushDocker () {
     bx cr login
-	docker push registry.eu-gb.bluemix.net/$NAME_SPACE/todolist-couchdb
+	docker push $REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME
     bx cr images
 }
 
 deployContainer () {
-    kubectl run todo-deployment --image=registry.eu-gb.bluemix.net/$NAME_SPACE/todolist-couchdb
+    kubectl run todo-deployment --image=$REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME
     kubectl expose deployment/todo-deployment --type=NodePort --port=8080 --name=todo-service --target-port=8080
 }
 
 createDatabase () {
 	if [ -z "$1" ] || [ -z "$2" ]
 	then
-		echo "Error: Creating bridge application failed, missing variables."
+		echo "Error: Creating bridge application failed, cluster name and service instance name not provided."
 		return
 	fi
 
-    bx service create cloudantNoSQLDB Lite $1
-    bx cs cluster-service-bind $2 $NAME_SPACE $1
+    bx service create cloudantNoSQLDB Lite $2
+    bx cs cluster-service-bind $1 $NAME_SPACE $2
 }
 
 populateDB () {
 	if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
 	then
-		echo "Error: Could not populate db with sample data, missing variables."
+		echo "Error: Could not populate db with sample data. App URL, username, and password not provided."
 		return
 	fi
 
@@ -134,7 +134,7 @@ populateDB () {
 delete () {
 	if [ -z "$1" ] || [ -z "$2" ]
 	then
-		echo "Error: Could not delete container group and service, missing variables."
+		echo "Error: Could not delete container group and service, cluster name and service instance name not provided."
 		return
 	fi
 
@@ -145,7 +145,7 @@ delete () {
 all () {
 	if [ -z "$1" ] || [ -z "$2" ]
 	then
-		echo "Error: Could not complete entire deployment process, missing variables."
+		echo "Error: Could not complete entire deployment process, cluster name and service instance name not provided."
 		return
 	fi
 
@@ -184,6 +184,6 @@ case $ACTION in
 "deploy")				 deployContainer;;
 "populate-db")			 populateDB "$2" "$3" "$4";;
 "delete")				 delete "$2" "$3";;
-"all")					 all "$2";;
+"all")					 all "$2" "$3";;
 *)                       help;;
 esac
