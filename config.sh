@@ -11,7 +11,8 @@ DATABASE_NAME="TodoListCloudantDatabase"
 REGISTRY_URL="registry.eu-gb.bluemix.net"
 DATABASE_TYPE="cloudantNoSQLDB"
 DATABASE_LEVEL="Lite"
-NAME_SPACE="todolist_space"
+NAME_SPACE="todolist-couchdb"
+LOGIN_URL="api.ng.bluemix.net"
 
 function help {
   cat <<-!!EOF
@@ -35,9 +36,7 @@ function help {
 }
 
 install-tools () {
-	brew tap cloudfoundry/tap
-	brew install cf-cli
-	cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-mac
+	curl -sL https://ibm.biz/idt-installer | bash
     bx plugin install container-service -r Bluemix
 }
 
@@ -53,7 +52,7 @@ config-cli () {
 
 login () {
 	echo "Setting api and login tools."
-	bx login -a api.ng.bluemix.net
+	bx login -a $LOGIN_URL
 }
 
 setup () {
@@ -74,7 +73,7 @@ setup () {
 }
 
 buildDocker () {
-	docker build -t registry.eu-gb.bluemix.net/$NAME_SPACE/todolist-couchdb .
+	docker build -t $REGISTRY_URL/$NAME_SPACE/$NAME_SPACE .
 }
 
 runDocker () {
@@ -99,12 +98,12 @@ stopDocker () {
 
 pushDocker () {
     bx cr login
-	docker push registry.eu-gb.bluemix.net/$NAME_SPACE/todolist-couchdb
+	docker push $REGISTRY_URL/$NAME_SPACE/$NAME_SPACE
     bx cr images
 }
 
 deployContainer () {
-    kubectl run todo-deployment --image=registry.eu-gb.bluemix.net/$NAME_SPACE/todolist-couchdb
+    kubectl run todo-deployment --image=$REGISTRY_URL/$NAME_SPACE/$NAME_SPACE
     kubectl expose deployment/todo-deployment --type=NodePort --port=8080 --name=todo-service --target-port=8080
 }
 
