@@ -11,7 +11,8 @@ DATABASE_NAME="TodoListCloudantDatabase"
 REGISTRY_URL="registry.eu-gb.bluemix.net"
 DATABASE_TYPE="cloudantNoSQLDB"
 DATABASE_LEVEL="Lite"
-NAME_SPACE="todolist-couchdb"
+INSTANCE_NAME="todolist-couchdb"
+NAME_SPACE="todolist_space"
 LOGIN_URL="api.ng.bluemix.net"
 
 function help {
@@ -73,7 +74,7 @@ setup () {
 }
 
 buildDocker () {
-	docker build -t $REGISTRY_URL/$NAME_SPACE/$NAME_SPACE .
+	docker build -t $REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME .
 }
 
 runDocker () {
@@ -98,12 +99,12 @@ stopDocker () {
 
 pushDocker () {
     bx cr login
-	docker push $REGISTRY_URL/$NAME_SPACE/$NAME_SPACE
+	docker push $REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME
     bx cr images
 }
 
 deployContainer () {
-    kubectl run todo-deployment --image=$REGISTRY_URL/$NAME_SPACE/$NAME_SPACE
+    kubectl run todo-deployment --image=$REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME
     kubectl expose deployment/todo-deployment --type=NodePort --port=8080 --name=todo-service --target-port=8080
 }
 
