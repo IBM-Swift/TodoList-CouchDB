@@ -89,15 +89,16 @@ For the following instructions, we will be using our [Bash Script](config.sh) lo
 You can attempt to complete the whole process with the following command:
 
    ```
-   ./config.sh all <imageName>
+   ./config.sh all <clusterName> <imageName>
    ```
 
 Or, you can follow the step-by-step instructions below.
 
-1. Install the Cloud Foundry CLI tool and the IBM Containers plugin for CF with the following
+1. Install the Cloud Foundry CLI tool and the IBM Containers plugin for CF, and configure the necessary CLI tools with the following
 
    ```
    ./config.sh install-tools
+   ./config.sh config-cli
    ```
 
 2. Ensure you are logged in with
@@ -105,8 +106,14 @@ Or, you can follow the step-by-step instructions below.
    ```
    ./config.sh login
    ```
+   
+3. Set up the clusters with
+   
+   ```
+   ./config.sh setup <clusterName>
+   ```
 
-3. Build and run a Docker container with the following
+4. Build and run a Docker container with the following
 
    ```
    ./config.sh build <imageName>
@@ -118,40 +125,28 @@ Or, you can follow the step-by-step instructions below.
    ./config.sh stop <imageName>
    ```
 
-4. Push created Docker container to IBM Cloud
+5. Push created Docker container to IBM Cloud
 
    ```
-   ./config.sh push-docker <imageName>
+   ./config.sh push-docker
    ```
 
-5. Create a bridge CF application to later bind to your container
+6. Bind everything together (app, db, container) through container group with
 
    ```
-   ./config.sh create-bridge
+   ./config.sh deploy
    ```
 
-6. Create the Cloudant service and bind to your bridge CF application.
+7. Create the database service
 
    ```
    ./config.sh create-db
    ```
 
-7. Create a IBM Cloud container group where your app will live, binding it to your bridge CF application in the process
-
-   ```
-   ./config.sh deploy <imageName>
-   ```
-
-   Afterwards, you can ensure Cloudant was bound correctly by viewing all credentials for your group
-
-   ```
-   cf ic group inspect <imageName>
-   ```
-
 8. Optionally, if you want to populate your database with some sample data, run the following command with your image name:
 
    ```
-   ./config.sh populate-db <imageName>
+   ./config.sh populate-db <appURL> <username> <password>
    ```
 
 At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` if you did not populate the database.
