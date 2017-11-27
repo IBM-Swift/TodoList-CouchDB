@@ -13,7 +13,7 @@ DATABASE_TYPE="cloudantNoSQLDB"
 DATABASE_LEVEL="Lite"
 INSTANCE_NAME="todolist-couchdb"
 NAME_SPACE="todolist_space"
-LOGIN_URL="api.ng.bluemix.net"
+LOGIN_URL="api.eu-gb.bluemix.net"
 
 function help {
   cat <<-!!EOF
