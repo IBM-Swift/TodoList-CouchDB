@@ -89,7 +89,7 @@ For the following instructions, we will be using our [Bash Script](config.sh) lo
 You can attempt to complete the whole process with the following command:
 
 ```
-./config.sh all <clusterName> <imageName>
+./config.sh all <clusterName> <instanceName>
 ```
 
 Or, you can follow the step-by-step instructions below.
@@ -116,13 +116,14 @@ Or, you can follow the step-by-step instructions below.
 4. Build and run a Docker container with the following
 
 ```
-./config.sh build <imageName>
+./config.sh build
 ```
+
 To test out created Docker image, use
 
 ```
-./config.sh run <imageName>
-./config.sh stop <imageName>
+./config.sh run <instanceName>
+./config.sh stop <instanceName>
 ```
 
 5. Push created Docker container to IBM Cloud
@@ -140,10 +141,10 @@ To test out created Docker image, use
 7. Create the database service
 
 ```
-./config.sh create-db
+./config.sh create-db <clusterName> <instanceName>
 ```
 
-8. Optionally, if you want to populate your database with some sample data, run the following command with your image name:
+8. Optionally, if you want to populate your database with some sample data, run the following command with your app URL, username, and password:
 
 ```
 ./config.sh populate-db <appURL> <username> <password>

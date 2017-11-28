@@ -28,11 +28,11 @@ function help {
     run <imageName>                                 Runs Docker container, ensuring it was built properly
 	    stop <imageName>                                Stops Docker container, if running
 	    push-docker                                     Tags and pushes Docker container to IBM Cloud
-	    create-db <clusterName> <imageName>             Creates database service
+	    create-db <clusterName> <instanceName>          Creates database service
 	    deploy                                          Binds everything together (app, db, container) through container group
 	    populate-db	<appURL> <username> <password>      Populates database with initial data
-	    delete <clusterName> <imageName>                Delete the created service and cluster if possible
-	    all <clusterName> <imageName>                   Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
+	    delete <clusterName> <instanceName>             Delete the created service and cluster if possible
+	    all <clusterName> <instanceName>                Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
 !!EOF
 }
 
@@ -54,6 +54,7 @@ config-cli () {
 login () {
 	echo "Setting api and login tools."
 	bx login -a $LOGIN_URL
+    bx target --cf
 }
 
 setup () {
@@ -66,11 +67,7 @@ setup () {
     bx cr login
     bx cr namespace-add $NAME_SPACE
     bx cs workers $1
-    bx cs cluster-config $1
-
-    MAGENTA='\033[1;35m'
-    NC='\033[0m'
-    printf "\n${MAGENTA}Copy and paste the command that is displayed in your terminal to set the KUBECONFIG environment variable${NC}\n"
+    bx cs cluster-config $1 --export
 }
 
 buildDocker () {
@@ -80,7 +77,7 @@ buildDocker () {
 runDocker () {
     if [ -z "$1" ]
     then
-        echo "Error: run failed, docker name not provided."
+        echo "Error: run failed, docker image name not provided."
         return
     fi
 
@@ -90,7 +87,7 @@ runDocker () {
 stopDocker () {
 	if [ -z "$1" ]
 	then
-		echo "Error: clean failed, docker name not provided."
+		echo "Error: clean failed, docker image name not provided."
 		return
 	fi
 
