@@ -94,11 +94,10 @@ You can attempt to complete the whole process with the following command:
 
 Or, you can follow the step-by-step instructions below.
 
-1. Install the Cloud Foundry CLI tool and the IBM Containers plugin for CF, and configure the necessary CLI tools with the following
+1. Install the Cloud Foundry CLI tool and the IBM Containers plugin for CF with the following
 
 ```
-./config.sh install-tools
-./config.sh config-cli
+./config.sh install_tools
 ```
 
 2. Ensure you are logged in with
@@ -122,14 +121,14 @@ Or, you can follow the step-by-step instructions below.
 To test out created Docker image, use
 
 ```
-./config.sh run <instanceName>
-./config.sh stop <instanceName>
+./config.sh run <imageName>
+./config.sh stop <imageName>
 ```
 
 5. Push created Docker container to IBM Cloud
 
 ```
-./config.sh push-docker
+./config.sh push_docker
 ```
 
 6. Bind everything together (app, db, container) through container group with
@@ -141,13 +140,13 @@ To test out created Docker image, use
 7. Create the database service
 
 ```
-./config.sh create-db <clusterName> <instanceName>
+./config.sh create_db <clusterName> <instanceName>
 ```
 
 8. Optionally, if you want to populate your database with some sample data, run the following command with your app URL, username, and password:
 
 ```
-./config.sh populate-db <appURL> <username> <password>
+./config.sh populate_db <appURL> <username> <password>
 ```
 
 At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` if you did not populate the database.
