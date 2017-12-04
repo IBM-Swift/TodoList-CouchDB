@@ -33,7 +33,7 @@ function help {
     deploy <appName> <instanceName>                 Binds everything together (app, db, container) through container group
     populate_db <appURL> <username> <password>      Populates database with initial data
     delete <clusterName> <instanceName>             Delete the created service and cluster if possible
-    all <clusterName> <instanceName>                Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
+    all <clusterName> <instanceName> <dockerName>   Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
 !!EOF
 }
 
@@ -206,6 +206,6 @@ case $ACTION in
 "deploy")                deploy_container "$2" "$3";;
 "populate_db")           populate_db "$2" "$3" "$4";;
 "delete")                delete "$2" "$3";;
-"all")                   all "$2" "$3";;
+"all")                   all "$2" "$3" "$4";;
 *)                       help;;
 esac
