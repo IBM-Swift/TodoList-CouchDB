@@ -21,19 +21,19 @@ function help {
     cat <<-!!EOF
     Usage: $CMD [ build | run | push-docker ] [arguments...]
     Where:
-    install_tools                                   Installs necessary tools for config, like Cloud Foundry CLI
-    login                                           Logs into Bluemix and Container APIs
-    setup <clusterName>                             Sets up the clusters
-    build <dockerName>                              Builds Docker container from Dockerfile
-    run <dockerName>                                Runs Docker container, ensuring it was built properly
-    stop <dockerName>                               Stops Docker container, if running
-    push <dockerName>                               Tags and pushes Docker container to IBM Cloud
-    create_db <clusterName> <instanceName>          Creates database service
-    get_ip <clusterName> <instanceName>             Get the public IP
-    deploy <appName> <instanceName>                 Binds everything together (app, db, container) through container group
-    populate_db <appURL> <username> <password>      Populates database with initial data
-    delete <clusterName> <instanceName>             Delete the created service and cluster if possible
-    all <clusterName> <instanceName> <dockerName>   Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
+    install_tools                                               Installs necessary tools for config, like Cloud Foundry CLI
+    login                                                       Logs into Bluemix and Container APIs
+    setup <clusterName> <nameSpace>                             Sets up the clusters
+    build <dockerName>                                          Builds Docker container from Dockerfile
+    run <dockerName>                                            Runs Docker container, ensuring it was built properly
+    stop <dockerName>                                           Stops Docker container, if running
+    push <dockerName> <nameSpace>                               Tags and pushes Docker container to IBM Cloud
+    create_db <clusterName> <instanceName> <nameSpace>          Creates database service
+    get_ip <clusterName> <instanceName>                         Get the public IP
+    deploy <appName> <instanceName> <nameSpace>                 Binds everything together (app, db, container) through container group
+    populate_db <appURL> <username> <password>                  Populates database with initial data
+    delete <clusterName> <instanceName> <nameSpace>             Delete the created service and cluster if possible
+    all <clusterName> <instanceName> <dockerName> <nameSpace>   Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
 !!EOF
 }
 
@@ -49,15 +49,15 @@ login () {
 }
 
 setup () {
-    if [ -z "$1" ]
+    if [ -z "$1" ] || [ -z "$2" ]
     then
-        echo "Error: setup failed, cluster name not provided."
+        echo "Error: setup failed, cluster name, and name space not provided."
         return
     fi
 
     bx cr login
     bx cs cluster-create --name $1
-    bx cr namespace-add $NAME_SPACE
+    bx cr namespace-add $2
     bx cs workers $1
     bx cs cluster-config $1 --export
 }
@@ -93,39 +93,39 @@ stop_docker () {
 }
 
 push_docker () {
-    if [ -z "$1" ]
+    if [ -z "$1" ] || [ -z "$2" ]
     then
-        echo "Error: clean failed, docker name not provided."
+        echo "Error: clean failed, docker name, and name space not provided."
         return
     fi
 
     bx cr login
 
-    docker tag $1 $REGISTRY_URL/$NAME_SPACE/$1
-    docker push $REGISTRY_URL/$NAME_SPACE/$1
+    docker tag $1 $REGISTRY_URL/$2/$1
+    docker push $REGISTRY_URL/$2/$1
     docker ps
     bx cr images
 }
 
 deploy_container () {
-    if [ -z "$1" ] || [ -z "$2" ]
+    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
     then
-        echo "Error: Deploying container failed, app name and service instance name not provided."
+        echo "Error: Deploying container failed, app name, service instance name, and name space not provided."
         return
     fi
 
-    kubectl run $1 --image=$REGISTRY_URL/$NAME_SPACE/$2
+    kubectl run $1 --image=$REGISTRY_URL/$3/$2
 }
 
 create_database () {
-    if [ -z "$1" ] || [ -z "$2" ]
+    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
     then
-        echo "Error: Creating bridge application failed, cluster name and service instance name not provided."
+        echo "Error: Creating bridge application failed, cluster name, service instance name, and name space not provided."
         return
     fi
 
     bx service create cloudantNoSQLDB Lite $2
-    bx cs cluster-service-bind $1 $NAME_SPACE $2
+    bx cs cluster-service-bind $1 $3 $2
 }
 
 get_ip () {
@@ -153,31 +153,31 @@ populate_db () {
 }
 
 delete () {
-    if [ -z "$1" ] || [ -z "$2" ]
+    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
     then
-        echo "Error: Could not delete container group and service, cluster name and service instance name not provided."
+        echo "Error: Could not delete container group and service, cluster name, service instance name, and name space not provided."
         return
     fi
 
-    bx cs cluster-service-unbind $1 $NAME_SPACE $2
+    bx cs cluster-service-unbind $1 $3 $2
     bx cs cluster-rm $1
     bx service delete $2
 }
 
 all () {
-    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
+    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]
     then
-        echo "Error: Could not complete entire deployment process, cluster name, service instance name, and docker name not provided."
+        echo "Error: Could not complete entire deployment process, cluster name, service instance name, docker name, and name space not provided."
         return
     fi
 
     install_tools
     login
-    setup $1
+    setup $1 $4
     build_docker $3
-    push_docker $3
-    deploy_container $1 $2
-    create_database $1 $2
+    push_docker $3 $4
+    deploy_container $1 $2 $4
+    create_database $1 $2 $4
     get_ip $1 $2
 }
 
@@ -196,16 +196,16 @@ eval "$(swiftenv init -)"
 case $ACTION in
 "install_tools")         install_tools;;
 "login")                 login;;
-"setup")                 setup "$2";;
+"setup")                 setup "$2" "$3";;
 "build")                 build_docker "$2";;
 "run")                   run_docker "$2";;
 "stop")                  stop_docker "$2";;
-"push")                  push_docker "$2";;
-"create_db")             create_database "$2" "$3";;
+"push")                  push_docker "$2" "$3";;
+"create_db")             create_database "$2" "$3" "$4";;
 "get_ip")                get_ip "$2" "$3";;
-"deploy")                deploy_container "$2" "$3";;
+"deploy")                deploy_container "$2" "$3" "$4";;
 "populate_db")           populate_db "$2" "$3" "$4";;
-"delete")                delete "$2" "$3";;
-"all")                   all "$2" "$3" "$4";;
+"delete")                delete "$2" "$3" "$4";;
+"all")                   all "$2" "$3" "$4" "$5";;
 *)                       help;;
 esac
