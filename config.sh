@@ -59,6 +59,8 @@ setup () {
     bx cs cluster-create --name $1
     bx cr namespace-add $2
     bx cs workers $1
+    echo "Waiting for the cluster to be deployed."
+    sleep 5m
     bx cs cluster-config $1 --export
 }
 
@@ -69,7 +71,7 @@ build_docker () {
         return
     fi
 
-    docker build -t $1 --force-rm .
+    docker build -t $1 .
 }
 
 run_docker () {
