@@ -60,8 +60,9 @@ setup () {
     bx cr namespace-add $2
     bx cs workers $1
     echo "Waiting for the cluster to be deployed."
-    sleep 5m
+    sleep 300
     bx cs cluster-config $1 --export
+    export KUBECONFIG=$HOME/.bluemix/plugins/container-service/clusters/$1/kube-config-par01-$1.yml
 }
 
 build_docker () {
@@ -116,13 +117,13 @@ deploy_container () {
         return
     fi
 
-    kubectl run $1 --image=$REGISTRY_URL/$3/$2
+    kubectl run $1 --image=$REGISTRY_URL/$3/$2 --requests=cpu=200m --expose --port=8080
 }
 
 create_database () {
     if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
     then
-        echo "Error: Creating bridge application failed, cluster name, service instance name, and name space not provided."
+        echo "Error: Creating database failed, cluster name, service instance name, and name space not provided."
         return
     fi
 
