@@ -115,26 +115,26 @@ Or, you can follow the step-by-step instructions below.
 4. Build and run a Docker container with the following
 
 ```
-./config.sh build
+./config.sh build <dockerName>
 ```
 
 To test out created Docker image, use
 
 ```
-./config.sh run <imageName>
-./config.sh stop <imageName>
+./config.sh run <dockerName>
+./config.sh stop <dockerName>
 ```
 
 5. Push created Docker container to IBM Cloud
 
 ```
-./config.sh push_docker
+./config.sh push <dockerName>
 ```
 
-6. Bind everything together (app, db, container) through container group with
+6. Deploy the app with
 
 ```
-./config.sh deploy
+./config.sh deploy <appName> <instanceName>
 ```
 
 7. Create the database service

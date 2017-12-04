@@ -4,6 +4,8 @@
 # Author: Swift@IBM
 # -----------------------------------------------------------
 
+set -e
+
 VERSION="1.0"
 BUILD_DIR=".build-linux"
 BRIDGE_APP_NAME="containerbridge"
@@ -22,13 +24,13 @@ function help {
     install_tools                                   Installs necessary tools for config, like Cloud Foundry CLI
     login                                           Logs into Bluemix and Container APIs
     setup <clusterName>                             Sets up the clusters
-    build                                           Builds Docker container from Dockerfile
-    run <imageName>                                 Runs Docker container, ensuring it was built properly
-    stop <imageName>                                Stops Docker container, if running
-    push_docker                                     Tags and pushes Docker container to IBM Cloud
+    build <dockerName>                              Builds Docker container from Dockerfile
+    run <dockerName>                                Runs Docker container, ensuring it was built properly
+    stop <dockerName>                               Stops Docker container, if running
+    push <dockerName>                               Tags and pushes Docker container to IBM Cloud
     create_db <clusterName> <instanceName>          Creates database service
     get_ip <clusterName> <instanceName>             Get the public IP
-    deploy                                          Binds everything together (app, db, container) through container group
+    deploy <appName> <instanceName>                 Binds everything together (app, db, container) through container group
     populate_db <appURL> <username> <password>      Populates database with initial data
     delete <clusterName> <instanceName>             Delete the created service and cluster if possible
     all <clusterName> <instanceName>                Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
@@ -61,13 +63,19 @@ setup () {
 }
 
 build_docker () {
-    docker build -t $REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME .
+    if [ -z "$1" ]
+    then
+        echo "Error: run failed, docker name not provided."
+        return
+    fi
+
+    docker build -t $1 --force-rm .
 }
 
 run_docker () {
     if [ -z "$1" ]
     then
-        echo "Error: run failed, docker image name not provided."
+        echo "Error: run failed, docker name not provided."
         return
     fi
 
@@ -77,7 +85,7 @@ run_docker () {
 stop_docker () {
     if [ -z "$1" ]
     then
-        echo "Error: clean failed, docker image name not provided."
+        echo "Error: clean failed, docker name not provided."
         return
     fi
 
@@ -85,15 +93,28 @@ stop_docker () {
 }
 
 push_docker () {
+    if [ -z "$1" ]
+    then
+        echo "Error: clean failed, docker name not provided."
+        return
+    fi
+
     bx cr login
 
-    docker tag $INSTANCE_NAME $REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME
-    docker push $REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME
+    docker tag $1 $REGISTRY_URL/$NAME_SPACE/$1
+    docker push $REGISTRY_URL/$NAME_SPACE/$1
+    docker ps
     bx cr images
 }
 
 deploy_container () {
-    kubectl run todo-deployment --image=$REGISTRY_URL/$NAME_SPACE/$INSTANCE_NAME
+    if [ -z "$1" ] || [ -z "$2" ]
+    then
+        echo "Error: Deploying container failed, app name and service instance name not provided."
+        return
+    fi
+
+    kubectl run $1 --image=$REGISTRY_URL/$NAME_SPACE/$2
 }
 
 create_database () {
@@ -144,18 +165,18 @@ delete () {
 }
 
 all () {
-    if [ -z "$1" ] || [ -z "$2" ]
+    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
     then
-        echo "Error: Could not complete entire deployment process, cluster name and service instance name not provided."
+        echo "Error: Could not complete entire deployment process, cluster name, service instance name, and docker name not provided."
         return
     fi
 
     install_tools
     login
     setup $1
-    build_docker
-    push_docker
-    deploy_container
+    build_docker $3
+    push_docker $3
+    deploy_container $1 $2
     create_database $1 $2
     get_ip $1 $2
 }
@@ -176,15 +197,15 @@ case $ACTION in
 "install_tools")         install_tools;;
 "login")                 login;;
 "setup")                 setup "$2";;
-"build")                 build_docker;;
+"build")                 build_docker "$2";;
 "run")                   run_docker "$2";;
-"stop")                     stop_docker "$2";;
-"push_docker")             push_docker;;
+"stop")                  stop_docker "$2";;
+"push")                  push_docker "$2";;
 "create_db")             create_database "$2" "$3";;
 "get_ip")                get_ip "$2" "$3";;
-"deploy")                 deploy_container;;
-"populate_db")             populate_db "$2" "$3" "$4";;
-"delete")                 delete "$2" "$3";;
-"all")                     all "$2" "$3";;
+"deploy")                deploy_container "$2" "$3";;
+"populate_db")           populate_db "$2" "$3" "$4";;
+"delete")                delete "$2" "$3";;
+"all")                   all "$2" "$3";;
 *)                       help;;
 esac
