@@ -10,12 +10,12 @@ VERSION="1.0"
 BUILD_DIR=".build-linux"
 BRIDGE_APP_NAME="containerbridge"
 DATABASE_NAME="TodoListCloudantDatabase"
-REGISTRY_URL="registry.eu-gb.bluemix.net"
+REGISTRY_URL="registry.ng.bluemix.net"
 DATABASE_TYPE="cloudantNoSQLDB"
 DATABASE_LEVEL="Lite"
 INSTANCE_NAME="todolist-couchdb"
 NAME_SPACE="todolist_space"
-LOGIN_URL="api.eu-gb.bluemix.net"
+LOGIN_URL="api.ng.bluemix.net"
 
 function help {
     cat <<-!!EOF
@@ -62,7 +62,8 @@ setup () {
     echo "Waiting for the cluster to be deployed."
     sleep 300
     bx cs cluster-config $1 --export
-    export KUBECONFIG=$HOME/.bluemix/plugins/container-service/clusters/$1/kube-config-par01-$1.yml
+    datacenter=$(bx cs cluster-get $1 | grep Datacenter | awk '{ print $NF }')
+    export KUBECONFIG=$HOME/.bluemix/plugins/container-service/clusters/$1/kube-config-$datacenter-$1.yml
 }
 
 build_docker () {
@@ -117,7 +118,9 @@ deploy_container () {
         return
     fi
 
-    kubectl run $1 --image=$REGISTRY_URL/$3/$2 --requests=cpu=200m --expose --port=8080
+    lowercase="$(tr [A-Z] [a-z] <<< "$1")"
+    nodashes="$(tr -d '-' <<< "$lowercase")"
+    kubectl run $nodashes --image=$REGISTRY_URL/$3/$2 --requests=cpu=200m --expose --port=8080
 }
 
 create_database () {
@@ -176,7 +179,6 @@ all () {
 
     install_tools
     login
-    setup $1 $4
     build_docker $3
     push_docker $3 $4
     deploy_container $1 $2 $4
