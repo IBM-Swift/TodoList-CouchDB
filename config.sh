@@ -56,11 +56,23 @@ setup () {
     fi
 
     bx cr login
-    bx cs cluster-create --name $1
+
+    if bx cs cluster-get $1 | grep specified
+    then
+        echo "Attempting to create new cluster..."
+        bx cs cluster-create --name $1
+
+        until bx cs cluster-get $1 | grep normal
+        do
+            sleep 60
+            bx cs cluster-get $1
+            echo "Cluster still provisioning..."
+        done
+        echo "Cluster deployed successfully."
+    fi
+
     bx cr namespace-add $2
     bx cs workers $1
-    echo "Waiting for the cluster to be deployed."
-    sleep 300
     bx cs cluster-config $1 --export
     datacenter=$(bx cs cluster-get $1 | grep Datacenter | awk '{ print $NF }')
     export KUBECONFIG=$HOME/.bluemix/plugins/container-service/clusters/$1/kube-config-$datacenter-$1.yml
@@ -179,6 +191,7 @@ all () {
 
     install_tools
     login
+    setup $1 $2
     build_docker $3
     push_docker $3 $4
     deploy_container $1 $2 $4

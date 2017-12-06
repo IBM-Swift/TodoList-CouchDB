@@ -85,19 +85,8 @@ You can use this button to deploy TodoList to your IBM Cloud account, all from t
 
 ### Deploying Docker to IBM Cloud Container
 
-As a prerequisite, a cluster must be created on IBM Cloud, this can be done with the following command:
+For the following instructions, we will be using our [Bash Script](config.sh) located in the root directory. If you already have existing clusters, these can be used by the script. If you don't already have a cluster on IBM Cloud, the script will create one for you, which may take a short period of time to become operational before it can be used. More information can be found [here](https://www.ibm.com/cloud/container-service).
 
-```
-./config.sh setup <clusterName> <nameSpace>
-```
-
-To verify that the cluster has been created, run the following command and observe the 'state' column. Once it reads 'normal', carry on to the next step.
-
-```
-bx cs clusters
-```
-
-For the following instructions, we will be using our [Bash Script](config.sh) located in the root directory.
 You can attempt to complete the whole process with the following command:
 
 ```
@@ -118,7 +107,13 @@ Or, you can follow the step-by-step instructions below.
 ./config.sh login
 ```
 
-3. Build and run a Docker container with the following
+3. Set up the clusters with
+
+```
+./config.sh setup <clusterName> <nameSpace>
+```
+
+4. Build and run a Docker container with the following
 
 ```
 ./config.sh build <dockerName>
@@ -131,25 +126,25 @@ To test out created Docker image, use
 ./config.sh stop <dockerName>
 ```
 
-4. Push created Docker container to IBM Cloud
+5. Push created Docker container to IBM Cloud
 
 ```
 ./config.sh push <dockerName> <nameSpace>
 ```
 
-5. Deploy the app with
+6. Deploy the app with
 
 ```
 ./config.sh deploy <appName> <instanceName> <nameSpace>
 ```
 
-6. Create the database service
+7. Create the database service
 
 ```
 ./config.sh create_db <clusterName> <instanceName> <nameSpace>
 ```
 
-7. Optionally, if you want to populate your database with some sample data, run the following command with your app URL, username, and password:
+8. Optionally, if you want to populate your database with some sample data, run the following command with your app URL, username, and password:
 
 ```
 ./config.sh populate_db <appURL> <username> <password>
