@@ -23,19 +23,18 @@ import PackageDescription
 let package = Package(
     name: "TodoList",
     products: [],
-    
+
     dependencies: [
         .package(url: "https://github.com/IBM-Swift/Kitura.git",                                from: "1.0.0"),
         .package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",                        from: "1.7.2"),
         .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git",                      from: "4.0.5"),
-        .package(url: "https://github.com/IBM-Bluemix/cf-deployment-tracker-client-swift.git",  from: "4.0.1"),
         .package(url: "https://github.com/rob-deans/CloudConfiguration.git",                        from: "2.1.0")
     ],
-    
+
     targets: [
         .target(
             name: "TodoList",
-            dependencies: ["CloudEnvironment", "CouchDB", "Kitura", "CloudFoundryDeploymentTracker"]
+            dependencies: ["CloudEnvironment", "CouchDB", "Kitura"]
         ),
         .target(
             name: "Server",

@@ -19,7 +19,6 @@ import Foundation
 import Kitura
 import HeliumLogger
 import LoggerAPI
-import CloudFoundryDeploymentTracker
 import TodoList
 import Configuration
 import CloudFoundryConfig
@@ -30,9 +29,9 @@ HeliumLogger.use()
 let configFile = "cloud_config.json"
 let databaseName = "todolist"
 extension TodoList {
-    
+
     public convenience init(config: CloudantService) {
-        
+
         self.init(host: config.host, port: UInt16(config.port),
                   username: config.username, password: config.password)
     }
@@ -49,7 +48,7 @@ do {
     manager.load(.environmentVariables).load(file: configFile)
     let cloudantConfig = try manager.getCloudantService(name: "TodoListCloudantDatabase")
     todos = TodoList(config: cloudantConfig)
-    
+
 } catch {
     todos = TodoList()
 }
@@ -59,6 +58,5 @@ let controller = TodoListController(backend: todos)
 let port = manager.port
 Log.verbose("Assigned port is \(port)")
 
-CloudFoundryDeploymentTracker(repositoryURL: "https://github.com/IBM-Swift/TodoList-CouchDB.git").track()
 Kitura.addHTTPServer(onPort: port, with: controller.router)
 Kitura.run()
