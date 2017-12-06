@@ -44,7 +44,7 @@ install_tools () {
 
 login () {
     echo "Setting api and login tools."
-    bx login -a $LOGIN_URL
+    bx login --sso -a $LOGIN_URL
     bx target --cf
 }
 
@@ -62,7 +62,7 @@ setup () {
         echo "Attempting to create new cluster..."
         bx cs cluster-create --name $1
 
-        until bx cs cluster-get $1 | grep normal
+        until bx cs cluster-get $1 | grep pending
         do
             sleep 60
             bx cs cluster-get $1
@@ -191,7 +191,7 @@ all () {
 
     install_tools
     login
-    setup $1 $2
+    setup $1 $4
     build_docker $3
     push_docker $3 $4
     deploy_container $1 $2 $4
