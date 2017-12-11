@@ -44,7 +44,7 @@ install_tools () {
 
 login () {
     echo "Setting api and login tools."
-    bx login --sso -a $LOGIN_URL
+    bx login -a $LOGIN_URL
     bx target --cf
 }
 
