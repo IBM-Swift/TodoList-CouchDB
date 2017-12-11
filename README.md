@@ -5,7 +5,6 @@ Todo backend is an example of using the [Kitura](https://github.com/IBM-Swift/Ki
 [![Build Status](https://travis-ci.org/IBM-Swift/TodoList-CouchDB.svg?branch=master)](https://travis-ci.org/IBM-Swift/TodoList-CouchDB)
 ![](https://img.shields.io/badge/Swift-4.0%20RELEASE-orange.svg)
 ![](https://img.shields.io/badge/platform-Linux,%20macOS-blue.svg?style=flat)
-![IBM Cloud Deployments](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/badge.svg)
 
 ## Quick start for local development:
 
@@ -81,7 +80,7 @@ The TodoList for Cloudant is deployable with a graphical user interface. Downloa
 
 You can use this button to deploy TodoList to your IBM Cloud account, all from the browser. The button will create the application, create and bind any services specified in the manifest.yml file and deploy.
 
-[![Deploy to IBM Cloud](https://deployment-tracker.mybluemix.net/stats/9eef579b69ef97de1ef1083552adeea2/button.svg)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB.git)
+[![Deploy to IBM Cloud](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB.git)
 
 ### Deploying Docker to IBM Cloud Container
 
