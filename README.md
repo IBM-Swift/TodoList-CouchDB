@@ -82,9 +82,11 @@ You can use this button to deploy TodoList to your IBM Cloud account, all from t
 
 [![Deploy to IBM Cloud](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB.git)
 
-### Deploying Docker to IBM Cloud Container
+### Deploying to IBM Cloud Container Service
 
 For the following instructions, we will be using our [Bash Script](config.sh) located in the root directory. If you already have existing clusters, these can be used by the script. If you don't already have a cluster on IBM Cloud, the script will create one for you, which may take a short period of time to become operational before it can be used. More information can be found [here](https://www.ibm.com/cloud/container-service).
+
+This script is provided to serve as an example for how to set up deployment using the IBM Cloud Container Service.  There are current restrictions on Kubernetes cluster provisioning in certain regions for IBM Cloud Lite accounts, under which circumstances the script will not be able to set up a cluster as intended.  To avoid this problem, be sure to create your Lite account in a region other than US-SOUTh, or upgrade to a paid account.
 
 You can attempt to complete the whole process with the following command:
 
