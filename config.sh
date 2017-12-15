@@ -28,7 +28,7 @@ function help {
     run <dockerName>                                            Runs Docker container, ensuring it was built properly
     stop <dockerName>                                           Stops Docker container, if running
     push <dockerName> <nameSpace>                               Tags and pushes Docker container to IBM Cloud
-    create_db <clusterName> <instanceName> <nameSpace>          Creates database service
+    create_db <clusterName> <instanceName>                      Creates database service
     get_ip <clusterName> <instanceName>                         Get the public IP
     deploy <appName> <instanceName> <nameSpace>                 Binds everything together (app, db, container) through container group
     populate_db <appURL> <username> <password>                  Populates database with initial data
@@ -115,8 +115,6 @@ push_docker () {
         return
     fi
 
-    bx cr login
-
     docker tag $1 $REGISTRY_URL/$2/$1
     docker push $REGISTRY_URL/$2/$1
     docker ps
@@ -136,14 +134,14 @@ deploy_container () {
 }
 
 create_database () {
-    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
+    if [ -z "$1" ] || [ -z "$2" ]
     then
-        echo "Error: Creating database failed, cluster name, service instance name, and name space not provided."
+        echo "Error: Creating database failed, cluster name, and service instance name not provided."
         return
     fi
 
     bx service create cloudantNoSQLDB Lite $2
-    bx cs cluster-service-bind $1 $3 $2
+    bx cs cluster-service-bind $1 default $2
 }
 
 get_ip () {
@@ -219,7 +217,7 @@ case $ACTION in
 "run")                   run_docker "$2";;
 "stop")                  stop_docker "$2";;
 "push")                  push_docker "$2" "$3";;
-"create_db")             create_database "$2" "$3" "$4";;
+"create_db")             create_database "$2" "$3";;
 "get_ip")                get_ip "$2" "$3";;
 "deploy")                deploy_container "$2" "$3" "$4";;
 "populate_db")           populate_db "$2" "$3" "$4";;
