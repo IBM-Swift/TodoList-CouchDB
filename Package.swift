@@ -25,7 +25,7 @@ let package = Package(
     products: [],
 
     dependencies: [
-        .package(url: "https://github.com/IBM-Swift/Kitura.git",                                from: "2.1"),
+        .package(url: "https://github.com/IBM-Swift/Kitura.git",                                from: "2.1.0"),
         .package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",                        from: "2.0.0"),
         .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git",                      from: "6.0.0"),
         .package(url: "https://github.com/IBM-Bluemix/cf-deployment-tracker-client-swift.git",  from: "6.0.0")
