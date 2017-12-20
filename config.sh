@@ -28,9 +28,9 @@ function help {
     run <dockerName>                                            Runs Docker container, ensuring it was built properly
     stop <dockerName>                                           Stops Docker container, if running
     push <dockerName> <nameSpace>                               Tags and pushes Docker container to IBM Cloud
-    create_db <clusterName> <instanceName>                      Creates database service
+    create_db <clusterName> <dockerName>                        Creates database service
     get_ip <clusterName> <instanceName>                         Get the public IP
-    deploy <appName> <instanceName> <nameSpace>                 Binds everything together (app, db, container) through container group
+    deploy <appName> <dockerName> <nameSpace>                   Binds everything together (app, db, container) through container group
     populate_db <appURL> <username> <password>                  Populates database with initial data
     delete <clusterName> <instanceName> <nameSpace>             Delete the created service and cluster if possible
     all <clusterName> <instanceName> <dockerName> <nameSpace>   Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
@@ -44,7 +44,7 @@ install_tools () {
 
 login () {
     echo "Setting api and login tools."
-    bx login -a $LOGIN_URL
+    bx login --sso -a $LOGIN_URL
     bx target --cf
 }
 
@@ -124,7 +124,7 @@ push_docker () {
 deploy_container () {
     if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
     then
-        echo "Error: Deploying container failed, app name, service instance name, and name space not provided."
+        echo "Error: Deploying container failed, app name, docker name, and name space not provided."
         return
     fi
 
@@ -136,7 +136,7 @@ deploy_container () {
 create_database () {
     if [ -z "$1" ] || [ -z "$2" ]
     then
-        echo "Error: Creating database failed, cluster name, and service instance name not provided."
+        echo "Error: Creating database failed, cluster name, and docker name not provided."
         return
     fi
 
@@ -192,8 +192,8 @@ all () {
     setup $1 $4
     build_docker $3
     push_docker $3 $4
-    deploy_container $1 $2 $4
-    create_database $1 $2 $4
+    deploy_container $1 $3 $4
+    create_database $1 $3 $4
     get_ip $1 $2
 }
 
