@@ -31,7 +31,7 @@ function help {
     create_db <clusterName> <dockerName>                        Creates database service
     get_ip <clusterName> <instanceName>                         Get the public IP
     deploy <appName> <dockerName> <nameSpace>                   Binds everything together (app, db, container) through container group
-    populate_db <appURL> <username> <password>                  Populates database with initial data
+    populate_db <appURL>                                        Populates database with initial data
     delete <clusterName> <instanceName> <nameSpace>             Delete the created service and cluster if possible
     all <clusterName> <instanceName> <dockerName> <nameSpace>   Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
 !!EOF
@@ -44,7 +44,7 @@ install_tools () {
 
 login () {
     echo "Setting api and login tools."
-    bx login --sso -a $LOGIN_URL
+    bx login -a $LOGIN_URL
     bx target --cf
 }
 
@@ -130,7 +130,8 @@ deploy_container () {
 
     lowercase="$(tr [A-Z] [a-z] <<< "$1")"
     nodashes="$(tr -d '-' <<< "$lowercase")"
-    kubectl run $nodashes --image=$REGISTRY_URL/$3/$2 --requests=cpu=200m --expose --port=8080
+    kubectl run $nodashes --image=$REGISTRY_URL/$3/$2 --port=8080
+    kubectl expose deployment $nodashes --type=NodePort --name=$nodashes
 }
 
 create_database () {
@@ -151,21 +152,23 @@ get_ip () {
         return
     fi
 
-    ip_addr=$(bx cs workers $1 | grep normal | awk '{ print $1 }')
-    port=$(kubectl get services | grep $2 | sed 's/.*:\([0-9]*\).*/\1/g')
+    ip_addr=$(bx cs workers $1 | grep normal | awk '{ print $2 }')
+    port=$(kubectl get services | grep $2 | awk '{ print $5 }' | sed 's/.*:\([0-9]*\).*/\1/g')
     echo "You may view the application at: http://$ip_addr:$port"
 }
 
 populate_db () {
-    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
+    if [ -z "$1" ]
     then
-        echo "Error: Could not populate db with sample data. App URL, username, and password not provided."
+        echo "Error: Could not populate db with sample data. App URL not provided."
         return
     fi
 
-    curl -u $2:$3 -X PUT -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $1
-    curl -u $2:$3 -X PUT -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $1
-    curl -u $2:$3 -X PUT -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $1
+    curl -X POST -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $1
+    curl -X POST -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $1
+    curl -X POST -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $1
+
+    echo "Populated the database with sample data"
 }
 
 delete () {
@@ -178,6 +181,8 @@ delete () {
     bx cs cluster-service-unbind $1 $3 $2
     bx cs cluster-rm $1
     bx service delete $2
+    kubectl delete services $2
+    kubectl delete deployment $1
 }
 
 all () {

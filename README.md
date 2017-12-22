@@ -145,10 +145,10 @@ To test out created Docker image, use
 ./config.sh create_db <clusterName> <instanceName> <nameSpace>
 ```
 
-8. Optionally, if you want to populate your database with some sample data, run the following command with your app URL, username, and password:
+8. Optionally, if you want to populate your database with some sample data, run the following command with your app URL:
 
 ```
-./config.sh populate_db <appURL> <username> <password>
+./config.sh populate_db <appURL>
 ```
 
 At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` if you did not populate the database.
