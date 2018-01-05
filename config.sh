@@ -28,8 +28,8 @@ function help {
     run <dockerName>                                            Runs Docker container, ensuring it was built properly
     stop <dockerName>                                           Stops Docker container, if running
     push <dockerName> <nameSpace>                               Tags and pushes Docker container to IBM Cloud
-    create_db <clusterName> <dockerName>                        Creates database service
-    get_ip <clusterName> <instanceName>                         Get the public IP
+    create_db <clusterName> <instanceName>                      Creates database service
+    get_ip <clusterName>                                        Get the public IP
     deploy <appName> <dockerName> <nameSpace>                   Binds everything together (app, db, container) through container group
     populate_db <appURL>                                        Populates database with initial data
     delete <clusterName> <instanceName> <nameSpace>             Delete the created service and cluster if possible
@@ -44,7 +44,7 @@ install_tools () {
 
 login () {
     echo "Setting api and login tools."
-    bx login -a $LOGIN_URL
+    bx login --sso -a $LOGIN_URL
     bx target --cf
 }
 
@@ -137,7 +137,7 @@ deploy_container () {
 create_database () {
     if [ -z "$1" ] || [ -z "$2" ]
     then
-        echo "Error: Creating database failed, cluster name, and docker name not provided."
+        echo "Error: Creating database failed, cluster name, and service name not provided."
         return
     fi
 
@@ -146,15 +146,15 @@ create_database () {
 }
 
 get_ip () {
-    if [ -z "$1" ] || [ -z "$2" ]
+    if [ -z "$1" ]
     then
-        echo "Error: Getting IP failed, cluster name and service instance name not provided."
+        echo "Error: Getting IP failed, cluster name not provided."
         return
     fi
 
-    ip_addr=$(bx cs workers $1 | grep normal | awk '{ print $2 }')
-    port=$(kubectl get services | grep $2 | awk '{ print $5 }' | sed 's/.*:\([0-9]*\).*/\1/g')
-    echo "You may view the application at: http://$ip_addr:$port"
+    ip_addr=$(bx cs workers -s $1 | awk '{ print $2 }')
+    port=$(kubectl get services | grep $1 | awk '{ print $5 }' | sed 's/.*:\([0-9]*\).*/\1/g')
+    echo "You may view the application at: http://$ip_addr:$port" | tr -d '\n'
 }
 
 populate_db () {
@@ -179,10 +179,11 @@ delete () {
     fi
 
     bx cs cluster-service-unbind $1 $3 $2
-    bx cs cluster-rm $1
+    bx service key-delete $2 "kube-$2"
     bx service delete $2
     kubectl delete services $2
     kubectl delete deployment $1
+    bx cs cluster-rm $1
 }
 
 all () {
@@ -197,9 +198,9 @@ all () {
     setup $1 $4
     build_docker $3
     push_docker $3 $4
-    deploy_container $1 $3 $4
-    create_database $1 $3 $4
-    get_ip $1 $2
+    deploy_container $1 $2 $4
+    create_database $1 $2
+    get_ip $1
 }
 
 #----------------------------------------------------------
@@ -223,9 +224,9 @@ case $ACTION in
 "stop")                  stop_docker "$2";;
 "push")                  push_docker "$2" "$3";;
 "create_db")             create_database "$2" "$3";;
-"get_ip")                get_ip "$2" "$3";;
+"get_ip")                get_ip "$2";;
 "deploy")                deploy_container "$2" "$3" "$4";;
-"populate_db")           populate_db "$2" "$3" "$4";;
+"populate_db")           populate_db "$2";;
 "delete")                delete "$2" "$3" "$4";;
 "all")                   all "$2" "$3" "$4" "$5";;
 *)                       help;;
