@@ -130,8 +130,8 @@ deploy_container () {
 
     lowercase="$(tr [A-Z] [a-z] <<< "$1")"
     nodashes="$(tr -d '-' <<< "$lowercase")"
-    kubectl run $nodashes --image=$REGISTRY_URL/$3/$2 --port=8080
-    kubectl expose deployment $nodashes --type=LoadBalancer --name=$nodashes
+    kubectl run $nodashes --image=$REGISTRY_URL/$3/$2:1
+    kubectl expose deployment/$nodashes --type=NodePort --name=$nodashes --port=8080
 }
 
 create_database () {
@@ -152,10 +152,10 @@ get_ip () {
         return
     fi
 
-#ip_addr=$(bx cs workers -s $1 | awk '{ print $2 }')
-    ip_addr=$(kubectl get services | grep $1 | awk '{ print $4 }' | sed 's/.*:\([0-9]*\).*/\1/g')
+    ip_addr=$(bx cs workers $1 | awk '{ print $2 }' | sed 's/.*:\([0-9]*\).*/\1/g' | tr -d 'Public')
     port=$(kubectl get services | grep $1 | awk '{ print $5 }' | sed 's/.*:\([0-9]*\).*/\1/g')
     echo "You may view the application at: http://$ip_addr:$port" | tr -d '\n'
+    echo ""
 }
 
 populate_db () {
