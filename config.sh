@@ -130,8 +130,8 @@ deploy_container () {
 
     lowercase="$(tr [A-Z] [a-z] <<< "$1")"
     nodashes="$(tr -d '-' <<< "$lowercase")"
-    kubectl run $nodashes --image=$REGISTRY_URL/$3/$2:1
-    kubectl expose deployment/$nodashes --type=NodePort --name=$nodashes --port=8080
+    kubectl run $nodashes --image=$REGISTRY_URL/$3/$2:latest
+    kubectl expose deployment/$nodashes --type=NodePort --name=$nodashes --port=32390
 }
 
 create_database () {
@@ -199,7 +199,7 @@ all () {
     setup $1 $4
     build_docker $3
     push_docker $3 $4
-    deploy_container $1 $2 $4
+    deploy_container $1 $3 $4
     create_database $1 $2
     get_ip $1
 }
