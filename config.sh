@@ -44,7 +44,7 @@ install_tools () {
 
 login () {
     echo "Setting api and login tools."
-    bx login -a $LOGIN_URL
+    bx login --sso -a $LOGIN_URL
     bx target --cf
 }
 
@@ -128,10 +128,11 @@ deploy_container () {
         return
     fi
 
+    ip_addr=$(bx cs workers $1 | awk '{ print $2 }' | sed 's/.*:\([0-9]*\).*/\1/g' | tr -d 'Public')
     lowercase="$(tr [A-Z] [a-z] <<< "$1")"
     nodashes="$(tr -d '-' <<< "$lowercase")"
     kubectl run $nodashes --image=$REGISTRY_URL/$3/$2:latest
-    kubectl expose deployment/$nodashes --type=NodePort --name=$nodashes --port=8080
+    kubectl expose deployment/$nodashes --type=NodePort --external-ip=$ip_addr --name=$nodashes --port=443
 }
 
 create_database () {
@@ -165,9 +166,9 @@ populate_db () {
         return
     fi
 
-    curl -X POST -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $1
-    curl -X POST -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $1
-    curl -X POST -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $1
+    curl -v -X POST -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $1
+    curl -v -X POST -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $1
+    curl -v -X POST -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $1
 
     echo "Populated the database with sample data"
 }
@@ -199,8 +200,8 @@ all () {
     setup $1 $4
     build_docker $3
     push_docker $3 $4
-    deploy_container $1 $3 $4
     create_database $1 $2
+    deploy_container $1 $3 $4
     get_ip $1
 }
 

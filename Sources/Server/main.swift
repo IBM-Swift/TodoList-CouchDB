@@ -43,10 +43,10 @@ let cloudantCredentials = cloudEnv.getCloudantCredentials(name: "MyCloudantDB")
 todos = TodoList(config: cloudantCredentials)
 let controller = TodoListController(backend: todos)
 
-let port = cloudEnv.port
-let url = cloudEnv.url
+let port = cloudantCredentials!.port
+let url = cloudantCredentials!.url
 Log.verbose("Assigned port is \(port)")
-
+Log.verbose("Assigned URL is \(url)")
 Kitura.addHTTPServer(onPort: port, with: controller.router)
 Kitura.run()
 

@@ -133,16 +133,16 @@ To test out created Docker image, use
 ./config.sh push <dockerName> <nameSpace>
 ```
 
-6. Deploy the app with
-
-```
-./config.sh deploy <appName> <instanceName> <nameSpace>
-```
-
-7. Create the database service
+6. Create the database service
 
 ```
 ./config.sh create_db <clusterName> <instanceName> <nameSpace>
+```
+
+7. Deploy the app with
+
+```
+./config.sh deploy <appName> <instanceName> <nameSpace>
 ```
 
 8. Optionally, if you want to populate your database with some sample data, run the following command with your app URL:
