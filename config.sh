@@ -132,7 +132,7 @@ deploy_container () {
     lowercase="$(tr [A-Z] [a-z] <<< "$1")"
     nodashes="$(tr -d '-' <<< "$lowercase")"
     kubectl run $nodashes --image=$REGISTRY_URL/$3/$2:latest
-    kubectl expose deployment/$nodashes --type=NodePort --external-ip=$ip_addr --name=$nodashes --port=443
+    kubectl expose deployment/$1 --type=NodePort --external-ip=$ip_addr --name=$1 --port=8080
 }
 
 create_database () {
@@ -144,6 +144,9 @@ create_database () {
 
     bx service create cloudantNoSQLDB Lite $2
     bx cs cluster-service-bind $1 default $2
+    bx cf push $1 -b swift_buildpack
+    bx cf bind-service $1 $2
+    bx cf restage $1
 }
 
 get_ip () {
