@@ -47,5 +47,5 @@ let port = cloudantCredentials!.port
 let url = cloudantCredentials!.url
 Log.verbose("Assigned port is \(port)")
 Log.verbose("Assigned URL is \(url)")
-Kitura.addHTTPServer(onPort: port, with: controller.router)
+Kitura.addHTTPServer(onPort: 8080, with: controller.router)
 Kitura.run()

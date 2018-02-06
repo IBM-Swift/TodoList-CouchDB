@@ -65,8 +65,8 @@ public final class TodoListController {
                     try response.status(.internalServerError).end()
                     return
                 }
-                let json = try JSONEncoder().encode(todos)
-                try response.status(.OK).send(json: json).end()
+                
+                try response.status(.OK).send(json: todos).end()
             } catch {
                 Log.error("Communication error")
             }
@@ -154,10 +154,14 @@ public final class TodoListController {
                     return
                 }
                 
-                let result = try JSONEncoder().encode(newItem.toDictionary())
+                let result = try JSONEncoder().encode(newItem)
                 Log.info("\(userID) added \(title) to their TodoList")
+                
+                let resultJSON = try JSONDecoder().decode(TodoItem.self, from: result)
+                Log.info("Your JSON result: \(resultJSON)")
+                
                 do {
-                    try response.status(.OK).send(json: result).end()
+                    try response.status(.OK).send(json: resultJSON).end()
                 } catch {
                     Log.error("Error sending response")
                 }
@@ -200,7 +204,7 @@ public final class TodoListController {
                     return
                 }
                 if let newItem = newItem {
-                    let result = try JSONEncoder().encode(newItem.toDictionary())
+                    let result = try JSONEncoder().encode(newItem)
                     try response.status(.OK).send(json: result).end()
                 } else {
                     Log.error("Database returned invalid new item")

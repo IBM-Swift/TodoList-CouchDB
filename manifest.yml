@@ -1,10 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: <app>
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: <app>
+    spec:
+      containers:
+      - name: <app>
+        image: registry.ng.bluemix.net/<space>/<app>:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 200m
+            memory: 1000Mi
+        volumeMounts:
+          - mountPath: /opt/service-bind
+            name: service-bind-volume
+      volumes:
+        - name: service-bind-volume
+          secret:
+            defaultMode: 420
+            secretName: binding-app0
 ---
-applications:
-- name: TodoList
-  command: Server
-  random-route: true
-  memory: 1024M
-  instances: 1
-  buildpack: swift_buildpack
-  services:
-  - app1
+apiVersion: v1
+kind: Service
+metadata:
+  name: <service>
+  labels:
+    app: <app>
+spec:
+  selector:
+    run: <app>
+  type: NodePort
+  ports:
+  - port: 8080
+    nodePort:

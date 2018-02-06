@@ -30,7 +30,7 @@ function help {
     push <dockerName> <nameSpace>                               Tags and pushes Docker container to IBM Cloud
     create_db <clusterName> <instanceName>                      Creates database service
     get_ip <clusterName>                                        Get the public IP
-    deploy <appName> <dockerName> <nameSpace>                   Binds everything together (app, db, container) through container group
+    deploy <appName>                                            Exposes the deployment
     populate_db <appURL>                                        Populates database with initial data
     delete <clusterName> <instanceName> <nameSpace>             Delete the created service and cluster if possible
     all <clusterName> <instanceName> <dockerName> <nameSpace>   Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
@@ -95,7 +95,7 @@ run_docker () {
         return
     fi
 
-    docker run --name $1 -d -p 8080:8080 $1
+    sudo docker run --name $1 -d -p 8080:8080 $1
 }
 
 stop_docker () {
@@ -121,20 +121,6 @@ push_docker () {
     bx cr images
 }
 
-deploy_container () {
-    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
-    then
-        echo "Error: Deploying container failed, app name, docker name, and name space not provided."
-        return
-    fi
-
-    ip_addr=$(bx cs workers $1 | awk '{ print $2 }' | sed 's/.*:\([0-9]*\).*/\1/g' | tr -d 'Public')
-    lowercase="$(tr [A-Z] [a-z] <<< "$1")"
-    nodashes="$(tr -d '-' <<< "$lowercase")"
-    kubectl run $nodashes --image=$REGISTRY_URL/$3/$2:latest
-    kubectl expose deployment/$1 --type=NodePort --external-ip=$ip_addr --name=$1 --port=8080
-}
-
 create_database () {
     if [ -z "$1" ] || [ -z "$2" ]
     then
@@ -142,11 +128,22 @@ create_database () {
         return
     fi
 
+    kubectl apply -f manifest.yml
     bx service create cloudantNoSQLDB Lite $2
     bx cs cluster-service-bind $1 default $2
-    bx cf push $1 -b swift_buildpack
-    bx cf bind-service $1 $2
-    bx cf restage $1
+}
+
+deploy_container () {
+    if [ -z "$1" ]
+    then
+        echo "Error: Deploying container failed, app name not provided."
+        return
+    fi
+
+    ip_addr=$(bx cs workers $1 | awk '{ print $2 }' | sed 's/.*:\([0-9]*\).*/\1/g' | tr -d 'Public')
+    lowercase="$(tr [A-Z] [a-z] <<< "$1")"
+    nodashes="$(tr -d '-' <<< "$lowercase")"
+    kubectl expose deployment/$1 --type=NodePort --external-ip=$ip_addr --name=$1 --port=8080
 }
 
 get_ip () {
@@ -169,9 +166,9 @@ populate_db () {
         return
     fi
 
-    curl -v -X POST -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $1
-    curl -v -X POST -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $1
-    curl -v -X POST -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $1
+    curl -v -H "Content-Type: application/json" -d '{"title":"Wash the car","order":0,"completed":false}' $1
+    curl -v -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $1
+    curl -v -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $1
 
     echo "Populated the database with sample data"
 }
