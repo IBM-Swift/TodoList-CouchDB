@@ -13,27 +13,27 @@ You can set up your development environment and use Xcode 9 for editing, buildin
 1. Download [Xcode 9](https://swift.org/download/)
 2. Download [CouchDB](http://couchdb.apache.org/) and install
 
-   ```
-   brew install couchdb
-   ```
+```
+brew install couchdb
+```
 
 3. Clone the TodoList CouchDB repository
 
-   ```
-   git clone https://github.com/IBM-Swift/TodoList-CouchDB
-   ```
+```
+git clone https://github.com/IBM-Swift/TodoList-CouchDB
+```
 
 4. Generate an Xcode project
 
-   ```
-   swift package generate-xcodeproj
-   ```
+```
+swift package generate-xcodeproj
+```
 
 5. Start CouchDB
 
-   ```
-   couchdb
-   ```
+```
+couchdb
+```
 
 6. Run the `Server` target in Xcode and access [http://localhost:8080/](http://localhost:8080/) in your browser to see an empty database.
 
@@ -45,28 +45,28 @@ To build the project in Linux, you need to first install the Swift 4 toolchain.
 
 2. Install CouchDB:
 
-   ```
-   sudo apt-get install couchdb
-   ```
+```
+sudo apt-get install couchdb
+```
 
 3. Clone the repository:
 
-   ```
-   git clone https://github.com/IBM-Swift/TodoList-CouchDB
-   ```
+```
+git clone https://github.com/IBM-Swift/TodoList-CouchDB
+```
 
 4. Compile the project
-   ```
-   swift build
-   ```
+```
+swift build
+```
 
 5. Run the server:
 
-   ```
-   .build/debug/Server
-   ```
+```
+.build/debug/Server
+```
 
- Then access [http://localhost:8080/](http://localhost:8080/) in your browser to see an empty database.
+Then access [http://localhost:8080/](http://localhost:8080/) in your browser to see an empty database.
 
 ## Deploying to IBM Cloud
 
@@ -82,76 +82,74 @@ You can use this button to deploy TodoList to your IBM Cloud account, all from t
 
 [![Deploy to IBM Cloud](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/IBM-Swift/TodoList-CouchDB.git)
 
-### Deploying Docker to IBM Cloud Container
+### Deploying to IBM Cloud Container Service
 
-For the following instructions, we will be using our [Bash Script](config.sh) located in the root directory.
+For the following instructions, we will be using our [Bash Script](config.sh) located in the root directory. If you already have existing clusters, these can be used by the script. If you don't already have a cluster on IBM Cloud, the script will create one for you, which may take a short period of time to become operational before it can be used. More information can be found [here](https://www.ibm.com/cloud/container-service).
+
+This script is provided to serve as an example for how to set up deployment using the IBM Cloud Container Service.  There are current restrictions on Kubernetes cluster provisioning in certain regions for IBM Cloud Lite accounts, under which circumstances the script will not be able to set up a cluster as intended.  To avoid this problem, be sure to create your Lite account in a region other than US-SOUTh, or upgrade to a paid account.
+
 You can attempt to complete the whole process with the following command:
 
-   ```
-   ./config.sh all <imageName>
-   ```
+```
+./config.sh all <clusterName> <instanceName> <dockerName> <nameSpace>
+```
 
 Or, you can follow the step-by-step instructions below.
 
 1. Install the Cloud Foundry CLI tool and the IBM Containers plugin for CF with the following
 
-   ```
-   ./config.sh install-tools
-   ```
+```
+./config.sh install_tools
+```
 
 2. Ensure you are logged in with
 
-   ```
-   ./config.sh login
-   ```
+```
+./config.sh login
+```
 
-3. Build and run a Docker container with the following
+3. Set up the clusters with
 
-   ```
-   ./config.sh build <imageName>
-   ```
-   To test out created Docker image, use
+```
+./config.sh setup <clusterName> <nameSpace>
+```
 
-   ```
-   ./config.sh run <imageName>
-   ./config.sh stop <imageName>
-   ```
+4. Build and run a Docker container with the following
 
-4. Push created Docker container to IBM Cloud
+```
+./config.sh build <dockerName>
+```
 
-   ```
-   ./config.sh push-docker <imageName>
-   ```
+To test out created Docker image, use
 
-5. Create a bridge CF application to later bind to your container
+```
+./config.sh run <dockerName>
+./config.sh stop <dockerName>
+```
 
-   ```
-   ./config.sh create-bridge
-   ```
+5. Push created Docker container to IBM Cloud
 
-6. Create the Cloudant service and bind to your bridge CF application.
+```
+./config.sh push <dockerName> <nameSpace>
+```
 
-   ```
-   ./config.sh create-db
-   ```
+6. Create the database service
 
-7. Create a IBM Cloud container group where your app will live, binding it to your bridge CF application in the process
+```
+./config.sh create_db <clusterName> <instanceName>
+```
 
-   ```
-   ./config.sh deploy <imageName>
-   ```
+7. Deploy the app with
 
-   Afterwards, you can ensure Cloudant was bound correctly by viewing all credentials for your group
+```
+./config.sh deploy <appName>
+```
 
-   ```
-   cf ic group inspect <imageName>
-   ```
+8. Optionally, if you want to populate your database with some sample data, run the following command with your app URL:
 
-8. Optionally, if you want to populate your database with some sample data, run the following command with your image name:
-
-   ```
-   ./config.sh populate-db <imageName>
-   ```
+```
+./config.sh populate_db <appURL>
+```
 
 At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` if you did not populate the database.
 
@@ -163,56 +161,75 @@ IBM Cloud is a hosting platform from IBM that makes it easy to deploy your app t
 
 2. Download and install the [Cloud Foundry tools](https://new-console.ng.bluemix.net/docs/starters/install_cli.html):
 
-   ```
-   cf api https://api.ng.bluemix.net
-   cf login
-   ```
+```
+cf api https://api.ng.bluemix.net
+cf login
+```
 
-    Be sure to run this in the directory where the manifest.yml file is located.
+Be sure to run this in the directory where the manifest.yml file is located.
 
 3. Create your Cloudant Service
 
-   ```
-   cf create-service cloudantNoSQLDB Lite TodoListCloudantDatabase
-   ```
+```
+cf create-service cloudantNoSQLDB Lite TodoListCloudantDatabase
+```
 
 4. Push your app
 
-   ```
-   cf push
-   ```   
+```
+cf push
+```
 
-   ***Note** This step will take 3-5 minutes
+***Note** This step will take 3-5 minutes
 
-   ```
-   1 of 1 instances running
+```
+1 of 1 instances running
 
-   App started
-   ```
+App started
+```
 
 5. Get the credential information:
 
-   ```
-   cf env TodoListCloudantApp
-   ```
+```
+cf env TodoListCloudantApp
+```
 
-   Note you will see something similar to the following, note the hostname, username, and password:
+Note you will see something similar to the following, note the hostname, username, and password:
 
-   ```json
-   "VCAP_SERVICES": {
-      "cloudantNoSQLDB": [
-         {
-           "credentials": {
-              "host": "465ed079-35a8-4731-9425-911843621d7c-bluemix.cloudant.com",
-              "password": "<password is here>",
-              "port": 443,
-              "url": "https://465ed079-35a8-4731-9425-911843621d7c-bluemix:efe561fc02805bcb1e2b013dea4c928942951d31cd74cb2e01df3814751d9f45@465ed079-35a8-4731-9425-911843621d7c-bluemix.cloudant.com",
-              "username": "<username is here>"
-           },
-         }]}
-   ```
+```json
+"VCAP_SERVICES": {
+"cloudantNoSQLDB": [
+{
+"credentials": {
+"host": "465ed079-35a8-4731-9425-911843621d7c-bluemix.cloudant.com",
+"password": "<password is here>",
+"port": 443,
+"url": "https://465ed079-35a8-4731-9425-911843621d7c-bluemix:efe561fc02805bcb1e2b013dea4c928942951d31cd74cb2e01df3814751d9f45@465ed079-35a8-4731-9425-911843621d7c-bluemix.cloudant.com",
+"username": "<username is here>"
+},
+}]}
+```
 
-  At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` to start.
+At this point, your app should be deployed! Accessing your apps route should return your todos, which should be `[]` to start.
+
+## Privacy Notice
+This Swift application includes code to track deployments to [IBM Cloud](https://www.bluemix.net/) and other Cloud Foundry platforms. The following information is sent to a [Deployment Tracker](https://github.com/IBM-Bluemix/cf-deployment-tracker-service) service on each deployment:
+
+* Swift project code version (if provided)
+* Swift project repository URL
+* Application Name (`application_name`)
+* Space ID (`space_id`)
+* Application Version (`application_version`)
+* Application URIs (`application_uris`)
+* Labels of bound services
+* Number of instances for each bound service and associated plan information
+
+This data is collected from the parameters of the `CloudFoundryDeploymentTracker`, the `VCAP_APPLICATION` and `VCAP_SERVICES` environment variables in IBM Cloud and other Cloud Foundry platforms. This data is used by IBM to track metrics around deployments of sample applications to IBM Cloud to measure the usefulness of our examples, so that we can continuously improve the content we offer to you. Only deployments of sample applications that include code to ping the Deployment Tracker service will be tracked.
+
+### Disabling Deployment Tracking
+Deployment tracking can be disabled by removing the following line from `main.swift`:
+
+CloudFoundryDeploymentTracker(repositoryURL: "https://github.com/IBM-Swift/TodoList-CouchDB.git").track()
 
 ## License
 
@@ -223,3 +240,4 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software :distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+

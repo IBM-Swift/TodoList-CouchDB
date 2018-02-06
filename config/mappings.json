@@ -1,0 +1,9 @@
+{
+  "MyCloudantDB": {
+    "searchPatterns": [
+      "cloudfoundry:CloudantService",
+      "env:app1",
+      "file:config/my-cloudant-credentials.json"
+    ]
+  }
+}

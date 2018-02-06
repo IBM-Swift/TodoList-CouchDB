@@ -14,7 +14,7 @@
  * limitations under the License.
  **/
 
-public struct TodoItem {
+public struct TodoItem: Codable {
 
     public let documentID: String
 

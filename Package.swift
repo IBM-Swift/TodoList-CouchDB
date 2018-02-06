@@ -25,10 +25,10 @@ let package = Package(
     products: [],
 
     dependencies: [
-        .package(url: "https://github.com/IBM-Swift/Kitura.git",                                from: "1.0.0"),
-        .package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",                        from: "1.7.2"),
-        .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git",                      from: "4.0.5"),
-        .package(url: "https://github.com/rob-deans/CloudConfiguration.git",                        from: "2.1.0")
+        .package(url: "https://github.com/IBM-Swift/Kitura.git",                                from: "2.1.0"),
+        .package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",                        from: "2.0.0"),
+        .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git",                      from: "6.0.0"),
+        .package(url: "https://github.com/IBM-Bluemix/cf-deployment-tracker-client-swift.git",  from: "6.0.0")
     ],
 
     targets: [
@@ -38,7 +38,7 @@ let package = Package(
         ),
         .target(
             name: "Server",
-            dependencies: [.target(name: "TodoList"), "CloudConfiguration"]
+            dependencies: [.target(name: "TodoList")]
         ),
         .testTarget(
             name: "TodoListTests",

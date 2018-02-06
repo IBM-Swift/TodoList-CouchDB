@@ -4,6 +4,8 @@
 # Author: Swift@IBM
 # -----------------------------------------------------------
 
+set -e
+
 VERSION="1.0"
 BUILD_DIR=".build-linux"
 BRIDGE_APP_NAME="containerbridge"
@@ -11,164 +13,196 @@ DATABASE_NAME="TodoListCloudantDatabase"
 REGISTRY_URL="registry.ng.bluemix.net"
 DATABASE_TYPE="cloudantNoSQLDB"
 DATABASE_LEVEL="Lite"
+INSTANCE_NAME="todolist-couchdb"
+NAME_SPACE="todolist_space"
+LOGIN_URL="api.ng.bluemix.net"
 
 function help {
-  cat <<-!!EOF
-	  Usage: $CMD [ build | run | push-docker ] [arguments...]
-
-	  Where:
-	    install-tools				Installs necessary tools for config, like Cloud Foundry CLI
-	    login					Logs into IBM Cloud and Container APIs
-	    build <imageName>          			Builds Docker container from Dockerfile
-	    run   <imageName>         			Runs Docker container, ensuring it was built properly
-	    stop  <imageName> 				Stops Docker container, if running
-	    push-docker <imageName>			Tags and pushes Docker container to IBM Cloud
-	    create-bridge				Creates empty bridge application
-	    create-db				        Creates database service and binds to bridge
-	    deploy <imageName>				Binds everything together (app, db, container) through container group
-	    populate-db	<imageName>			Populates database with initial data
-	    delete <imageName>				Delete the group container and deletes created service if possible
-	    all <imageName>                 		Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
+    cat <<-!!EOF
+    Usage: $CMD [ build | run | push-docker ] [arguments...]
+    Where:
+    install_tools                                               Installs necessary tools for config, like Cloud Foundry CLI
+    login                                                       Logs into Bluemix and Container APIs
+    setup <clusterName> <nameSpace>                             Sets up the clusters
+    build <dockerName>                                          Builds Docker container from Dockerfile
+    run <dockerName>                                            Runs Docker container, ensuring it was built properly
+    stop <dockerName>                                           Stops Docker container, if running
+    push <dockerName> <nameSpace>                               Tags and pushes Docker container to IBM Cloud
+    create_db <clusterName> <instanceName>                      Creates database service
+    get_ip <clusterName>                                        Get the public IP
+    deploy <appName>                                            Exposes the deployment
+    populate_db <appURL>                                        Populates database with initial data
+    delete <clusterName> <instanceName> <nameSpace>             Delete the created service and cluster if possible
+    all <clusterName> <instanceName> <dockerName> <nameSpace>   Combines all necessary commands to deploy an app to IBM Cloud in a Docker container.
 !!EOF
 }
 
-install-tools () {
-	brew tap cloudfoundry/tap
-	brew install cf-cli
-	cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-mac
+install_tools () {
+    curl -sL https://ibm.biz/idt-installer | bash
+    bx plugin install container-service -r Bluemix
 }
 
 login () {
-	echo "Setting api and login tools."
-	cf api https://api.ng.bluemix.net
-	cf login
-	cf ic login
+    echo "Setting api and login tools."
+    bx login --sso -a $LOGIN_URL
+    bx target --cf
 }
 
-buildDocker () {
-	if [ -z "$1" ]
-	then
-		echo "Error: build failed, docker name not provided."
-		return
-	fi
-	docker build -t $1 --force-rm .
+setup () {
+    if [ -z "$1" ] || [ -z "$2" ]
+    then
+        echo "Error: setup failed, cluster name, and name space not provided."
+        return
+    fi
+
+    bx cr login
+
+    if bx cs cluster-get $1 | grep specified
+    then
+        echo "Attempting to create new cluster..."
+        bx cs cluster-create --name $1
+
+        until bx cs cluster-get $1 | grep pending
+        do
+            sleep 60
+            bx cs cluster-get $1
+            echo "Cluster still provisioning..."
+        done
+        echo "Cluster deployed successfully."
+    fi
+
+    bx cr namespace-add $2
+    bx cs workers $1
+    bx cs cluster-config $1 --export
+    datacenter=$(bx cs cluster-get $1 | grep Datacenter | awk '{ print $NF }')
+    export KUBECONFIG=$HOME/.bluemix/plugins/container-service/clusters/$1/kube-config-$datacenter-$1.yml
 }
 
-runDocker () {
-	if [ -z "$1" ]
-	then
-		echo "Error: run failed, docker name not provided."
-		return
-	fi
-	docker run --name $1 -d -p 8080:8080 $1
+build_docker () {
+    if [ -z "$1" ]
+    then
+        echo "Error: run failed, docker name not provided."
+        return
+    fi
+
+    docker build -t $1 .
 }
 
-stopDocker () {
-	if [ -z "$1" ]
-	then
-		echo "Error: clean failed, docker name not provided."
-		return
-	fi
-	docker rm -fv $1 || true
+run_docker () {
+    if [ -z "$1" ]
+    then
+        echo "Error: run failed, docker name not provided."
+        return
+    fi
+
+    sudo docker run --name $1 -d -p 8080:8080 $1
 }
 
-pushDocker () {
-	if [ -z "$1" ] || [ -z $REGISTRY_URL ]
-	then
-		echo "Error: Pushing Docker container to IBM Cloud failed, missing variables."
-		return
-	fi
-	echo "Tagging and pushing docker container..."
-    namespace=$(cf ic namespace get)
-	docker tag $1 $REGISTRY_URL/$namespace/$1
-	docker push $REGISTRY_URL/$namespace/$1
+stop_docker () {
+    if [ -z "$1" ]
+    then
+        echo "Error: clean failed, docker name not provided."
+        return
+    fi
+
+    docker rm -fv $1 || true
 }
 
-createBridge () {
-	if [ -z $BRIDGE_APP_NAME ]
-	then
-		echo "Error: Creating bridge application failed, missing BRIDGE_APP_NAME."
-		return
-	fi
-	mkdir $BRIDGE_APP_NAME
-	cd $BRIDGE_APP_NAME
-	touch empty.txt
-	cf push $BRIDGE_APP_NAME -p . -i 1 -d mybluemix.net -k 1M -m 64M --no-hostname --no-manifest --no-route --no-start
-	rm empty.txt
-	cd ..
-	rm -rf $BRIDGE_APP_NAME
+push_docker () {
+    if [ -z "$1" ] || [ -z "$2" ]
+    then
+        echo "Error: clean failed, docker name, and name space not provided."
+        return
+    fi
+
+    docker tag $1 $REGISTRY_URL/$2/$1
+    docker push $REGISTRY_URL/$2/$1
+    docker ps
+    bx cr images
 }
 
-createDatabase () {
-	if [ -z $DATABASE_TYPE ] || [ -z $DATABASE_LEVEL ] || [ -z $DATABASE_NAME ] || [ -z $BRIDGE_APP_NAME ]
-	then
-		echo "Error: Creating bridge application failed, missing variables."
-		return
-	fi
-	cf create-service $DATABASE_TYPE $DATABASE_LEVEL $DATABASE_NAME
-	cf bind-service $BRIDGE_APP_NAME $DATABASE_NAME
-	cf restage $BRIDGE_APP_NAME
+create_database () {
+    if [ -z "$1" ] || [ -z "$2" ]
+    then
+        echo "Error: Creating database failed, cluster name, and service name not provided."
+        return
+    fi
+
+    kubectl apply -f manifest.yml
+    bx service create cloudantNoSQLDB Lite $2
+    bx cs cluster-service-bind $1 default $2
 }
 
-deployContainer () {
-	if [ -z "$1" ] || [ -z $REGISTRY_URL ] || [ -z $BRIDGE_APP_NAME ]
-	then
-		echo "Error: Could not deploy container to IBM Cloud, missing variables."
-		return
-	fi
+deploy_container () {
+    if [ -z "$1" ]
+    then
+        echo "Error: Deploying container failed, app name not provided."
+        return
+    fi
 
-	namespace=$(cf ic namespace get)
-	hostname=$1"-app"
-
-	cf ic group create \
-	--anti \
-	--auto \
-	-m 128 \
-	--name $1 \
-	-p 8080 \
-	-n $hostname \
-	-e "CCS_BIND_APP="$BRIDGE_APP_NAME \
-	-d mybluemix.net $REGISTRY_URL/$namespace/$1
+    ip_addr=$(bx cs workers $1 | awk '{ print $2 }' | sed 's/.*:\([0-9]*\).*/\1/g' | tr -d 'Public')
+    lowercase="$(tr [A-Z] [a-z] <<< "$1")"
+    nodashes="$(tr -d '-' <<< "$lowercase")"
+    kubectl expose deployment/$1 --type=NodePort --external-ip=$ip_addr --name=$1 --port=8080
 }
 
-populateDB () {
-	if [ -z "$1" ]
-	then
-		echo "Error: Could not populate db with sample data, missing imageName."
-		return
-	fi
+get_ip () {
+    if [ -z "$1" ]
+    then
+        echo "Error: Getting IP failed, cluster name not provided."
+        return
+    fi
 
-	appURL="https://"$1"-app.mybluemix.net"
-	eval $(curl -X POST -H "Content-Type: application/json" -d '{ "title": "Wash the car", "order": 0, "completed": false }' $appURL)
-	eval $(curl -X POST -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $appURL)
-	eval $(curl -X POST -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $appURL)
+    ip_addr=$(bx cs workers $1 | awk '{ print $2 }' | sed 's/.*:\([0-9]*\).*/\1/g' | tr -d 'Public')
+    port=$(kubectl get services | grep $1 | awk '{ print $5 }' | sed 's/.*:\([0-9]*\).*/\1/g')
+    echo "You may view the application at: http://$ip_addr:$port" | tr -d '\n'
+    echo ""
+}
+
+populate_db () {
+    if [ -z "$1" ]
+    then
+        echo "Error: Could not populate db with sample data. App URL not provided."
+        return
+    fi
+
+    curl -v -H "Content-Type: application/json" -d '{"title":"Wash the car","order":0,"completed":false}' $1
+    curl -v -H "Content-Type: application/json" -d '{ "title": "Walk the dog", "order": 2, "completed": true }' $1
+    curl -v -H "Content-Type: application/json" -d '{ "title": "Clean the gutters", "order": 1, "completed": false }' $1
+
+    echo "Populated the database with sample data"
 }
 
 delete () {
-	if [ -z "$1" ] || [ -z $DATABASE_NAME ] || [ -z $BRIDGE_APP_NAME ]
-	then
-		echo "Error: Could not delete container group and service, missing variables."
-		return
-	fi
+    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
+    then
+        echo "Error: Could not delete container group and service, cluster name, service instance name, and name space not provided."
+        return
+    fi
 
-	cf ic group rm $1
-	cf unbind-service $BRIDGE_APP_NAME $DATABASE_NAME
-	cf delete-service $DATABASE_NAME
+    bx cs cluster-service-unbind $1 $3 $2
+    bx service key-delete $2 "kube-$2"
+    bx service delete $2
+    kubectl delete services $2
+    kubectl delete deployment $1
+    bx cs cluster-rm $1
 }
 
 all () {
-	if [ -z "$1" ]
-	then
-		echo "Error: Could not complete entire deployment process, missing variables."
-		return
-	fi
+    if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]
+    then
+        echo "Error: Could not complete entire deployment process, cluster name, service instance name, docker name, and name space not provided."
+        return
+    fi
 
-	login
-	buildDocker $1
-	pushDocker $1
-	createBridge
-	createDatabase
-	deployContainer $1
+    install_tools
+    login
+    setup $1 $4
+    build_docker $3
+    push_docker $3 $4
+    create_database $1 $2
+    deploy_container $1 $3 $4
+    get_ip $1
 }
 
 #----------------------------------------------------------
@@ -184,17 +218,18 @@ eval "$(swiftenv init -)"
 
 
 case $ACTION in
-"install-tools")		 install-tools;;
+"install_tools")         install_tools;;
 "login")                 login;;
-"build")				 buildDocker "$2";;
-"run")					 runDocker "$2";;
-"stop")				     stopDocker "$2";;
-"push-docker")			 pushDocker "$2";;
-"create-bridge")		 createBridge;;
-"create-db")		     createDatabase;;
-"deploy")				 deployContainer "$2";;
-"populate-db")			 populateDB "$2";;
-"delete")				 delete "$2";;
-"all")					 all "$2";;
+"setup")                 setup "$2" "$3";;
+"build")                 build_docker "$2";;
+"run")                   run_docker "$2";;
+"stop")                  stop_docker "$2";;
+"push")                  push_docker "$2" "$3";;
+"create_db")             create_database "$2" "$3";;
+"get_ip")                get_ip "$2";;
+"deploy")                deploy_container "$2" "$3" "$4";;
+"populate_db")           populate_db "$2";;
+"delete")                delete "$2" "$3" "$4";;
+"all")                   all "$2" "$3" "$4" "$5";;
 *)                       help;;
 esac
